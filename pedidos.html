@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>GoCourier • Criar Pedido</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { 
+      background: #000000; 
+      color: #ffffff; 
+      font-family: 'Inter', system-ui, sans-serif; 
+      -webkit-tap-highlight-color: transparent;
+    }
+    .glass {
+      background: rgba(255,255,255,0.04);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .input-glass {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.08);
+      transition: all 0.2s;
+    }
+    .input-glass:focus {
+      border-color: #ffffff;
+      box-shadow: 0 0 0 3px rgba(255,255,255,0.1);
+    }
+    .stat-card {
+      background: #111111;
+      transition: transform 0.25s ease;
+    }
+    .fab {
+      background: #ffffff;
+      color: #000000;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+      transition: all 0.3s;
+    }
+    input, select, button {
+      font-size: 16px;
+    }
+    .text-muted { color: #aaaaaa; }
+    .text-light { color: #dddddd; }
+    .border-light { border-color: rgba(255,255,255,0.08); }
+    .order-card {
+      background: #111111;
+      transition: all 0.3s;
+    }
+    .order-card:hover {
+      transform: translateY(-2px);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- HEADER FIXO -->
+  <header class="fixed top-0 left-0 right-0 z-40 bg-black/90 backdrop-blur-xl border-b border-light px-5 py-4 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <button onclick="window.history.back()" class="text-2xl text-light">
+        <i class="fas fa-arrow-left"></i>
+      </button>
+      <img 
+        src="ei_1773419339504-removebg-preview.png" 
+        alt="GoCourier" 
+        class="h-12 w-auto"
+      />
+      <span class="font-bold text-xl tracking-tight">GoCourier</span>
+    </div>
+    
+    <div class="flex items-center gap-5">
+      <div class="w-9 h-9 bg-gray-800 rounded-full flex items-center justify-center text-sm font-medium">
+        TM
+      </div>
+    </div>
+  </header>
+
+  <div class="h-20"></div>
+
+  <!-- CONTEÚDO -->
+  <main class="flex-1 px-5 pb-28">
+
+    <div class="mb-6">
+      <h1 class="text-3xl font-semibold">Criar Pedido</h1>
+      <p class="text-muted text-sm">TechStore MZ • Maputo</p>
+    </div>
+
+    <!-- FORMULÁRIO PERSONALIZADO (ABA ESTILO) -->
+    <div class="glass rounded-3xl p-6 mb-8">
+      <form id="orderForm" class="space-y-6">
+        
+        <!-- Nr do Cliente -->
+        <div>
+          <label class="text-xs uppercase tracking-wider text-muted block mb-1">Nº DO CLIENTE</label>
+          <input id="nrCliente" type="tel" 
+                 class="input-glass w-full px-5 py-4 rounded-2xl text-white placeholder:text-muted focus:outline-none" 
+                 placeholder="Ex: 823456789" required>
+        </div>
+
+        <!-- Nome -->
+        <div>
+          <label class="text-xs uppercase tracking-wider text-muted block mb-1">NOME DO CLIENTE</label>
+          <input id="nomeCliente" type="text" 
+                 class="input-glass w-full px-5 py-4 rounded-2xl text-white placeholder:text-muted focus:outline-none" 
+                 placeholder="Ex: Maria João" required>
+        </div>
+
+        <!-- Produto -->
+        <div>
+          <label class="text-xs uppercase tracking-wider text-muted block mb-1">PRODUTO</label>
+          <input id="produto" type="text" 
+                 class="input-glass w-full px-5 py-4 rounded-2xl text-white placeholder:text-muted focus:outline-none" 
+                 placeholder="Ex: iPhone 15 Pro 256GB" required>
+        </div>
+
+        <!-- Local do Fornecedor -->
+        <div>
+          <label class="text-xs uppercase tracking-wider text-muted block mb-1">LOCAL DO FORNECEDOR</label>
+          <input id="localFornecedor" type="text" 
+                 class="input-glass w-full px-5 py-4 rounded-2xl text-white placeholder:text-muted focus:outline-none" 
+                 placeholder="Ex: TechStore, Av. 24 de Julho, Maputo" required>
+        </div>
+
+        <!-- Quanto ele paga -->
+        <div>
+          <label class="text-xs uppercase tracking-wider text-muted block mb-1">VALOR QUE O CLIENTE PAGA (MT)</label>
+          <div class="relative">
+            <input id="valorPago" type="number" step="0.01" 
+                   class="input-glass w-full px-5 py-4 rounded-2xl text-white placeholder:text-muted focus:outline-none" 
+                   placeholder="0.00" required>
+            <span class="absolute right-5 top-1/2 -translate-y-1/2 text-muted font-medium">MT</span>
+          </div>
+        </div>
+
+        <!-- BOTÃO CRIAR -->
+        <button type="submit"
+                class="w-full bg-white text-black font-semibold py-4 rounded-3xl text-lg flex items-center justify-center gap-3 shadow-2xl active:scale-95 transition">
+          <i class="fas fa-check"></i>
+          CRIAR PEDIDO
+        </button>
+      </form>
+    </div>
+
+    <!-- LISTA DE PEDIDOS CRIADOS (VISÍVEL PARA TODOS ENTREGADORES) -->
+    <div>
+      <div class="flex justify-between items-center mb-4">
+        <p class="text-xs uppercase tracking-wider text-muted">Pedidos criados • Visível para todos os entregadores</p>
+        <span id="count" class="text-xs bg-gray-800 px-3 py-1 rounded-full">0</span>
+      </div>
+      
+      <div id="ordersList" class="space-y-4">
+        <!-- Pedidos serão inseridos aqui via JS -->
+      </div>
+    </div>
+
+  </main>
+
+  <!-- BOTTOM NAV (MESMO DO DASHBOARD - PEDIDOS ATIVO) -->
+  <nav class="fixed bottom-0 left-0 right-0 z-40 glass border-t border-light px-4 py-3 flex justify-around items-center">
+    <button onclick="window.history.back()" class="flex flex-col items-center text-muted">
+      <i class="fas fa-home text-2xl"></i>
+      <span class="text-[10px] mt-1">Início</span>
+    </button>
+    <button class="flex flex-col items-center text-white">
+      <i class="fas fa-box text-2xl"></i>
+      <span class="text-[10px] mt-1">Pedidos</span>
+    </button>
+    <button onclick="alert('Em breve: Acompanhar entregas')" class="flex flex-col items-center text-muted">
+      <i class="fas fa-motorcycle text-2xl"></i>
+      <span class="text-[10px] mt-1">Entregas</span>
+    </button>
+    <button onclick="alert('Em breve: Configurações')" class="flex flex-col items-center text-muted">
+      <i class="fas fa-cog text-2xl"></i>
+      <span class="text-[10px] mt-1">Config</span>
+    </button>
+  </nav>
+
+<script>
+// Array de pedidos (simula banco local)
+let pedidos = [];
+
+// Renderizar lista
+function renderOrders() {
+  const container = document.getElementById('ordersList');
+  const countEl = document.getElementById('count');
+  
+  container.innerHTML = '';
+  countEl.textContent = pedidos.length;
+
+  if (pedidos.length === 0) {
+    container.innerHTML = `
+      <div class="glass rounded-3xl p-8 text-center text-muted text-sm py-12 border-light">
+        Nenhum pedido criado ainda<br>
+        <span class="text-xs">O primeiro pedido aparecerá aqui e para todos os entregadores</span>
+      </div>
+    `;
+    return;
+  }
+
+  pedidos.forEach((pedido, index) => {
+    const card = document.createElement('div');
+    card.className = 'order-card rounded-3xl p-5 border border-light';
+    card.innerHTML = `
+      <div class="flex justify-between items-start">
+        <div>
+          <p class="text-xs text-muted">Nº CLIENTE • ${pedido.nrCliente}</p>
+          <p class="font-semibold text-lg mt-1">${pedido.nomeCliente}</p>
+          <p class="text-light text-base mt-3">${pedido.produto}</p>
+          <p class="text-muted text-sm mt-2">${pedido.localFornecedor}</p>
+        </div>
+        <div class="text-right">
+          <p class="text-xs text-muted">VALOR</p>
+          <p class="text-2xl font-bold text-white mt-1">${pedido.valorPago} MT</p>
+        </div>
+      </div>
+      
+      <div class="mt-6 pt-4 border-t border-light flex items-center justify-between text-xs">
+        <span class="flex items-center gap-1 text-emerald-400">
+          <i class="fas fa-check-circle"></i> 
+          Disponível para todos os entregadores
+        </span>
+        <span class="text-muted">${pedido.hora}</span>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+// Submissão do formulário
+document.getElementById('orderForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+
+  const nrCliente = document.getElementById('nrCliente').value.trim();
+  const nomeCliente = document.getElementById('nomeCliente').value.trim();
+  const produto = document.getElementById('produto').value.trim();
+  const localFornecedor = document.getElementById('localFornecedor').value.trim();
+  const valorPago = parseFloat(document.getElementById('valorPago').value).toFixed(2);
+
+  if (!nrCliente || !nomeCliente || !produto || !localFornecedor || !valorPago) {
+    alert("Preencha todos os campos!");
+    return;
+  }
+
+  // Criar pedido
+  const novoPedido = {
+    nrCliente,
+    nomeCliente,
+    produto,
+    localFornecedor,
+    valorPago,
+    hora: new Date().toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' })
+  };
+
+  pedidos.unshift(novoPedido); // adiciona no topo
+
+  // Limpar formulário
+  this.reset();
+
+  // Renderizar
+  renderOrders();
+
+  // Feedback
+  const successMsg = document.createElement('div');
+  successMsg.className = 'fixed bottom-28 left-1/2 -translate-x-1/2 bg-emerald-600 text-white text-sm px-6 py-3 rounded-3xl shadow-2xl flex items-center gap-3 z-50';
+  successMsg.innerHTML = `
+    <i class="fas fa-check-circle"></i>
+    Pedido criado com sucesso!<br>
+    <span class="text-xs opacity-75">Agora visível para todos os entregadores</span>
+  `;
+  document.body.appendChild(successMsg);
+
+  setTimeout(() => {
+    successMsg.style.transition = 'all 0.4s';
+    successMsg.style.opacity = '0';
+    setTimeout(() => successMsg.remove(), 400);
+  }, 2800);
+});
+
+// Inicializar
+window.onload = () => {
+  renderOrders();
+};
+</script>
+</body>
+</html>

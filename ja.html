@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>GoCourier • Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { 
+      background: #000000; 
+      color: #ffffff; 
+      font-family: 'Inter', system-ui, sans-serif; 
+      -webkit-tap-highlight-color: transparent;
+    }
+    .glass {
+      background: rgba(255,255,255,0.04);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .stat-card {
+      background: #111111;
+      transition: transform 0.25s ease;
+    }
+    .stat-card:active {
+      transform: scale(0.97);
+    }
+    .fab {
+      background: #ffffff;
+      color: #000000;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+      transition: all 0.3s;
+    }
+    .fab:active {
+      transform: scale(0.88);
+    }
+    input, select, button {
+      font-size: 16px;
+    }
+    .text-muted { color: #aaaaaa; }
+    .text-light { color: #dddddd; }
+    .border-light { border-color: rgba(255,255,255,0.08); }
+
+    /* Selo Azul */
+    .selo-azul {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      background: #2196f3;
+      border-radius: 50%;
+      margin-left: 4px;
+      font-size: 12px;
+      color: white;
+    }
+
+    /* Badge de verificação */
+    .verification-badge {
+      padding: 0.5rem 1rem;
+      border-radius: 2rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .verification-badge.pending {
+      background: rgba(255, 170, 0, 0.15);
+      color: #ffaa00;
+      border: 1px solid rgba(255, 170, 0, 0.3);
+    }
+    .verification-badge.verified {
+      background: rgba(76, 175, 80, 0.15);
+      color: #4caf50;
+      border: 1px solid rgba(76, 175, 80, 0.3);
+    }
+    .verification-badge.rejected {
+      background: rgba(255, 68, 68, 0.15);
+      color: #ff4444;
+      border: 1px solid rgba(255, 68, 68, 0.3);
+    }
+    .verification-badge.suspended {
+      background: rgba(255, 170, 0, 0.15);
+      color: #ffaa00;
+      border: 1px solid rgba(255, 170, 0, 0.3);
+    }
+    .verification-badge.banned {
+      background: rgba(255, 68, 68, 0.15);
+      color: #ff4444;
+      border: 1px solid rgba(255, 68, 68, 0.3);
+    }
+
+    /* Menu lateral */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: -280px;
+      width: 280px;
+      height: 100vh;
+      background: #0a0a0a;
+      border-right: 1px solid #1a1a1a;
+      z-index: 1000;
+      transition: left 0.3s ease;
+      padding: 2rem 1rem;
+      overflow-y: auto;
+    }
+
+    .sidebar.open {
+      left: 0;
+    }
+
+    .sidebar-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 999;
+      display: none;
+    }
+
+    .sidebar-overlay.active {
+      display: block;
+    }
+
+    .sidebar-logo {
+      font-size: 1.8rem;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 2rem;
+      padding-left: 0.5rem;
+    }
+
+    .sidebar-menu {
+      list-style: none;
+    }
+
+    .sidebar-item {
+      margin-bottom: 0.5rem;
+    }
+
+    .sidebar-link {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.8rem 1rem;
+      color: #888;
+      text-decoration: none;
+      border-radius: 0.8rem;
+      transition: all 0.2s;
+      font-size: 0.95rem;
+      cursor: pointer;
+    }
+
+    .sidebar-link:hover {
+      background: #1a1a1a;
+      color: #fff;
+    }
+
+    .sidebar-link i {
+      width: 24px;
+      font-size: 1.2rem;
+    }
+
+    .menu-toggle {
+      cursor: pointer;
+    }
+
+    /* Notificações */
+    .notificacao-item {
+      padding: 0.8rem;
+      border-bottom: 1px solid #222;
+      cursor: pointer;
+    }
+    .notificacao-item:hover {
+      background: #111;
+    }
+    .notificacao-item.unread {
+      background: rgba(76, 175, 80, 0.05);
+    }
+
+    /* Modal de bloqueio */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.95);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-container {
+      background: #111;
+      border: 1px solid #333;
+      border-radius: 2rem;
+      padding: 2rem;
+      max-width: 400px;
+      width: 90%;
+      text-align: center;
+    }
+
+    .modal-icon {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      margin: 0 auto 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+    }
+
+    .modal-icon.warning {
+      background: rgba(255, 170, 0, 0.2);
+      color: #ffaa00;
+    }
+
+    .modal-icon.error {
+      background: rgba(255, 68, 68, 0.2);
+      color: #ff4444;
+    }
+
+    .modal-title {
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+    }
+
+    .modal-message {
+      color: #aaa;
+      margin-bottom: 2rem;
+    }
+
+    .modal-button {
+      background: white;
+      color: black;
+      border: none;
+      border-radius: 2rem;
+      padding: 0.8rem 2rem;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    /* Card de pedido */
+    .pedido-card {
+      background: #111;
+      border: 1px solid #222;
+      border-radius: 1rem;
+      padding: 1rem;
+      margin-bottom: 0.8rem;
+    }
+
+    .pedido-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+    }
+
+    .pedido-id {
+      color: #888;
+      font-size: 0.8rem;
+    }
+
+    .pedido-status {
+      padding: 0.2rem 0.8rem;
+      border-radius: 2rem;
+      font-size: 0.7rem;
+    }
+
+    .status-pending {
+      background: rgba(255, 170, 0, 0.15);
+      color: #ffaa00;
+    }
+
+    .status-progress {
+      background: rgba(76, 175, 80, 0.15);
+      color: #4caf50;
+    }
+
+    .status-delivered {
+      background: rgba(33, 150, 243, 0.15);
+      color: #2196f3;
+    }
+  </style>
+</head>
+<body>
+  <!-- Modal de Bloqueio -->
+  <div class="modal-overlay" id="blockModal">
+    <div class="modal-container">
+      <div class="modal-icon" id="blockIcon">⚠️</div>
+      <div class="modal-title" id="blockTitle">Conta Suspensa</div>
+      <div class="modal-message" id="blockMessage">Sua conta foi suspensa temporariamente.</div>
+      <button class="modal-button" onclick="fecharBlockModal()">OK</button>
+    </div>
+  </div>
+
+  <!-- Sidebar Overlay -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+  <!-- Sidebar Menu -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-logo">GoCourier</div>
+    <ul class="sidebar-menu">
+      <li class="sidebar-item">
+        <div class="sidebar-link" onclick="navegar('dashboard')">
+          <i class="fas fa-home"></i>
+          <span>Dashboard</span>
+        </div>
+      </li>
+      <li class="sidebar-item">
+        <div class="sidebar-link" onclick="navegar('novo-pedido')">
+          <i class="fas fa-plus-circle"></i>
+          <span>Novo Pedido</span>
+        </div>
+      </li>
+      <li class="sidebar-item">
+        <div class="sidebar-link" onclick="navegar('pedidos')">
+          <i class="fas fa-box"></i>
+          <span>Pedidos</span>
+        </div>
+      </li>
+      <li class="sidebar-item">
+        <div class="sidebar-link" onclick="navegar('entregadores')">
+          <i class="fas fa-motorcycle"></i>
+          <span>Entregadores</span>
+        </div>
+      </li>
+      <li class="sidebar-item">
+        <div class="sidebar-link" onclick="navegar('clientes')">
+          <i class="fas fa-users"></i>
+          <span>Clientes</span>
+        </div>
+      </li>
+      <li class="sidebar-item">
+        <div class="sidebar-link" onclick="navegar('relatorios')">
+          <i class="fas fa-chart-bar"></i>
+          <span>Relatórios</span>
+        </div>
+      </li>
+      <li class="sidebar-item">
+        <div class="sidebar-link" onclick="navegar('pagamentos')">
+          <i class="fas fa-credit-card"></i>
+          <span>Pagamentos</span>
+        </div>
+      </li>
+      <li class="sidebar-item">
+        <div class="sidebar-link" onclick="navegar('notificacoes')">
+          <i class="fas fa-bell"></i>
+          <span>Notificações</span>
+        </div>
+      </li>
+      <li class="sidebar-item">
+        <div class="sidebar-link" onclick="navegar('configuracoes')">
+          <i class="fas fa-cog"></i>
+          <span>Configurações</span>
+        </div>
+      </li>
+      <li class="sidebar-item">
+        <div class="sidebar-link" onclick="navegar('suporte')">
+          <i class="fas fa-headset"></i>
+          <span>Suporte</span>
+        </div>
+      </li>
+      <li class="sidebar-item">
+        <div class="sidebar-link" onclick="navegar('perfil')">
+          <i class="fas fa-user"></i>
+          <span>Meu Perfil</span>
+        </div>
+      </li>
+      <li class="sidebar-item">
+        <div class="sidebar-link" onclick="logout()">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Sair</span>
+        </div>
+      </li>
+    </ul>
+  </div>
+
+  <!-- HEADER FIXO -->
+  <header class="fixed top-0 left-0 right-0 z-40 bg-black/90 backdrop-blur-xl border-b border-light px-5 py-4 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="menu-toggle" onclick="toggleSidebar()">
+        <i class="fas fa-bars text-2xl text-light"></i>
+      </div>
+      <img 
+        src="ei_1773419339504-removebg-preview.png" 
+        alt="GoCourier" 
+        class="h-12 w-auto"
+      />
+      <span class="font-bold text-xl tracking-tight">GoCourier</span>
+    </div>
+    
+    <div class="flex items-center gap-5">
+      <div class="relative cursor-pointer" onclick="abrirNotificacoes()">
+        <i class="fas fa-bell text-xl text-light"></i>
+        <span class="absolute -top-1 -right-1 bg-gray-700 text-[9px] font-bold px-1.5 py-0.5 rounded-full leading-none" id="notificacoesBadge">0</span>
+      </div>
+      <div class="w-9 h-9 bg-gray-800 rounded-full flex items-center justify-center text-sm font-medium cursor-pointer relative" id="userAvatar" onclick="navegar('perfil')">
+        <span id="userInitials">TM</span>
+        <span class="absolute -bottom-1 -right-1" id="seloNoAvatar"></span>
+      </div>
+    </div>
+  </header>
+
+  <div class="h-20"></div>
+
+  <!-- CONTEÚDO -->
+  <main class="flex-1 px-5 pb-28">
+    
+    <div class="flex justify-between items-end mb-6">
+      <div>
+        <h1 class="text-2xl sm:text-3xl font-semibold flex items-center gap-2">
+          Dashboard
+          <span id="seloNoNome"></span>
+        </h1>
+        <p class="text-muted text-sm" id="userInfo">TechStore MZ • Maputo</p>
+      </div>
+      <div id="verification-badge" class="verification-badge pending">
+        <i class="fas fa-shield-alt"></i>
+        Pendente
+      </div>
+    </div>
+
+    <!-- AVISO VERIFICAÇÃO -->
+    <div id="verification-warning" class="glass rounded-3xl p-5 mb-7 border border-orange-500/30" style="display: none;">
+      <div class="flex items-center justify-between">
+        <div class="flex-1">
+          <p class="font-semibold text-base text-light">Verificação necessária</p>
+          <p class="text-muted text-sm mt-1">Complete seus documentos para criar pedidos.</p>
+        </div>
+        <a href="verificacao.html" class="bg-white text-black font-medium px-6 py-3 rounded-2xl text-sm whitespace-nowrap hover:bg-gray-200 transition">
+          Verificar agora
+        </a>
+      </div>
+    </div>
+
+    <!-- AVISO REPROVADO -->
+    <div id="verification-rejected" class="glass rounded-3xl p-5 mb-7 border border-red-500/30" style="display: none;">
+      <div class="flex items-center justify-between">
+        <div class="flex-1">
+          <p class="font-semibold text-base text-red-400">Verificação reprovada</p>
+          <p class="text-muted text-sm mt-1" id="rejected-message">Seus documentos foram reprovados. Envie novamente.</p>
+        </div>
+        <a href="verificacao.html" class="bg-white text-black font-medium px-6 py-3 rounded-2xl text-sm whitespace-nowrap hover:bg-gray-200 transition">
+          Reenviar
+        </a>
+      </div>
+    </div>
+
+    <!-- AVISO SUSPENSO -->
+    <div id="suspended-warning" class="glass rounded-3xl p-5 mb-7 border border-yellow-500/30" style="display: none;">
+      <div class="flex items-center gap-3">
+        <i class="fas fa-exclamation-triangle text-yellow-500 text-2xl"></i>
+        <div>
+          <p class="font-semibold text-base text-yellow-400">Conta suspensa</p>
+          <p class="text-muted text-sm mt-1" id="suspended-message">Sua conta foi suspensa temporariamente.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- AVISO BANIDO -->
+    <div id="banned-warning" class="glass rounded-3xl p-5 mb-7 border border-red-500/30" style="display: none;">
+      <div class="flex items-center gap-3">
+        <i class="fas fa-ban text-red-500 text-2xl"></i>
+        <div>
+          <p class="font-semibold text-base text-red-400">Conta banida</p>
+          <p class="text-muted text-sm mt-1" id="banned-message">Sua conta foi banida permanentemente.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ESTATÍSTICAS -->
+    <div class="grid grid-cols-2 gap-4 mb-8">
+      <div class="stat-card rounded-3xl p-6">
+        <p class="text-xs text-muted uppercase tracking-wider">Pedidos hoje</p>
+        <p class="text-5xl font-semibold mt-3" id="statsPedidosHoje">0</p>
+        <p class="text-muted text-xs mt-4" id="statsVariacao">+0 desde ontem</p>
+      </div>
+      <div class="stat-card rounded-3xl p-6">
+        <p class="text-xs text-muted uppercase tracking-wider">Concluídos</p>
+        <p class="text-5xl font-semibold mt-3" id="statsConcluidos">0</p>
+        <p class="text-muted text-xs mt-4" id="statsConcluidosHoje">hoje</p>
+      </div>
+    </div>
+
+    <!-- ÚLTIMOS PEDIDOS -->
+    <div class="mb-6">
+      <div class="flex justify-between items-center mb-4">
+        <p class="text-xs uppercase tracking-wider text-muted">Últimos pedidos</p>
+        <span class="text-xs bg-gray-800 px-3 py-1 rounded-full" id="totalPedidos">0</span>
+      </div>
+      <div id="pedidosLista" class="space-y-3">
+        <!-- Pedidos serão inseridos aqui via JS -->
+      </div>
+    </div>
+
+    <!-- ATIVIDADE RECENTE -->
+    <div>
+      <p class="text-xs uppercase tracking-wider text-muted mb-4">Atividade recente</p>
+      <div id="atividadeRecente" class="glass rounded-3xl p-5 text-center text-muted text-sm py-10 border-light">
+        Nenhuma atividade recente
+      </div>
+    </div>
+  </main>
+
+  <!-- BOTTOM NAV -->
+  <nav class="fixed bottom-0 left-0 right-0 z-40 glass border-t border-light px-4 py-3 flex justify-around items-center">
+    <button class="flex flex-col items-center text-white" onclick="navegar('dashboard')">
+      <i class="fas fa-home text-2xl"></i>
+      <span class="text-[10px] mt-1">Início</span>
+    </button>
+    <button class="flex flex-col items-center text-muted" onclick="navegar('pedidos')">
+      <i class="fas fa-box text-2xl"></i>
+      <span class="text-[10px] mt-1">Pedidos</span>
+    </button>
+    <button class="flex flex-col items-center text-muted" onclick="navegar('entregadores')">
+      <i class="fas fa-motorcycle text-2xl"></i>
+      <span class="text-[10px] mt-1">Entregas</span>
+    </button>
+    <button class="flex flex-col items-center text-muted" onclick="navegar('configuracoes')">
+      <i class="fas fa-cog text-2xl"></i>
+      <span class="text-[10px] mt-1">Config</span>
+    </button>
+  </nav>
+
+  <!-- FAB -->
+  <button id="fab" onclick="createNewOrder()"
+          class="fab fixed bottom-20 right-6 w-14 h-14 rounded-3xl flex items-center justify-center text-3xl shadow-2xl z-50">
+    <i class="fas fa-plus"></i>
+  </button>
+
+  <!-- Modal de Notificações -->
+  <div class="fixed inset-0 bg-black/90 hidden items-center justify-center z-50" id="notificacoesModal">
+    <div class="bg-[#111] rounded-2xl w-full max-w-md max-h-[80vh] overflow-y-auto p-5">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-xl font-bold">Notificações</h3>
+        <button onclick="fecharNotificacoes()" class="text-gray-400 text-2xl">&times;</button>
+      </div>
+      <div id="notificacoesLista" class="space-y-2">
+        <!-- Lista via JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Novo Pedido (simples) -->
+  <div class="fixed inset-0 bg-black/90 hidden items-center justify-center z-50" id="novoPedidoModal">
+    <div class="bg-[#111] rounded-2xl w-full max-w-md p-6">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-xl font-bold">Novo Pedido</h3>
+        <button onclick="fecharNovoPedidoModal()" class="text-gray-400 text-2xl">&times;</button>
+      </div>
+      <div class="space-y-4">
+        <input type="text" id="pedidoCliente" placeholder="Nome do cliente" class="w-full bg-black border border-gray-800 rounded-xl p-3">
+        <input type="text" id="pedidoProduto" placeholder="Produto" class="w-full bg-black border border-gray-800 rounded-xl p-3">
+        <input type="text" id="pedidoEndereco" placeholder="Endereço de entrega" class="w-full bg-black border border-gray-800 rounded-xl p-3">
+        <input type="number" id="pedidoValor" placeholder="Valor (MZN)" class="w-full bg-black border border-gray-800 rounded-xl p-3">
+        <button onclick="salvarNovoPedido()" class="btn-primary w-full py-3">Criar Pedido</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+// ========== CARREGAR USUÁRIO ==========
+let usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado')) || {
+  nome: 'TechStore MZ',
+  cidade: 'Maputo',
+  id: Date.now()
+};
+
+// ========== VERIFICAR STATUS DE BLOQUEIO ==========
+function verificarBloqueio() {
+  if (usuarioLogado.banido) {
+    mostrarBlockModal('banido', usuarioLogado.motivoBanimento || 'Sua conta foi banida permanentemente.');
+    return true;
+  }
+  if (usuarioLogado.suspenso) {
+    mostrarBlockModal('suspenso', usuarioLogado.motivoSuspensao || 'Sua conta foi suspensa temporariamente.');
+    return true;
+  }
+  return false;
+}
+
+function mostrarBlockModal(tipo, mensagem) {
+  const modal = document.getElementById('blockModal');
+  const icon = document.getElementById('blockIcon');
+  const title = document.getElementById('blockTitle');
+  const message = document.getElementById('blockMessage');
+  
+  if (tipo === 'banido') {
+    icon.className = 'modal-icon error';
+    icon.innerHTML = '🚫';
+    title.textContent = 'Conta Banida';
+    title.style.color = '#ff4444';
+  } else {
+    icon.className = 'modal-icon warning';
+    icon.innerHTML = '⚠️';
+    title.textContent = 'Conta Suspensa';
+    title.style.color = '#ffaa00';
+  }
+  
+  message.textContent = mensagem;
+  modal.classList.add('active');
+  
+  // Desabilitar ações
+  document.getElementById('fab').style.opacity = '0.35';
+  document.getElementById('fab').style.pointerEvents = 'none';
+}
+
+function fecharBlockModal() {
+  document.getElementById('blockModal').classList.remove('active');
+}
+
+// ========== ATUALIZAR SELO AZUL ==========
+function atualizarSeloAzul() {
+  const seloNoNome = document.getElementById('seloNoNome');
+  const seloNoAvatar = document.getElementById('seloNoAvatar');
+  
+  if (usuarioLogado.seloAzul) {
+    seloNoNome.innerHTML = '<span class="selo-azul">✓</span>';
+    seloNoAvatar.innerHTML = '<span class="selo-azul text-[8px]" style="width: 12px; height: 12px;">✓</span>';
+  } else {
+    seloNoNome.innerHTML = '';
+    seloNoAvatar.innerHTML = '';
+  }
+}
+
+// ========== CARREGAR PEDIDOS ==========
+function carregarPedidos() {
+  const todosPedidos = JSON.parse(localStorage.getItem('todosPedidos')) || [];
+  const meusPedidos = todosPedidos.filter(p => p.dropshipperId === usuarioLogado.id);
+  const lista = document.getElementById('pedidosLista');
+  const totalEl = document.getElementById('totalPedidos');
+  const statsHoje = document.getElementById('statsPedidosHoje');
+  const statsConcluidos = document.getElementById('statsConcluidos');
+  const statsVariacao = document.getElementById('statsVariacao');
+  const statsConcluidosHoje = document.getElementById('statsConcluidosHoje');
+  
+  totalEl.textContent = meusPedidos.length;
+  
+  const hoje = new Date().toLocaleDateString('pt-BR');
+  const pedidosHoje = meusPedidos.filter(p => p.data === hoje).length;
+  const concluidosHoje = meusPedidos.filter(p => p.status === 'delivered' && p.data === hoje).length;
+  const ontem = new Date(Date.now() - 86400000).toLocaleDateString('pt-BR');
+  const pedidosOntem = meusPedidos.filter(p => p.data === ontem).length;
+  const variacao = pedidosHoje - pedidosOntem;
+  
+  statsHoje.textContent = pedidosHoje;
+  statsConcluidos.textContent = concluidosHoje;
+  statsVariacao.textContent = (variacao >= 0 ? '+' : '') + variacao + ' desde ontem';
+  statsConcluidosHoje.textContent = concluidosHoje + ' hoje';
+  
+  if (meusPedidos.length === 0) {
+    lista.innerHTML = '<div class="glass rounded-3xl p-5 text-center text-muted text-sm py-6">Nenhum pedido ainda. Crie seu primeiro pedido!</div>';
+    return;
+  }
+  
+  const ultimosPedidos = meusPedidos.slice(-5).reverse();
+  lista.innerHTML = ultimosPedidos.map(p => {
+    let statusClass = 'status-pending';
+    let statusText = 'Pendente';
+    
+    if (p.status === 'progress') {
+      statusClass = 'status-progress';
+      statusText = 'Em andamento';
+    } else if (p.status === 'delivered') {
+      statusClass = 'status-delivered';
+      statusText = 'Entregue';
+    }
+    
+    return `
+      <div class="pedido-card">
+        <div class="pedido-header">
+          <span class="pedido-id">#${p.id}</span>
+          <span class="pedido-status ${statusClass}">${statusText}</span>
+        </div>
+        <p class="font-bold">${p.cliente}</p>
+        <p class="text-sm text-gray-400">${p.produto}</p>
+        <p class="text-xs text-gray-500 mt-1">📍 ${p.endereco || p.bairro || 'N/A'}</p>
+        <div class="flex justify-between items-center mt-2">
+          <span class="text-emerald-400 font-bold">${p.valor} MZN</span>
+          <span class="text-xs text-gray-500">${new Date(p.data).toLocaleDateString()}</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ========== CARREGAR ATIVIDADE RECENTE ==========
+function carregarAtividadeRecente() {
+  const container = document.getElementById('atividadeRecente');
+  const logs = JSON.parse(localStorage.getItem('logs')) || [];
+  const meusLogs = logs.filter(l => l.usuarioId === usuarioLogado.id).slice(-5).reverse();
+  
+  if (meusLogs.length === 0) {
+    container.innerHTML = '<div class="text-center text-muted text-sm py-6">Nenhuma atividade recente</div>';
+    return;
+  }
+  
+  container.innerHTML = meusLogs.map(l => `
+    <div class="flex items-center gap-3 p-2 border-b border-gray-800">
+      <i class="fas fa-circle text-xs ${l.tipo === 'pedido' ? 'text-blue-400' : 'text-yellow-400'}"></i>
+      <span class="flex-1 text-sm">${l.texto}</span>
+      <span class="text-xs text-gray-500">${new Date(l.data).toLocaleTimeString()}</span>
+    </div>
+  `).join('');
+}
+
+// ========== NOVO PEDIDO ==========
+function createNewOrder() {
+  if (verificarBloqueio()) return;
+  
+  if (usuarioLogado.verificacaoStatus !== 'aprovado') {
+    alert("Conta não verificada.\nConclua a verificação para criar pedidos.");
+    return;
+  }
+  
+  document.getElementById('novoPedidoModal').classList.add('flex');
+}
+
+function fecharNovoPedidoModal() {
+  document.getElementById('novoPedidoModal').classList.remove('flex');
+}
+
+function salvarNovoPedido() {
+  const cliente = document.getElementById('pedidoCliente').value;
+  const produto = document.getElementById('pedidoProduto').value;
+  const endereco = document.getElementById('pedidoEndereco').value;
+  const valor = document.getElementById('pedidoValor').value;
+  
+  if (!cliente || !produto || !endereco || !valor) {
+    alert('Preencha todos os campos');
+    return;
+  }
+  
+  const novoPedido = {
+    id: 'PED' + Date.now(),
+    dropshipperId: usuarioLogado.id,
+    dropshipper: usuarioLogado.nome,
+    cliente: cliente,
+    produto: produto,
+    endereco: endereco,
+    valor: parseFloat(valor),
+    status: 'pending',
+    data: new Date().toLocaleDateString('pt-BR'),
+    timestamp: new Date().toISOString()
+  };
+  
+  let todosPedidos = JSON.parse(localStorage.getItem('todosPedidos')) || [];
+  todosPedidos.push(novoPedido);
+  localStorage.setItem('todosPedidos', JSON.stringify(todosPedidos));
+  
+  let logs = JSON.parse(localStorage.getItem('logs')) || [];
+  logs.push({
+    usuarioId: usuarioLogado.id,
+    tipo: 'pedido',
+    texto: `Pedido ${novoPedido.id} criado para ${cliente}`,
+    data: new Date().toISOString()
+  });
+  localStorage.setItem('logs', JSON.stringify(logs));
+  
+  fecharNovoPedidoModal();
+  document.getElementById('pedidoCliente').value = '';
+  document.getElementById('pedidoProduto').value = '';
+  document.getElementById('pedidoEndereco').value = '';
+  document.getElementById('pedidoValor').value = '';
+  
+  carregarPedidos();
+  carregarAtividadeRecente();
+  alert('✅ Pedido criado com sucesso!');
+}
+
+// ========== VERIFICAR STATUS DE VERIFICAÇÃO ==========
+function verificarStatusVerificacao() {
+  const usuarioAtual = JSON.parse(localStorage.getItem('usuarioLogado'));
+  if (usuarioAtual) {
+    usuarioLogado = usuarioAtual;
+  }
+  
+  // Verificar bloqueio primeiro
+  if (verificarBloqueio()) return;
+  
+  const status = usuarioLogado.verificacaoStatus || 'pendente';
+  const warning = document.getElementById('verification-warning');
+  const rejected = document.getElementById('verification-rejected');
+  const suspended = document.getElementById('suspended-warning');
+  const banned = document.getElementById('banned-warning');
+  const badge = document.getElementById('verification-badge');
+  const fab = document.getElementById('fab');
+  
+  // Esconder todos primeiro
+  warning.style.display = 'none';
+  rejected.style.display = 'none';
+  suspended.style.display = 'none';
+  banned.style.display = 'none';
+  
+  // Verificar banimento
+  if (usuarioLogado.banido) {
+    banned.style.display = 'flex';
+    document.getElementById('banned-message').textContent = usuarioLogado.motivoBanimento || 'Sua conta foi banida permanentemente.';
+    badge.innerHTML = '<i class="fas fa-ban"></i> Banido';
+    badge.className = 'verification-badge banned';
+    fab.style.opacity = '0.35';
+    fab.style.pointerEvents = 'none';
+    return;
+  }
+  
+  // Verificar suspensão
+  if (usuarioLogado.suspenso) {
+    suspended.style.display = 'flex';
+    document.getElementById('suspended-message').textContent = usuarioLogado.motivoSuspensao || 'Sua conta foi suspensa temporariamente.';
+    badge.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Suspenso';
+    badge.className = 'verification-badge suspended';
+    fab.style.opacity = '0.35';
+    fab.style.pointerEvents = 'none';
+    return;
+  }
+  
+  // Buscar mensagem de reprovação
+  const verificacoes = JSON.parse(localStorage.getItem('verificacoes')) || [];
+  const minhaVerif = verificacoes.find(v => v.usuarioId === usuarioLogado.id && v.status === 'reprovado');
+  
+  if (minhaVerif && minhaVerif.observacoes) {
+    document.getElementById('rejected-message').textContent = minhaVerif.observacoes;
+  }
+  
+  switch(status) {
+    case 'aprovado':
+      warning.style.display = 'none';
+      rejected.style.display = 'none';
+      badge.innerHTML = '<i class="fas fa-check-circle"></i> Verificado';
+      badge.className = 'verification-badge verified';
+      fab.style.opacity = '1';
+      fab.style.pointerEvents = 'auto';
+      break;
+      
+    case 'reprovado':
+      warning.style.display = 'none';
+      rejected.style.display = 'flex';
+      badge.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Reprovado';
+      badge.className = 'verification-badge rejected';
+      fab.style.opacity = '0.35';
+      fab.style.pointerEvents = 'none';
+      break;
+      
+    case 'pendente':
+    default:
+      warning.style.display = 'flex';
+      rejected.style.display = 'none';
+      badge.innerHTML = '<i class="fas fa-shield-alt"></i> Pendente';
+      badge.className = 'verification-badge pending';
+      fab.style.opacity = '0.35';
+      fab.style.pointerEvents = 'none';
+      break;
+  }
+}
+
+// ========== NOTIFICAÇÕES ==========
+function carregarNotificacoes() {
+  const notificacoes = JSON.parse(localStorage.getItem(`notificacoes_${usuarioLogado.id}`)) || [];
+  const badge = document.getElementById('notificacoesBadge');
+  const naoLidas = notificacoes.filter(n => !n.lida).length;
+  
+  badge.textContent = naoLidas;
+  badge.style.backgroundColor = naoLidas > 0 ? '#ff4444' : '#374151';
+  
+  const novasVerif = notificacoes.filter(n => !n.lida && (n.titulo.includes('Verificação') || n.titulo.includes('documentos')));
+  if (novasVerif.length > 0) {
+    verificarStatusVerificacao();
+  }
+}
+
+function abrirNotificacoes() {
+  if (verificarBloqueio()) return;
+  
+  const modal = document.getElementById('notificacoesModal');
+  const lista = document.getElementById('notificacoesLista');
+  const notificacoes = JSON.parse(localStorage.getItem(`notificacoes_${usuarioLogado.id}`)) || [];
+  
+  if (notificacoes.length === 0) {
+    lista.innerHTML = '<p class="text-center text-gray-500 py-8">Nenhuma notificação</p>';
+  } else {
+    lista.innerHTML = notificacoes.sort((a, b) => new Date(b.data) - new Date(a.data)).map(n => `
+      <div class="notificacao-item ${!n.lida ? 'unread' : ''}" onclick="marcarComoLida('${n.id}')">
+        <p class="font-medium">${n.titulo}</p>
+        <p class="text-sm text-gray-400">${n.mensagem}</p>
+        <p class="text-xs text-gray-500 mt-1">${new Date(n.data).toLocaleString()}</p>
+      </div>
+    `).join('');
+  }
+  
+  modal.classList.add('flex');
+}
+
+function fecharNotificacoes() {
+  document.getElementById('notificacoesModal').classList.remove('flex');
+}
+
+function marcarComoLida(id) {
+  let notificacoes = JSON.parse(localStorage.getItem(`notificacoes_${usuarioLogado.id}`)) || [];
+  const index = notificacoes.findIndex(n => n.id == id);
+  
+  if (index !== -1) {
+    notificacoes[index].lida = true;
+    localStorage.setItem(`notificacoes_${usuarioLogado.id}`, JSON.stringify(notificacoes));
+    carregarNotificacoes();
+    abrirNotificacoes();
+  }
+}
+
+// ========== FUNÇÕES DO MENU ==========
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.add('open');
+  document.getElementById('sidebarOverlay').classList.add('active');
+}
+
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').classList.remove('active');
+}
+
+// ========== NAVEGAÇÃO ==========
+function navegar(destino) {
+  if (verificarBloqueio()) return;
+  
+  closeSidebar();
+  document.getElementById('loading').classList.add('active');
+  
+  setTimeout(() => {
+    switch(destino) {
+      case 'dashboard':
+        window.location.href = 'dashboard-dropshipper.html';
+        break;
+      case 'novo-pedido':
+        createNewOrder();
+        document.getElementById('loading').classList.remove('active');
+        return;
+      case 'pedidos':
+        window.location.href = 'pedidos.html';
+        break;
+      case 'entregadores':
+        window.location.href = 'entregadores.html';
+        break;
+      case 'clientes':
+        window.location.href = 'clientes.html';
+        break;
+      case 'relatorios':
+        window.location.href = 'relatorios.html';
+        break;
+      case 'pagamentos':
+        window.location.href = 'pagamentos.html';
+        break;
+      case 'notificacoes':
+        abrirNotificacoes();
+        document.getElementById('loading').classList.remove('active');
+        return;
+      case 'configuracoes':
+        window.location.href = 'configuracoes.html';
+        break;
+      case 'suporte':
+        window.location.href = 'suporte.html';
+        break;
+      case 'perfil':
+        window.location.href = 'perfil-dropshipper.html';
+        break;
+      default:
+        alert('Página em desenvolvimento');
+    }
+    document.getElementById('loading').classList.remove('active');
+  }, 300);
+}
+
+// ========== LOGOUT ==========
+function logout() {
+  closeSidebar();
+  if (confirm('Tem certeza que deseja sair?')) {
+    localStorage.removeItem('usuarioLogado');
+    window.location.href = 'login.html';
+  }
+}
+
+// ========== ATUALIZAR INFOS ==========
+function atualizarUserInfo() {
+  document.getElementById('userInfo').innerHTML = `${usuarioLogado.nome || 'TechStore'} • ${usuarioLogado.cidade || 'Maputo'}`;
+  document.getElementById('userInitials').textContent = (usuarioLogado.nome || 'TM').substring(0, 2).toUpperCase();
+}
+
+// ========== LOADING ==========
+const loadingHTML = `
+  <div class="loading-overlay" id="loading">
+    <div class="loading-spinner"></div>
+  </div>
+`;
+
+document.body.insertAdjacentHTML('beforeend', loadingHTML);
+
+const style = document.createElement('style');
+style.textContent = `
+  .loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.95);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    backdrop-filter: blur(8px);
+  }
+  .loading-overlay.active {
+    display: flex;
+  }
+  .loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 3px solid #1a1a1a;
+    border-top: 3px solid #ffffff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+`;
+document.head.appendChild(style);
+
+// ========== VERIFICAR STATUS DE VERIFICAÇÃO (duplicado removido) ==========
+// (a função já está definida acima)
+
+// ========== OUVIR MUDANÇAS NO LOCALSTORAGE ==========
+window.addEventListener('storage', function(e) {
+  if (e.key === 'usuarioLogado' || e.key === 'verificacoes') {
+    console.log('Storage mudou! Recarregando status...');
+    usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado')) || usuarioLogado;
+    verificarStatusVerificacao();
+    carregarNotificacoes();
+    atualizarSeloAzul();
+    carregarPedidos();
+  }
+});
+
+// ========== INICIALIZAÇÃO ==========
+window.onload = () => {
+  verificarStatusVerificacao();
+  atualizarUserInfo();
+  atualizarSeloAzul();
+  carregarNotificacoes();
+  carregarPedidos();
+  carregarAtividadeRecente();
+  
+  // Verificar a cada 10 segundos
+  setInterval(() => {
+    const usuarioAtual = JSON.parse(localStorage.getItem('usuarioLogado'));
+    if (usuarioAtual) {
+      if (usuarioAtual.verificacaoStatus !== usuarioLogado.verificacaoStatus ||
+          usuarioAtual.suspenso !== usuarioLogado.suspenso ||
+          usuarioAtual.banido !== usuarioLogado.banido) {
+        usuarioLogado = usuarioAtual;
+        verificarStatusVerificacao();
+        carregarNotificacoes();
+        atualizarSeloAzul();
+      }
+    }
+  }, 10000);
+  
+  // Fechar sidebar ao clicar em link
+  document.querySelectorAll('.sidebar-link').forEach(link => {
+    link.addEventListener('click', closeSidebar);
+  });
+};
+</script>
+</body>
+</html>

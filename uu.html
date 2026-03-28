@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>GoCourier • Entregas</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { 
+      background: #000000; 
+      color: #ffffff; 
+      font-family: 'Inter', system-ui, sans-serif; 
+      -webkit-tap-highlight-color: transparent;
+    }
+    .glass {
+      background: rgba(255,255,255,0.04);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .stat-card {
+      background: #111111;
+      transition: transform 0.25s ease;
+    }
+    .delivery-card {
+      background: #111111;
+      transition: all 0.3s;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    .delivery-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(255,255,255,0.15);
+    }
+    .delivery-card.pending {
+      border-left: 4px solid #ffaa00;
+    }
+    .btn-accept {
+      background: #4caf50;
+      color: white;
+      border: none;
+      border-radius: 2rem;
+      padding: 0.6rem 1.5rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-accept:hover {
+      background: #45a049;
+      transform: scale(1.02);
+    }
+    .btn-accept:disabled {
+      background: #666;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .btn-reject {
+      background: transparent;
+      color: #ff6b6b;
+      border: 1px solid #ff6b6b;
+      border-radius: 2rem;
+      padding: 0.6rem 1.5rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-reject:hover {
+      background: rgba(255,107,107,0.1);
+    }
+    .btn-success {
+      background: #4caf50;
+      color: white;
+      border: none;
+      border-radius: 2rem;
+      padding: 0.8rem 1rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      flex: 1;
+    }
+    .btn-success:hover {
+      background: #45a049;
+    }
+    .btn-danger {
+      background: #ff4444;
+      color: white;
+      border: none;
+      border-radius: 2rem;
+      padding: 0.8rem 1rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      flex: 1;
+    }
+    .btn-danger:hover {
+      background: #ff6666;
+    }
+    .badge {
+      padding: 0.25rem 0.75rem;
+      border-radius: 2rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .badge.warning {
+      background: rgba(255, 170, 0, 0.2);
+      color: #ffaa00;
+      border: 1px solid rgba(255, 170, 0, 0.3);
+    }
+    .badge.success {
+      background: rgba(76, 175, 80, 0.2);
+      color: #4caf50;
+      border: 1px solid rgba(76, 175, 80, 0.3);
+    }
+    .badge.info {
+      background: rgba(33, 150, 243, 0.2);
+      color: #2196f3;
+      border: 1px solid rgba(33, 150, 243, 0.3);
+    }
+    .badge.error {
+      background: rgba(255, 68, 68, 0.2);
+      color: #ff4444;
+      border: 1px solid rgba(255, 68, 68, 0.3);
+    }
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.95);
+      backdrop-filter: blur(10px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+    .modal-overlay.active {
+      display: flex;
+    }
+    .modal-container {
+      background: #111;
+      border: 1px solid #333;
+      border-radius: 2rem;
+      padding: 2rem;
+      max-width: 500px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal-close {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      color: #888;
+      cursor: pointer;
+      font-size: 1.5rem;
+    }
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.9);
+      backdrop-filter: blur(10px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+    }
+    .loading-overlay.active {
+      display: flex;
+    }
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 4px solid #333;
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    .verification-banner {
+      background: linear-gradient(135deg, #331100, #221100);
+      border: 1px solid #ffaa00;
+      border-radius: 1rem;
+      padding: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .verification-banner:hover {
+      background: #442200;
+    }
+    .verification-banner.warning {
+      border-color: #ffaa00;
+    }
+    .verification-banner.success {
+      border-color: #4caf50;
+      background: #112211;
+    }
+
+    /* Botões de ação */
+    .action-buttons {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- Loading -->
+  <div class="loading-overlay" id="loading">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- Modal Configurações -->
+  <div class="modal-overlay" id="configModal">
+    <div class="modal-container relative">
+      <div class="modal-close" onclick="closeConfigModal()">✕</div>
+      <h2 class="text-2xl font-bold mb-6">Configurações</h2>
+      
+      <div class="space-y-6">
+        <!-- Status de Verificação -->
+        <div>
+          <label class="block text-sm text-muted mb-2">Verificação de Documentos</label>
+          <div class="bg-black/50 rounded-xl p-4 space-y-3">
+            <div class="flex justify-between items-center">
+              <span>Bilhete de Identidade</span>
+              <span class="badge" id="statusBI">Pendente</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span>Selfie com Documento</span>
+              <span class="badge" id="statusSelfie">Pendente</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span>Comprovativo de Residência</span>
+              <span class="badge" id="statusResidencia">Pendente</span>
+            </div>
+          </div>
+          <button onclick="window.location.href='verificacao.html'" class="w-full mt-3 bg-emerald-600 text-white py-3 rounded-xl hover:bg-emerald-700 transition">
+            <i class="fas fa-shield-alt mr-2"></i>Fazer Verificação
+          </button>
+        </div>
+
+        <div>
+          <label class="block text-sm text-muted mb-2">Cidade de Atuação</label>
+          <select id="configCidade" class="w-full bg-black border border-gray-800 rounded-xl p-3" disabled>
+            <option value="Maputo Cidade">Maputo Cidade</option>
+            <option value="Matola">Matola</option>
+            <option value="Beira">Beira</option>
+            <option value="Nampula">Nampula</option>
+            <option value="Quelimane">Quelimane</option>
+            <option value="Tete">Tete</option>
+            <option value="Lichinga">Lichinga</option>
+            <option value="Pemba">Pemba</option>
+          </select>
+          <p class="text-xs text-muted mt-2">Cidade definida no cadastro. Não pode ser alterada.</p>
+        </div>
+
+        <div>
+          <label class="block text-sm text-muted mb-2">Informações Pessoais</label>
+          <div class="bg-black/50 rounded-xl p-4 space-y-3">
+            <div>
+              <p class="text-xs text-muted">Nome</p>
+              <p class="font-medium" id="configNome">Carregando...</p>
+            </div>
+            <div>
+              <p class="text-xs text-muted">Email</p>
+              <p class="font-medium" id="configEmail">Carregando...</p>
+            </div>
+            <div>
+              <p class="text-xs text-muted">Telefone</p>
+              <p class="font-medium" id="configTelefone">Carregando...</p>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm text-muted mb-2">Estatísticas</label>
+          <div class="bg-black/50 rounded-xl p-4 space-y-3">
+            <div class="flex justify-between">
+              <span>Total entregas</span>
+              <span class="font-bold" id="configTotalEntregas">0</span>
+            </div>
+            <div class="flex justify-between">
+              <span>Total ganho</span>
+              <span class="font-bold text-emerald-400" id="configTotalGanho">0 MT</span>
+            </div>
+          </div>
+        </div>
+
+        <button onclick="closeConfigModal()" class="w-full bg-white text-black font-bold py-3 rounded-2xl hover:bg-gray-200 transition">
+          Fechar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Pedidos Disponíveis -->
+  <div class="modal-overlay" id="pedidosModal">
+    <div class="modal-container relative">
+      <div class="modal-close" onclick="closePedidosModal()">✕</div>
+      <h2 class="text-2xl font-bold mb-2">Pedidos Disponíveis</h2>
+      <p class="text-sm text-muted mb-6" id="pedidosCidadeInfo">Carregando...</p>
+      
+      <div id="pedidosList" class="space-y-4 max-h-96 overflow-y-auto pr-2">
+        <!-- Pedidos serão inseridos aqui -->
+      </div>
+    </div>
+  </div>
+
+  <!-- HEADER -->
+  <header class="fixed top-0 left-0 right-0 z-40 bg-black/90 backdrop-blur-xl border-b border-gray-800 px-5 py-4 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <button onclick="window.history.back()" class="text-2xl text-gray-400">
+        <i class="fas fa-arrow-left"></i>
+      </button>
+      <img 
+        src="ei_1773419339504-removebg-preview.png" 
+        alt="GoCourier" 
+        class="h-12 w-auto"
+      />
+      <span class="font-bold text-xl tracking-tight">GoCourier</span>
+    </div>
+    
+    <div class="flex items-center gap-5">
+      <div class="w-9 h-9 bg-gray-800 rounded-full flex items-center justify-center text-sm font-medium" id="userInitials">
+        TM
+      </div>
+    </div>
+  </header>
+
+  <div class="h-20"></div>
+
+  <!-- CONTEÚDO PRINCIPAL -->
+  <main class="flex-1 px-5 pb-28">
+    
+    <!-- Saudação e Localização -->
+    <div class="mb-4 flex justify-between items-start">
+      <div>
+        <h1 class="text-3xl font-semibold">Olá, <span id="userName">Carlos</span>!</h1>
+        <p class="text-gray-400 text-sm mt-1" id="userLocation">Carregando...</p>
+      </div>
+      <span class="badge info" id="userCidade">Maputo</span>
+    </div>
+
+    <!-- BANNER DE VERIFICAÇÃO (se não verificado) -->
+    <div id="verificationBanner" class="verification-banner warning mb-6" onclick="window.location.href='verificacao.html'">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-orange-500/20 rounded-full flex items-center justify-center">
+          <i class="fas fa-shield-alt text-orange-500"></i>
+        </div>
+        <div>
+          <p class="font-bold">Verificação necessária</p>
+          <p class="text-sm text-gray-400">Complete seus documentos para começar</p>
+        </div>
+      </div>
+      <i class="fas fa-chevron-right text-gray-500"></i>
+    </div>
+
+    <!-- BANNER DE VERIFICAÇÃO (se verificado) -->
+    <div id="verifiedBanner" class="verification-banner success mb-6 hidden" onclick="window.location.href='verificacao.html'">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-green-500/20 rounded-full flex items-center justify-center">
+          <i class="fas fa-check-circle text-green-500"></i>
+        </div>
+        <div>
+          <p class="font-bold">Documentos verificados</p>
+          <p class="text-sm text-gray-400">Clique para ver detalhes</p>
+        </div>
+      </div>
+      <i class="fas fa-chevron-right text-gray-500"></i>
+    </div>
+
+    <!-- RESUMO (ZERADO) -->
+    <div class="grid grid-cols-2 gap-4 mb-6">
+      <div class="stat-card rounded-2xl p-5">
+        <p class="text-xs text-gray-400 mb-1">Total entregas</p>
+        <p id="totalEntregas" class="text-4xl font-bold">0</p>
+        <p class="text-xs text-gray-500 mt-2">Nenhuma entrega ainda</p>
+      </div>
+      <div class="stat-card rounded-2xl p-5">
+        <p class="text-xs text-gray-400 mb-1">Ganhos</p>
+        <p id="totalGanho" class="text-4xl font-bold text-emerald-400">0 MT</p>
+        <p class="text-xs text-gray-500 mt-2">Comece a entregar</p>
+      </div>
+    </div>
+
+    <!-- STATUS DO ENTREGADOR -->
+    <div class="glass rounded-3xl p-4 mb-6 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-3 h-3 rounded-full bg-green-500 animate-pulse"></div>
+        <span class="font-medium">Disponível para entregas</span>
+      </div>
+      <span class="text-sm text-gray-400">📍 <span id="statusCidade">Maputo</span></span>
+    </div>
+
+    <!-- BOTÃO PEDIDOS DISPONÍVEIS (desabilitado se não verificado) -->
+    <button onclick="abrirPedidosModal()" class="w-full glass rounded-3xl p-5 mb-8 flex items-center justify-between hover:bg-white/5 transition disabled:opacity-50 disabled:cursor-not-allowed" id="pedidosButton">
+      <div class="flex items-center gap-4">
+        <div class="w-14 h-14 bg-emerald-900/30 rounded-full flex items-center justify-center">
+          <i class="fas fa-motorcycle text-3xl text-emerald-400"></i>
+        </div>
+        <div class="text-left">
+          <p class="font-bold text-lg">Pedidos Disponíveis</p>
+          <p class="text-sm text-gray-400" id="pedidosCount">0 disponíveis</p>
+        </div>
+      </div>
+      <i class="fas fa-chevron-right text-gray-500 text-xl"></i>
+    </button>
+
+    <!-- AVISO DE VERIFICAÇÃO (se não verificado) -->
+    <div id="verificationWarning" class="glass rounded-3xl p-5 mb-6 border border-orange-500/30 bg-orange-500/5">
+      <div class="flex items-center gap-3">
+        <i class="fas fa-exclamation-triangle text-orange-500 text-xl"></i>
+        <p class="text-sm text-gray-300">Complete a verificação de documentos para aceitar pedidos</p>
+      </div>
+    </div>
+
+    <!-- TÍTULO DA LISTA -->
+    <div class="flex justify-between items-center mb-4">
+      <p class="text-xs uppercase tracking-wider text-gray-500">Minhas entregas</p>
+      <span id="count" class="text-xs bg-gray-800 px-3 py-1 rounded-full text-gray-300">0</span>
+    </div>
+
+    <!-- LISTA DE ENTREGAS -->
+    <div id="entregasList" class="space-y-4">
+      <!-- Conteúdo dinâmico -->
+    </div>
+  </main>
+
+  <!-- BOTTOM NAV -->
+  <nav class="fixed bottom-0 left-0 right-0 z-40 glass border-t border-gray-800 px-4 py-3 flex justify-around items-center">
+    <button onclick="window.location.href='Entregadores.html'" class="flex flex-col items-center text-gray-400">
+      <i class="fas fa-home text-2xl"></i>
+      <span class="text-[10px] mt-1">Início</span>
+    </button>
+    <button onclick="abrirPedidosModal()" class="flex flex-col items-center text-emerald-400" id="navPedidos">
+      <i class="fas fa-box text-2xl"></i>
+      <span class="text-[10px] mt-1">Pedidos</span>
+    </button>
+    <button class="flex flex-col items-center text-white">
+      <i class="fas fa-motorcycle text-2xl"></i>
+      <span class="text-[10px] mt-1">Entregas</span>
+    </button>
+    <button onclick="abrirConfigModal()" class="flex flex-col items-center text-gray-400">
+      <i class="fas fa-cog text-2xl"></i>
+      <span class="text-[10px] mt-1">Config</span>
+    </button>
+  </nav>
+
+<script>
+// ========== CARREGAR USUÁRIO LOGADO ==========
+let usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado')) || null;
+
+// Se não houver usuário logado, redirecionar para login
+if (!usuarioLogado) {
+  window.location.href = 'login.html';
+}
+
+// Garantir que tem cidade definida
+if (!usuarioLogado.cidade) {
+  usuarioLogado.cidade = 'Maputo Cidade';
+}
+
+// ========== VERIFICAÇÃO DE DOCUMENTOS ==========
+let documentosVerificados = usuarioLogado.verificado || false;
+
+function atualizarStatusVerificacao() {
+  const bannerNaoVerificado = document.getElementById('verificationBanner');
+  const bannerVerificado = document.getElementById('verifiedBanner');
+  const verificationWarning = document.getElementById('verificationWarning');
+  const pedidosButton = document.getElementById('pedidosButton');
+  const navPedidos = document.getElementById('navPedidos');
+  
+  if (documentosVerificados) {
+    bannerNaoVerificado.classList.add('hidden');
+    bannerVerificado.classList.remove('hidden');
+    verificationWarning.classList.add('hidden');
+    pedidosButton.disabled = false;
+    navPedidos.classList.remove('text-gray-400');
+    navPedidos.classList.add('text-emerald-400');
+    
+    document.getElementById('statusBI').innerHTML = '✓ Verificado';
+    document.getElementById('statusBI').className = 'badge success';
+    document.getElementById('statusSelfie').innerHTML = '✓ Verificado';
+    document.getElementById('statusSelfie').className = 'badge success';
+    document.getElementById('statusResidencia').innerHTML = '✓ Verificado';
+    document.getElementById('statusResidencia').className = 'badge success';
+  } else {
+    bannerNaoVerificado.classList.remove('hidden');
+    bannerVerificado.classList.add('hidden');
+    verificationWarning.classList.remove('hidden');
+    pedidosButton.disabled = true;
+    navPedidos.classList.remove('text-emerald-400');
+    navPedidos.classList.add('text-gray-400');
+    
+    document.getElementById('statusBI').innerHTML = 'Pendente';
+    document.getElementById('statusBI').className = 'badge warning';
+    document.getElementById('statusSelfie').innerHTML = 'Pendente';
+    document.getElementById('statusSelfie').className = 'badge warning';
+    document.getElementById('statusResidencia').innerHTML = 'Pendente';
+    document.getElementById('statusResidencia').className = 'badge warning';
+  }
+}
+
+// ========== DADOS DO USUÁRIO NA TELA ==========
+document.getElementById('userName').textContent = usuarioLogado.nome.split(' ')[0];
+document.getElementById('userLocation').innerHTML = `${usuarioLogado.nome} • <span class="text-emerald-400">${usuarioLogado.cidade}</span>`;
+document.getElementById('userCidade').textContent = usuarioLogado.cidade;
+document.getElementById('statusCidade').textContent = usuarioLogado.cidade;
+
+const nomeParts = usuarioLogado.nome.split(' ');
+const iniciais = nomeParts.length > 1 
+  ? (nomeParts[0][0] + nomeParts[1][0]).toUpperCase()
+  : nomeParts[0].substring(0, 2).toUpperCase();
+document.getElementById('userInitials').textContent = iniciais;
+
+// ========== DADOS ==========
+let pedidosDisponiveis = [];
+let minhasEntregas = [];
+
+// ========== ATUALIZAR PEDIDOS ==========
+function atualizarPedidosDaCidade() {
+  const todosPedidos = JSON.parse(localStorage.getItem('todosPedidos')) || [];
+  
+  pedidosDisponiveis = todosPedidos.filter(p => 
+    p.cidade === usuarioLogado.cidade && 
+    p.status === 'pending' && 
+    !p.entregadorId
+  );
+  
+  document.getElementById('pedidosCount').innerHTML = `${pedidosDisponiveis.length} disponíveis`;
+  
+  if (document.getElementById('pedidosModal').classList.contains('active')) {
+    carregarPedidosDisponiveis();
+  }
+}
+
+// ========== CARREGAR PEDIDOS DISPONÍVEIS ==========
+function carregarPedidosDisponiveis() {
+  const lista = document.getElementById('pedidosList');
+  const cidadeInfo = document.getElementById('pedidosCidadeInfo');
+  
+  cidadeInfo.textContent = `Pedidos em ${usuarioLogado.cidade}`;
+  
+  if (pedidosDisponiveis.length === 0) {
+    lista.innerHTML = `
+      <div class="text-center py-10">
+        <i class="fas fa-box-open text-5xl text-gray-600 mb-4"></i>
+        <p class="text-gray-400">Nenhum pedido disponível em ${usuarioLogado.cidade}</p>
+        <p class="text-gray-500 text-sm mt-2">Novos pedidos aparecerão aqui</p>
+      </div>
+    `;
+    return;
+  }
+
+  lista.innerHTML = pedidosDisponiveis.map(p => `
+    <div class="delivery-card pending rounded-2xl p-5">
+      <div class="flex justify-between items-start mb-3">
+        <div>
+          <p class="font-bold text-lg">${p.cliente}</p>
+          <p class="text-sm text-gray-400">${p.telefone || '---'}</p>
+        </div>
+        <span class="badge warning">Pendente</span>
+      </div>
+      
+      <div class="bg-black/50 rounded-xl p-4 mb-4">
+        <p class="font-medium">${p.produto}</p>
+        <p class="text-sm text-gray-400 mt-1">📍 ${p.endereco || p.bairro}, ${p.cidade}</p>
+        ${p.obs ? `<p class="text-xs text-gray-500 mt-2">📝 ${p.obs}</p>` : ''}
+        <p class="text-xs text-gray-500 mt-1">Loja: ${p.dropshipper || 'Loja'}</p>
+      </div>
+
+      <div class="flex justify-between items-center mb-4">
+        <div>
+          <p class="text-xs text-gray-400">VALOR</p>
+          <p class="text-2xl font-bold text-emerald-400">${p.valor} MT</p>
+        </div>
+      </div>
+
+      <div class="flex gap-3">
+        <button onclick="aceitarPedido('${p.id}')" class="btn-accept flex-1">
+          <i class="fas fa-check mr-2"></i>Aceitar
+        </button>
+        <button onclick="recusarPedido('${p.id}')" class="btn-reject flex-1">
+          <i class="fas fa-times mr-2"></i>Recusar
+        </button>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ========== ACEITAR PEDIDO ==========
+function aceitarPedido(id) {
+  if (!documentosVerificados) {
+    alert('Complete a verificação de documentos primeiro!');
+    window.location.href = 'verificacao.html';
+    return;
+  }
+
+  const pedido = pedidosDisponiveis.find(p => p.id == id);
+  if (!pedido) return;
+
+  document.getElementById('loading').classList.add('active');
+  
+  setTimeout(() => {
+    const todosPedidos = JSON.parse(localStorage.getItem('todosPedidos')) || [];
+    const pedidoIndex = todosPedidos.findIndex(p => p.id == id);
+    
+    if (pedidoIndex !== -1) {
+      todosPedidos[pedidoIndex].status = 'progress';
+      todosPedidos[pedidoIndex].entregadorId = usuarioLogado.id;
+      todosPedidos[pedidoIndex].entregadorNome = usuarioLogado.nome;
+      todosPedidos[pedidoIndex].dataAceite = new Date().toISOString();
+      localStorage.setItem('todosPedidos', JSON.stringify(todosPedidos));
+    }
+    
+    const novaEntrega = {
+      id: Date.now(),
+      pedidoOriginalId: pedido.id,
+      data: new Date().toLocaleDateString('pt-PT', { day: '2-digit', month: 'short', year: 'numeric' }),
+      hora: new Date().toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' }),
+      cliente: pedido.cliente,
+      telefone: pedido.telefone,
+      produto: pedido.produto,
+      local: pedido.dropshipper || 'Loja',
+      valor: pedido.valor,
+      cidade: pedido.cidade,
+      status: "Em andamento"
+    };
+    
+    let minhasEntregasStorage = JSON.parse(localStorage.getItem(`entregas_${usuarioLogado.id}`)) || [];
+    minhasEntregasStorage.unshift(novaEntrega);
+    localStorage.setItem(`entregas_${usuarioLogado.id}`, JSON.stringify(minhasEntregasStorage));
+    
+    atualizarPedidosDaCidade();
+    carregarMinhasEntregas();
+    closePedidosModal();
+    
+    document.getElementById('loading').classList.remove('active');
+    alert('✅ Pedido aceito com sucesso!');
+  }, 1000);
+}
+
+// ========== RECUSAR PEDIDO ==========
+function recusarPedido(id) {
+  if (confirm('Tem certeza que deseja recusar este pedido?')) {
+    pedidosDisponiveis = pedidosDisponiveis.filter(p => p.id != id);
+    carregarPedidosDisponiveis();
+  }
+}
+
+// ========== MARCAR COMO CONCLUÍDO ==========
+function marcarComoConcluido(entregaId, pedidoOriginalId) {
+  if (!confirm('✅ Confirmar que esta entrega foi concluída?')) return;
+  
+  document.getElementById('loading').classList.add('active');
+  
+  setTimeout(() => {
+    // Atualizar na lista do entregador
+    let minhasEntregasStorage = JSON.parse(localStorage.getItem(`entregas_${usuarioLogado.id}`)) || [];
+    const entregaIndex = minhasEntregasStorage.findIndex(e => e.id == entregaId);
+    
+    if (entregaIndex !== -1) {
+      minhasEntregasStorage[entregaIndex].status = 'Concluída';
+      localStorage.setItem(`entregas_${usuarioLogado.id}`, JSON.stringify(minhasEntregasStorage));
+    }
+    
+    // Atualizar no pedido original
+    if (pedidoOriginalId) {
+      const todosPedidos = JSON.parse(localStorage.getItem('todosPedidos')) || [];
+      const pedidoIndex = todosPedidos.findIndex(p => p.id == pedidoOriginalId);
+      
+      if (pedidoIndex !== -1) {
+        todosPedidos[pedidoIndex].status = 'delivered';
+        localStorage.setItem('todosPedidos', JSON.stringify(todosPedidos));
+      }
+    }
+    
+    carregarMinhasEntregas();
+    document.getElementById('loading').classList.remove('active');
+    alert('✅ Entrega concluída com sucesso!');
+  }, 1000);
+}
+
+// ========== CANCELAR ENTREGA ==========
+function cancelarEntrega(entregaId, pedidoOriginalId) {
+  if (!confirm('❌ Tem certeza que deseja cancelar esta entrega?')) return;
+  
+  document.getElementById('loading').classList.add('active');
+  
+  setTimeout(() => {
+    // Remover da lista do entregador
+    let minhasEntregasStorage = JSON.parse(localStorage.getItem(`entregas_${usuarioLogado.id}`)) || [];
+    minhasEntregasStorage = minhasEntregasStorage.filter(e => e.id != entregaId);
+    localStorage.setItem(`entregas_${usuarioLogado.id}`, JSON.stringify(minhasEntregasStorage));
+    
+    // Devolver para pedidos disponíveis
+    if (pedidoOriginalId) {
+      const todosPedidos = JSON.parse(localStorage.getItem('todosPedidos')) || [];
+      const pedidoIndex = todosPedidos.findIndex(p => p.id == pedidoOriginalId);
+      
+      if (pedidoIndex !== -1) {
+        todosPedidos[pedidoIndex].status = 'pending';
+        todosPedidos[pedidoIndex].entregadorId = null;
+        todosPedidos[pedidoIndex].entregadorNome = null;
+        localStorage.setItem('todosPedidos', JSON.stringify(todosPedidos));
+      }
+    }
+    
+    carregarMinhasEntregas();
+    atualizarPedidosDaCidade();
+    document.getElementById('loading').classList.remove('active');
+    alert('❌ Entrega cancelada!');
+  }, 1000);
+}
+
+// ========== CARREGAR MINHAS ENTREGAS ==========
+function carregarMinhasEntregas() {
+  const container = document.getElementById('entregasList');
+  const entregasStorage = JSON.parse(localStorage.getItem(`entregas_${usuarioLogado.id}`)) || [];
+  const total = entregasStorage.length;
+  const ganhoTotal = entregasStorage.reduce((sum, e) => sum + e.valor, 0);
+  
+  document.getElementById('totalEntregas').textContent = total;
+  document.getElementById('totalGanho').textContent = ganhoTotal + ' MT';
+  document.getElementById('count').textContent = total;
+  
+  if (total === 0) {
+    container.innerHTML = `
+      <div class="glass rounded-3xl p-12 text-center">
+        <i class="fas fa-box-open text-6xl text-gray-600 mb-4"></i>
+        <p class="text-gray-400 font-medium">Nenhuma entrega realizada</p>
+        <p class="text-gray-500 text-sm mt-2">Aceite pedidos disponíveis para começar</p>
+      </div>
+    `;
+    return;
+  }
+  
+  container.innerHTML = entregasStorage.map(entrega => `
+    <div class="delivery-card rounded-3xl p-5 ${entrega.status === 'Em andamento' ? 'pending' : ''}">
+      <div class="flex justify-between items-start mb-4">
+        <div>
+          <p class="text-emerald-400 text-xs font-medium">${entrega.data} • ${entrega.hora}</p>
+          <p class="font-semibold text-lg mt-1">${entrega.cliente}</p>
+          <p class="text-gray-400 text-sm">Nº ${entrega.telefone || '---'}</p>
+        </div>
+        <div>
+          <span class="badge ${entrega.status === 'Concluída' ? 'success' : 'warning'}">
+            ${entrega.status}
+          </span>
+        </div>
+      </div>
+
+      <div class="bg-black/50 rounded-2xl p-4 mb-4">
+        <p class="text-gray-200 text-base">${entrega.produto}</p>
+        <p class="text-gray-400 text-sm mt-1">${entrega.local}</p>
+        <p class="text-xs text-gray-500 mt-2">📍 ${entrega.cidade}</p>
+      </div>
+
+      <div class="flex justify-between items-center mb-3">
+        <div>
+          <p class="text-xs text-gray-400">VALOR</p>
+          <p class="text-2xl font-bold">${entrega.valor} MT</p>
+        </div>
+        <div class="text-right text-xs">
+          <i class="fas fa-star text-yellow-400"></i>
+          <span class="text-gray-300 ml-1">5.0</span>
+        </div>
+      </div>
+
+      <!-- BOTÕES DE AÇÃO PARA O ENTREGADOR -->
+      ${entrega.status === 'Em andamento' ? `
+        <div class="action-buttons">
+          <button onclick="marcarComoConcluido('${entrega.id}', '${entrega.pedidoOriginalId}')" class="btn-success">
+            <i class="fas fa-check mr-2"></i>Concluir
+          </button>
+          <button onclick="cancelarEntrega('${entrega.id}', '${entrega.pedidoOriginalId}')" class="btn-danger">
+            <i class="fas fa-times mr-2"></i>Cancelar
+          </button>
+        </div>
+      ` : ''}
+    </div>
+  `).join('');
+  
+  carregarConfiguracoes();
+}
+
+// ========== CONFIGURAÇÕES ==========
+function carregarConfiguracoes() {
+  document.getElementById('configNome').textContent = usuarioLogado.nome;
+  document.getElementById('configEmail').textContent = usuarioLogado.email;
+  document.getElementById('configTelefone').textContent = usuarioLogado.telefone;
+  
+  const selectCidade = document.getElementById('configCidade');
+  if (selectCidade) {
+    selectCidade.value = usuarioLogado.cidade;
+  }
+  
+  const entregasStorage = JSON.parse(localStorage.getItem(`entregas_${usuarioLogado.id}`)) || [];
+  const total = entregasStorage.length;
+  const ganhoTotal = entregasStorage.reduce((sum, e) => sum + e.valor, 0);
+  
+  document.getElementById('configTotalEntregas').textContent = total;
+  document.getElementById('configTotalGanho').textContent = ganhoTotal + ' MT';
+}
+
+// ========== FUNÇÕES DOS MODAIS ==========
+function abrirPedidosModal() {
+  if (!documentosVerificados) {
+    alert('Complete a verificação de documentos primeiro!');
+    window.location.href = 'verificacao.html';
+    return;
+  }
+  document.getElementById('pedidosModal').classList.add('active');
+  carregarPedidosDisponiveis();
+}
+
+function closePedidosModal() {
+  document.getElementById('pedidosModal').classList.remove('active');
+}
+
+function abrirConfigModal() {
+  document.getElementById('configModal').classList.add('active');
+  carregarConfiguracoes();
+}
+
+function closeConfigModal() {
+  document.getElementById('configModal').classList.remove('active');
+}
+
+// ========== ATUALIZAÇÃO EM TEMPO REAL ==========
+setInterval(() => {
+  atualizarPedidosDaCidade();
+}, 10000);
+
+// ========== CRIAR ENTREGA DE EXEMPLO SE NÃO HOUVER NENHUMA ==========
+function criarEntregaExemplo() {
+  const entregasStorage = JSON.parse(localStorage.getItem(`entregas_${usuarioLogado.id}`)) || [];
+  
+  if (entregasStorage.length === 0) {
+    const entregaExemplo = {
+      id: Date.now(),
+      pedidoOriginalId: 'EXEMPLO123',
+      data: new Date().toLocaleDateString('pt-PT', { day: '2-digit', month: 'short', year: 'numeric' }),
+      hora: new Date().toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' }),
+      cliente: 'Cliente Exemplo',
+      telefone: '84 123 4567',
+      produto: 'Produto de Teste',
+      local: 'Loja Exemplo',
+      valor: 150,
+      cidade: usuarioLogado.cidade,
+      status: 'Em andamento'
+    };
+    
+    entregasStorage.push(entregaExemplo);
+    localStorage.setItem(`entregas_${usuarioLogado.id}`, JSON.stringify(entregasStorage));
+    console.log('✅ Entrega de exemplo criada');
+  }
+}
+
+// ========== INICIALIZAÇÃO ==========
+window.onload = () => {
+  if (!localStorage.getItem('todosPedidos')) {
+    localStorage.setItem('todosPedidos', JSON.stringify([]));
+  }
+  
+  // Criar entrega de exemplo para testar os botões
+  criarEntregaExemplo();
+  
+  atualizarStatusVerificacao();
+  atualizarPedidosDaCidade();
+  carregarMinhasEntregas();
+};
+</script>
+</body>
+</html>

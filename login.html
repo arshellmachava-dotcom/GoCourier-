@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>GoCourier • Criar Conta</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Inter', system-ui, sans-serif;
+        }
+        
+        body { 
+            background: #000000; 
+            color: #ffffff; 
+            font-family: 'Inter', system-ui, sans-serif; 
+            -webkit-tap-highlight-color: transparent;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Efeito Liquid / Gradiente Animado */
+        .liquid-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            background: radial-gradient(circle at 20% 30%, rgba(100, 100, 255, 0.15) 0%, transparent 30%),
+                        radial-gradient(circle at 80% 70%, rgba(150, 100, 255, 0.15) 0%, transparent 35%),
+                        radial-gradient(circle at 40% 80%, rgba(200, 200, 255, 0.1) 0%, transparent 40%),
+                        linear-gradient(135deg, #000000 0%, #0a0a0a 100%);
+            background-size: 200% 200%;
+            animation: liquidMove 15s ease infinite;
+        }
+
+        @keyframes liquidMove {
+            0% { background-position: 0% 0%; }
+            25% { background-position: 50% 20%; }
+            50% { background-position: 100% 50%; }
+            75% { background-position: 50% 80%; }
+            100% { background-position: 0% 0%; }
+        }
+
+        /* Bolhas flutuantes */
+        .bubble {
+            position: fixed;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            animation: float 20s infinite;
+            z-index: 1;
+        }
+
+        .bubble-1 {
+            width: 400px;
+            height: 400px;
+            top: -200px;
+            right: -200px;
+            animation-delay: 0s;
+        }
+
+        .bubble-2 {
+            width: 300px;
+            height: 300px;
+            bottom: -150px;
+            left: -150px;
+            animation-delay: -5s;
+        }
+
+        .bubble-3 {
+            width: 200px;
+            height: 200px;
+            top: 40%;
+            left: 20%;
+            animation-delay: -10s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(50px, 50px) scale(1.1); }
+            50% { transform: translate(0, 100px) scale(0.9); }
+            75% { transform: translate(-50px, 50px) scale(1.05); }
+        }
+
+        /* Glassmorphism */
+        .glass {
+            background: rgba(20, 20, 30, 0.6);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .glass-card {
+            background: rgba(25, 25, 35, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            background: rgba(35, 35, 45, 0.8);
+            border-color: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .glass-card.selected {
+            background: rgba(60, 60, 80, 0.8);
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.1);
+        }
+
+        .input-field {
+            background: rgba(20, 20, 30, 0.6);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1.2rem;
+            padding: 1rem 1.5rem;
+            color: white;
+            width: 100%;
+            font-size: 1rem;
+            transition: all 0.2s;
+            padding-right: 3rem;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.4);
+            background: rgba(30, 30, 40, 0.8);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+        }
+
+        .input-field::placeholder {
+            color: rgba(200, 200, 200, 0.3);
+        }
+
+        /* Wrapper para campo com ícone */
+        .input-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        .input-icon {
+            position: absolute;
+            right: 1.2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #888;
+            cursor: pointer;
+            z-index: 2;
+        }
+
+        .input-icon:hover {
+            color: white;
+        }
+
+        .btn-primary {
+            background: white;
+            color: black;
+            border: none;
+            border-radius: 3rem;
+            padding: 1rem;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.1);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn-primary:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .type-option {
+            cursor: pointer;
+            padding: 1.5rem 1rem;
+            border-radius: 1.5rem;
+            text-align: center;
+            transition: all 0.3s;
+            background: rgba(20, 20, 30, 0.4);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .type-option:hover {
+            background: rgba(40, 40, 50, 0.6);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .type-option.selected {
+            background: rgba(70, 70, 90, 0.8);
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.15);
+        }
+
+        .type-option i {
+            font-size: 2.5rem;
+            margin-bottom: 0.8rem;
+            display: block;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .error-message {
+            background: rgba(180, 60, 60, 0.2);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 100, 100, 0.3);
+            color: #ffaaaa;
+            padding: 1rem 1.5rem;
+            border-radius: 2rem;
+            margin-bottom: 1.5rem;
+            display: none;
+            font-size: 0.95rem;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .text-muted { color: rgba(200, 200, 200, 0.6); }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(10px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-container {
+            background: rgba(20, 20, 30, 0.95);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 2rem;
+            padding: 2rem;
+            max-width: 400px;
+            width: 90%;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            color: #888;
+            cursor: pointer;
+            font-size: 1.5rem;
+        }
+
+        .modal-close:hover {
+            color: white;
+        }
+
+        /* Multi-choice personalizado */
+        .cidade-selector {
+            background: rgba(20, 20, 30, 0.6);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1.2rem;
+            padding: 0.5rem;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+        }
+
+        .cidade-option {
+            padding: 0.8rem;
+            text-align: center;
+            border-radius: 1rem;
+            background: rgba(30, 30, 40, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+
+        .cidade-option:hover {
+            background: rgba(50, 50, 70, 0.6);
+            border-color: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .cidade-option.selected {
+            background: white;
+            color: black;
+            border-color: white;
+            font-weight: 600;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+        }
+
+        /* Loading */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(10px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .loading-overlay.active {
+            display: flex;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #333;
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Link de recuperação */
+        .forgot-link {
+            color: #888;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .forgot-link:hover {
+            color: white;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <!-- Efeito Liquid Background -->
+    <div class="liquid-bg"></div>
+    
+    <!-- Bolhas flutuantes -->
+    <div class="bubble bubble-1"></div>
+    <div class="bubble bubble-2"></div>
+    <div class="bubble bubble-3"></div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading">
+        <div class="spinner"></div>
+        <p class="text-gray-400 mt-4">Processando...</p>
+    </div>
+
+    <!-- Modal de Login -->
+    <div class="modal-overlay" id="loginModal">
+        <div class="modal-container">
+            <div class="modal-close" onclick="closeLoginModal()">✕</div>
+            
+            <div class="text-center mb-6">
+                <h2 class="text-2xl font-bold">Fazer Login</h2>
+                <p class="text-muted text-sm mt-1">Entre com suas credenciais</p>
+            </div>
+
+            <div id="loginError" class="error-message mb-4"></div>
+
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="mb-4">
+                    <label class="block text-sm mb-2">Email</label>
+                    <input type="email" id="loginEmail" class="input-field" placeholder="seu@email.com" required>
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-sm mb-2">Senha</label>
+                    <div class="input-wrapper">
+                        <input type="password" id="loginPassword" class="input-field" placeholder="••••••" required>
+                        <i class="fas fa-eye input-icon" onclick="togglePasswordVisibility('loginPassword', this)"></i>
+                    </div>
+                </div>
+
+                <div class="flex justify-end mb-6">
+                    <a href="#" onclick="recuperarSenha(event)" class="forgot-link">Esqueceu a senha?</a>
+                </div>
+
+                <!-- Credenciais de teste -->
+                <div class="test-credentials text-sm p-4 rounded-xl mb-4" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">
+                    <p class="font-semibold mb-2">🇲🇿 Pequeno gesto- Grande diferença
+                    </p>
+                    <p class="text-muted">Loge para utilizar o app como deve ser!</p>
+                    <p class="text-muted">Desfrute dos preços acessíveis e comissões boas!</p>
+                    <p class="text-emerald-400 font-semibold mt-2">👑 </p>
+                </div>
+
+                <button type="submit" class="btn-primary">ENTRAR</button>
+            </form>
+
+            <div class="text-center mt-4">
+                <a href="#" onclick="closeLoginModal()" class="text-muted text-sm hover:underline">Continuar criando conta</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Recuperação de Senha -->
+    <div class="modal-overlay" id="recuperarModal">
+        <div class="modal-container">
+            <div class="modal-close" onclick="closeRecuperarModal()">✕</div>
+            
+            <div class="text-center mb-6">
+                <h2 class="text-2xl font-bold">Recuperar Senha</h2>
+                <p class="text-muted text-sm mt-1">Digite seu email para receber instruções</p>
+            </div>
+
+            <div id="recuperarError" class="error-message mb-4"></div>
+            <div id="recuperarSuccess" class="error-message mb-4" style="background: rgba(76, 175, 80, 0.1); border-color: #4caf50; color: #88ff88;"></div>
+
+            <form onsubmit="handleRecuperar(event)">
+                <div class="mb-4">
+                    <label class="block text-sm mb-2">Email</label>
+                    <input type="email" id="recuperarEmail" class="input-field" placeholder="seu@email.com" required>
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-sm mb-2">Confirmar Email</label>
+                    <input type="email" id="confirmarEmail" class="input-field" placeholder="confirme seu email" required>
+                </div>
+
+                <button type="submit" class="btn-primary">ENVIAR INSTRUÇÕES</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Container principal -->
+    <div class="w-full max-w-2xl px-6 relative z-10">
+        <!-- Logo e título -->
+        <div class="text-center mb-8">
+            <img 
+                src="ei_1773419339504-removebg-preview.png" 
+                alt="GoCourier" 
+                class="h-24 w-auto mx-auto mb-4"
+            />
+            <h1 class="text-4xl font-bold tracking-tight text-white">Criar Conta</h1>
+            <p class="text-base text-muted mt-2">Junte-se à maior plataforma de entregas de Moçambique</p>
+        </div>
+
+        <!-- Mensagem de erro -->
+        <div id="errorMessage" class="error-message"></div>
+
+        <!-- Formulário de criação de conta -->
+        <div class="glass rounded-3xl p-8">
+            <!-- Tipo de conta -->
+            <div class="mb-8">
+                <label class="block text-white text-sm mb-4 ml-1">Tipo de conta *</label>
+                <div class="grid grid-cols-2 gap-4">
+                    <!-- Dropshipper -->
+                    <div class="type-option" id="typeDropshipper" onclick="selectType('dropshipper')">
+                        <i class="fas fa-store"></i>
+                        <div class="font-semibold text-lg">Dropshipper</div>
+                        <p class="text-xs text-muted mt-2">Preciso de entregas para meus produtos</p>
+                    </div>
+                    
+                    <!-- Delivery -->
+                    <div class="type-option" id="typeDelivery" onclick="selectType('delivery')">
+                        <i class="fas fa-motorcycle"></i>
+                        <div class="font-semibold text-lg">Entregador</div>
+                        <p class="text-xs text-muted mt-2">Quero fazer entregas e ganhar dinheiro</p>
+                    </div>
+                </div>
+            </div>
+
+            <form id="signupForm" class="space-y-5">
+                <!-- Nome completo -->
+                <div>
+                    <label class="block text-white text-sm mb-2 ml-1">Nome completo *</label>
+                    <input 
+                        type="text" 
+                        id="fullName" 
+                        class="input-field"
+                        placeholder="Seu nome completo"
+                        required
+                    >
+                </div>
+
+                <!-- Email -->
+                <div>
+                    <label class="block text-white text-sm mb-2 ml-1">Email *</label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        class="input-field"
+                        placeholder="seu@email.com"
+                        required
+                    >
+                </div>
+
+                <!-- Confirmar Email -->
+                <div>
+                    <label class="block text-white text-sm mb-2 ml-1">Confirmar Email *</label>
+                    <input 
+                        type="email" 
+                        id="confirmEmail" 
+                        class="input-field"
+                        placeholder="confirme seu email"
+                        required
+                    >
+                </div>
+
+                <!-- Telefone -->
+                <div>
+                    <label class="block text-white text-sm mb-2 ml-1">Telefone (Moçambique) *</label>
+                    <input 
+                        type="tel" 
+                        id="phone" 
+                        class="input-field"
+                        placeholder="84 123 4567"
+                        required
+                    >
+                </div>
+
+                <!-- Cidade (Multi-choice personalizado) -->
+                <div>
+                    <label class="block text-white text-sm mb-2 ml-1">Cidade *</label>
+                    <div class="cidade-selector" id="cidadeSelector">
+                        <div class="cidade-option" onclick="selectCidade('Maputo Cidade')">Maputo Cidade</div>
+                        <div class="cidade-option" onclick="selectCidade('Matola')">Matola</div>
+                        <div class="cidade-option" onclick="selectCidade('Beira')">Beira</div>
+                        <div class="cidade-option" onclick="selectCidade('Nampula')">Nampula</div>
+                        <div class="cidade-option" onclick="selectCidade('Quelimane')">Quelimane</div>
+                        <div class="cidade-option" onclick="selectCidade('Tete')">Tete</div>
+                        <div class="cidade-option" onclick="selectCidade('Lichinga')">Lichinga</div>
+                        <div class="cidade-option" onclick="selectCidade('Pemba')">Pemba</div>
+                    </div>
+                </div>
+
+                <!-- Senha -->
+                <div>
+                    <label class="block text-white text-sm mb-2 ml-1">Senha *</label>
+                    <div class="input-wrapper">
+                        <input type="password" id="password" class="input-field" placeholder="Mínimo 6 caracteres" required>
+                        <i class="fas fa-eye input-icon" onclick="togglePasswordVisibility('password', this)"></i>
+                    </div>
+                </div>
+
+                <!-- Confirmar senha -->
+                <div>
+                    <label class="block text-white text-sm mb-2 ml-1">Confirmar senha *</label>
+                    <div class="input-wrapper">
+                        <input type="password" id="confirmPassword" class="input-field" placeholder="Digite a senha novamente" required>
+                        <i class="fas fa-eye input-icon" onclick="togglePasswordVisibility('confirmPassword', this)"></i>
+                    </div>
+                </div>
+
+                <!-- Termos -->
+                <div class="flex items-center gap-3 mt-6">
+                    <input type="checkbox" id="terms" class="w-5 h-5 accent-white">
+                    <label for="terms" class="text-sm text-muted">
+                        Aceito os <a href="#" class="text-white hover:underline">Termos de Uso</a> e 
+                        <a href="#" class="text-white hover:underline">Política de Privacidade</a>
+                    </label>
+                </div>
+
+                <!-- Botão de criar conta -->
+                <button type="submit" class="btn-primary mt-8">
+                    CRIAR CONTA
+                </button>
+            </form>
+
+            <!-- Link para login (ABRE MODAL) -->
+            <div class="text-center mt-6">
+                <p class="text-muted text-sm">
+                    Já tem uma conta? 
+                    <a href="#" onclick="openLoginModal(event)" class="text-white font-semibold hover:underline text-base">
+                        Fazer login
+                    </a>
+                </p>
+            </div>
+        </div>
+
+        <!-- Versão -->
+        <p class="text-center text-muted text-xs mt-6">
+            GoCourier v2.0.0 • 2026
+        </p>
+    </div>
+
+    <script>
+        let selectedType = null;
+        let selectedCidade = '';
+
+        // ========== TOGGLE VISIBILIDADE DA SENHA ==========
+        function togglePasswordVisibility(inputId, icon) {
+            const input = document.getElementById(inputId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
+        // ========== SELEÇÃO DE CIDADE ==========
+        function selectCidade(cidade) {
+            selectedCidade = cidade;
+            
+            // Remover seleção anterior
+            document.querySelectorAll('.cidade-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            
+            // Adicionar seleção à escolhida
+            event.target.classList.add('selected');
+        }
+
+        // ========== FUNÇÕES DO MODAL DE LOGIN ==========
+        function openLoginModal(e) {
+            if(e) e.preventDefault();
+            document.getElementById('loginModal').classList.add('active');
+        }
+
+        function closeLoginModal() {
+            document.getElementById('loginModal').classList.remove('active');
+            document.getElementById('loginError').classList.remove('show');
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const errorDiv = document.getElementById('loginError');
+
+            // Verificar se é admin
+            if (email === 'admin@gocourier.com' && password === 'Goddid') {
+                // Criar admin se não existir
+                let usuarios = JSON.parse(localStorage.getItem('usuarios')) || [];
+                const adminExists = usuarios.find(u => u.email === 'admin@gocourier.com');
+                
+                if (!adminExists) {
+                    const adminUser = {
+                        id: 'admin',
+                        nome: 'Administrador',
+                        email: 'admin@gocourier.com',
+                        senha: 'Goddid',
+                        tipo: 'admin',
+                        cidade: 'Maputo',
+                        verificado: true
+                    };
+                    usuarios.push(adminUser);
+                    localStorage.setItem('usuarios', JSON.stringify(usuarios));
+                }
+
+                // Salvar admin logado
+                localStorage.setItem('usuarioLogado', JSON.stringify({
+                    id: 'admin',
+                    nome: 'Administrador',
+                    email: 'admin@gocourier.com',
+                    tipo: 'admin',
+                    verificado: true
+                }));
+
+                document.getElementById('loading').classList.add('active');
+                setTimeout(() => {
+                    window.location.href = 'painel-supremo.html';
+                }, 1000);
+                return;
+            }
+
+            // Buscar usuários
+            const usuarios = JSON.parse(localStorage.getItem('usuarios')) || [];
+
+            // Usuários de teste se não houver nenhum
+            if (usuarios.length === 0) {
+                const usuarioTeste = {
+                    id: 1,
+                    nome: 'João Silva',
+                    email: 'joao@email.com',
+                    senha: '123456',
+                    tipo: 'dropshipper',
+                    cidade: 'Maputo',
+                    saldo: 0
+                };
+                const usuarioTeste2 = {
+                    id: 2,
+                    nome: 'Maria Santos',
+                    email: 'maria@email.com',
+                    senha: '123456',
+                    tipo: 'delivery',
+                    cidade: 'Maputo',
+                    saldo: 0
+                };
+                usuarios.push(usuarioTeste, usuarioTeste2);
+                localStorage.setItem('usuarios', JSON.stringify(usuarios));
+            }
+
+            // Procurar usuário
+            const usuario = usuarios.find(u => u.email === email && u.senha === password);
+
+            if (usuario) {
+                localStorage.setItem('usuarioLogado', JSON.stringify(usuario));
+                document.getElementById('loading').classList.add('active');
+
+                setTimeout(() => {
+                    if (usuario.tipo === 'dropshipper') {
+                        window.location.href = 'dashboard-dropshipper.html';
+                    } else if (usuario.tipo === 'delivery') {
+                        window.location.href = 'entregas.html';
+                    } else {
+                        window.location.href = 'painel-supremo.html';
+                    }
+                }, 1000);
+            } else {
+                errorDiv.textContent = 'Email ou senha incorretos';
+                errorDiv.classList.add('show');
+            }
+        }
+
+        // ========== FUNÇÕES DE RECUPERAÇÃO DE SENHA ==========
+        function recuperarSenha(e) {
+            e.preventDefault();
+            closeLoginModal();
+            document.getElementById('recuperarModal').classList.add('active');
+        }
+
+        function closeRecuperarModal() {
+            document.getElementById('recuperarModal').classList.remove('active');
+            document.getElementById('recuperarError').classList.remove('show');
+            document.getElementById('recuperarSuccess').classList.remove('show');
+        }
+
+        function handleRecuperar(e) {
+            e.preventDefault();
+
+            const email = document.getElementById('recuperarEmail').value;
+            const confirmEmail = document.getElementById('confirmarEmail').value;
+            const errorDiv = document.getElementById('recuperarError');
+            const successDiv = document.getElementById('recuperarSuccess');
+
+            errorDiv.classList.remove('show');
+            successDiv.classList.remove('show');
+
+            if (email !== confirmEmail) {
+                errorDiv.textContent = 'Os emails não coincidem';
+                errorDiv.classList.add('show');
+                return;
+            }
+
+            const usuarios = JSON.parse(localStorage.getItem('usuarios')) || [];
+            const usuario = usuarios.find(u => u.email === email);
+
+            if (!usuario) {
+                errorDiv.textContent = 'Email não encontrado';
+                errorDiv.classList.add('show');
+                return;
+            }
+
+            // Simular envio de email
+            successDiv.textContent = 'Instruções enviadas para seu email! (simulação)';
+            successDiv.classList.add('show');
+
+            setTimeout(() => {
+                closeRecuperarModal();
+            }, 3000);
+        }
+
+        // ========== FUNÇÕES DO CADASTRO ==========
+        function selectType(type) {
+            selectedType = type;
+            
+            document.getElementById('typeDropshipper').classList.remove('selected');
+            document.getElementById('typeDelivery').classList.remove('selected');
+            
+            document.getElementById(type === 'dropshipper' ? 'typeDropshipper' : 'typeDelivery').classList.add('selected');
+            
+            document.getElementById('errorMessage').classList.remove('show');
+        }
+
+        document.getElementById('signupForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const errorDiv = document.getElementById('errorMessage');
+            
+            if (!selectedType) {
+                errorDiv.textContent = 'Selecione o tipo de conta';
+                errorDiv.classList.add('show');
+                return;
+            }
+
+            if (!selectedCidade) {
+                errorDiv.textContent = 'Selecione sua cidade';
+                errorDiv.classList.add('show');
+                return;
+            }
+
+            const fullName = document.getElementById('fullName').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const confirmEmail = document.getElementById('confirmEmail').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const terms = document.getElementById('terms').checked;
+
+            if (!fullName) {
+                errorDiv.textContent = 'Digite seu nome completo';
+                errorDiv.classList.add('show');
+                return;
+            }
+
+            if (!email || !email.includes('@')) {
+                errorDiv.textContent = 'Digite um email válido';
+                errorDiv.classList.add('show');
+                return;
+            }
+
+            if (email !== confirmEmail) {
+                errorDiv.textContent = 'Os emails não coincidem';
+                errorDiv.classList.add('show');
+                return;
+            }
+
+            if (!phone) {
+                errorDiv.textContent = 'Digite seu telefone';
+                errorDiv.classList.add('show');
+                return;
+            }
+
+            if (phone.replace(/\D/g, '').length < 9) {
+                errorDiv.textContent = 'Telefone inválido (formato: 84 123 4567)';
+                errorDiv.classList.add('show');
+                return;
+            }
+
+            if (!password || password.length < 6) {
+                errorDiv.textContent = 'A senha deve ter pelo menos 6 caracteres';
+                errorDiv.classList.add('show');
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                errorDiv.textContent = 'As senhas não coincidem';
+                errorDiv.classList.add('show');
+                return;
+            }
+
+            if (!terms) {
+                errorDiv.textContent = 'Aceite os termos de uso para continuar';
+                errorDiv.classList.add('show');
+                return;
+            }
+
+            let usuarios = JSON.parse(localStorage.getItem('usuarios')) || [];
+
+            if (usuarios.find(u => u.email === email)) {
+                errorDiv.textContent = 'Este email já está cadastrado';
+                errorDiv.classList.add('show');
+                return;
+            }
+
+            const novoUsuario = {
+                id: Date.now(),
+                nome: fullName,
+                email: email,
+                senha: password,
+                tipo: selectedType,
+                cidade: selectedCidade,
+                telefone: phone,
+                foto: 'https://via.placeholder.com/100',
+                saldo: 0,
+                aReceber: 0,
+                totalMes: 0,
+                notificacoesNaoLidas: 0,
+                criadoEm: new Date().toISOString()
+            };
+
+            usuarios.push(novoUsuario);
+            localStorage.setItem('usuarios', JSON.stringify(usuarios));
+
+            document.getElementById('loading').classList.add('active');
+
+            setTimeout(() => {
+                localStorage.setItem('usuarioLogado', JSON.stringify(novoUsuario));
+
+                if (selectedType === 'dropshipper') {
+                    window.location.href = 'dashboard-dropshipper.html';
+                } else {
+                    window.location.href = 'entregas.html';
+                }
+            }, 1500);
+        });
+
+        // Máscara de telefone
+        document.getElementById('phone').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 9) value = value.slice(0, 9);
+            
+            if (value.length > 2) {
+                value = value.replace(/^(\d{2})(\d+)/, '$1 $2');
+            }
+            
+            e.target.value = value;
+        });
+
+        // Esconder erro ao digitar
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('input', () => {
+                document.getElementById('errorMessage').classList.remove('show');
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>GoCourier • Configurações</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { 
+      background: #000000; 
+      color: #ffffff; 
+      font-family: 'Inter', system-ui, sans-serif; 
+      -webkit-tap-highlight-color: transparent;
+    }
+    .glass {
+      background: rgba(255,255,255,0.04);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .settings-item {
+      background: #111111;
+      border-radius: 1rem;
+      padding: 1.2rem;
+      margin-bottom: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .settings-item:hover {
+      background: #1a1a1a;
+    }
+    .settings-item:active {
+      transform: scale(0.98);
+    }
+    .settings-icon {
+      width: 48px;
+      height: 48px;
+      background: #1f1f1f;
+      border-radius: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+    }
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 52px;
+      height: 28px;
+      margin-left: auto;
+    }
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #333;
+      transition: .3s;
+      border-radius: 34px;
+    }
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 22px;
+      width: 22px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .3s;
+      border-radius: 50%;
+    }
+    input:checked + .slider {
+      background-color: #4caf50;
+    }
+    input:checked + .slider:before {
+      transform: translateX(24px);
+    }
+    .text-muted { color: #aaaaaa; }
+    .border-light { border-color: rgba(255,255,255,0.08); }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+  <!-- Loading -->
+  <div class="loading-overlay" id="loading">
+    <div class="loading-spinner"></div>
+  </div>
+
+  <!-- HEADER FIXO -->
+  <header class="fixed top-0 left-0 right-0 z-40 bg-black/90 backdrop-blur-xl border-b border-light px-5 py-4 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="cursor-pointer" onclick="window.history.back()">
+        <i class="fas fa-arrow-left text-2xl text-light"></i>
+      </div>
+      <img 
+        src="ei_1773419339504-removebg-preview.png" 
+        alt="GoCourier" 
+        class="h-12 w-auto"
+      />
+      <span class="font-bold text-xl tracking-tight">Configurações</span>
+    </div>
+    
+    <div class="flex items-center gap-5">
+      <div class="w-9 h-9 bg-gray-800 rounded-full flex items-center justify-center text-sm font-medium cursor-pointer" onclick="window.location.href='perfil-dropshipper.html'">
+        <i class="fas fa-user"></i>
+      </div>
+    </div>
+  </header>
+
+  <div class="h-20"></div>
+
+  <!-- CONTEÚDO -->
+  <main class="flex-1 px-5 pb-28">
+    
+    <!-- PERFIL -->
+    <div class="glass rounded-3xl p-5 mb-6 border-light">
+      <div class="flex items-center gap-4">
+        <div class="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center text-xl font-bold">
+          <span id="userInitials">TM</span>
+        </div>
+        <div>
+          <h2 class="text-xl font-semibold" id="userName">TechStore MZ</h2>
+          <p class="text-muted text-sm" id="userEmail">techstore@email.com</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONFIGURAÇÕES DA CONTA -->
+    <h3 class="text-xs uppercase tracking-wider text-muted mb-3">Conta</h3>
+    
+    <div class="settings-item" onclick="window.location.href='perfil-dropshipper.html'">
+      <div class="settings-icon">
+        <i class="fas fa-user"></i>
+      </div>
+      <div>
+        <p class="font-medium">Informações Pessoais</p>
+        <p class="text-xs text-muted">Nome, email, telefone</p>
+      </div>
+      <i class="fas fa-chevron-right text-muted ml-auto"></i>
+    </div>
+
+    <div class="settings-item" onclick="window.location.href='verificacao.html'">
+      <div class="settings-icon">
+        <i class="fas fa-shield-alt"></i>
+      </div>
+      <div>
+        <p class="font-medium">Verificação de Conta</p>
+        <p class="text-xs text-muted">BI, documentos, status</p>
+      </div>
+      <span class="bg-yellow-600 text-xs px-2 py-1 rounded-full">Pendente</span>
+    </div>
+
+    <div class="settings-item" onclick="window.location.href='enderecos.html'">
+      <div class="settings-icon">
+        <i class="fas fa-map-marker-alt"></i>
+      </div>
+      <div>
+        <p class="font-medium">Endereços</p>
+        <p class="text-xs text-muted">Gerir locais de entrega</p>
+      </div>
+      <i class="fas fa-chevron-right text-muted ml-auto"></i>
+    </div>
+
+    <!-- PAGAMENTOS -->
+    <h3 class="text-xs uppercase tracking-wider text-muted mt-6 mb-3">Pagamentos</h3>
+
+    <div class="settings-item" onclick="window.location.href='pagamentos.html'">
+      <div class="settings-icon">
+        <i class="fas fa-credit-card"></i>
+      </div>
+      <div>
+        <p class="font-medium">Métodos de Pagamento</p>
+        <p class="text-xs text-muted">Emola, Mpesa, Banco</p>
+      </div>
+      <i class="fas fa-chevron-right text-muted ml-auto"></i>
+    </div>
+
+    <div class="settings-item" onclick="window.location.href='historico-pagamentos.html'">
+      <div class="settings-icon">
+        <i class="fas fa-history"></i>
+      </div>
+      <div>
+        <p class="font-medium">Histórico de Pagamentos</p>
+        <p class="text-xs text-muted">Extratos e comprovativos</p>
+      </div>
+      <i class="fas fa-chevron-right text-muted ml-auto"></i>
+    </div>
+
+    <!-- NOTIFICAÇÕES -->
+    <h3 class="text-xs uppercase tracking-wider text-muted mt-6 mb-3">Notificações</h3>
+
+    <div class="settings-item">
+      <div class="settings-icon">
+        <i class="fas fa-bell"></i>
+      </div>
+      <div>
+        <p class="font-medium">Notificações Push</p>
+        <p class="text-xs text-muted">Alertas de pedidos</p>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="pushNotifications" checked>
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="settings-item">
+      <div class="settings-icon">
+        <i class="fas fa-envelope"></i>
+      </div>
+      <div>
+        <p class="font-medium">Notificações por Email</p>
+        <p class="text-xs text-muted">Relatórios e promoções</p>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="emailNotifications">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="settings-item">
+      <div class="settings-icon">
+        <i class="fas fa-sms"></i>
+      </div>
+      <div>
+        <p class="font-medium">Notificações por SMS</p>
+        <p class="text-xs text-muted">Atualizações de entregas</p>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="smsNotifications" checked>
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <!-- SEGURANÇA -->
+    <h3 class="text-xs uppercase tracking-wider text-muted mt-6 mb-3">Segurança</h3>
+
+    <div class="settings-item" onclick="window.location.href='alterar-senha.html'">
+      <div class="settings-icon">
+        <i class="fas fa-lock"></i>
+      </div>
+      <div>
+        <p class="font-medium">Alterar Senha</p>
+        <p class="text-xs text-muted">Atualizar password</p>
+      </div>
+      <i class="fas fa-chevron-right text-muted ml-auto"></i>
+    </div>
+
+    <div class="settings-item" onclick="window.location.href='autenticacao.html'">
+      <div class="settings-icon">
+        <i class="fas fa-mobile-alt"></i>
+      </div>
+      <div>
+        <p class="font-medium">Autenticação de dois fatores</p>
+        <p class="text-xs text-muted">Mais segurança</p>
+      </div>
+      <i class="fas fa-chevron-right text-muted ml-auto"></i>
+    </div>
+
+    <!-- SUPORTE -->
+    <h3 class="text-xs uppercase tracking-wider text-muted mt-6 mb-3">Suporte</h3>
+
+    <div class="settings-item" onclick="window.location.href='suporte.html'">
+      <div class="settings-icon">
+        <i class="fas fa-question-circle"></i>
+      </div>
+      <div>
+        <p class="font-medium">Central de Ajuda</p>
+        <p class="text-xs text-muted">Perguntas frequentes</p>
+      </div>
+      <i class="fas fa-chevron-right text-muted ml-auto"></i>
+    </div>
+
+    <div class="settings-item" onclick="window.location.href='termos.html'">
+      <div class="settings-icon">
+        <i class="fas fa-file-alt"></i>
+      </div>
+      <div>
+        <p class="font-medium">Termos de Uso</p>
+        <p class="text-xs text-muted">Políticas e condições</p>
+      </div>
+      <i class="fas fa-chevron-right text-muted ml-auto"></i>
+    </div>
+
+    <div class="settings-item" onclick="window.location.href='privacidade.html'">
+      <div class="settings-icon">
+        <i class="fas fa-user-secret"></i>
+      </div>
+      <div>
+        <p class="font-medium">Política de Privacidade</p>
+        <p class="text-xs text-muted">Como usamos seus dados</p>
+      </div>
+      <i class="fas fa-chevron-right text-muted ml-auto"></i>
+    </div>
+
+    <div class="settings-item" onclick="abrirWhatsApp()">
+      <div class="settings-icon" style="color: #25D366;">
+        <i class="fab fa-whatsapp"></i>
+      </div>
+      <div>
+        <p class="font-medium">Falar com Suporte</p>
+        <p class="text-xs text-muted">Atendimento via WhatsApp</p>
+      </div>
+      <i class="fas fa-external-link-alt text-muted ml-auto"></i>
+    </div>
+
+    <!-- SOBRE -->
+    <h3 class="text-xs uppercase tracking-wider text-muted mt-6 mb-3">Sobre</h3>
+
+    <div class="settings-item" onclick="window.location.href='sobre.html'">
+      <div class="settings-icon">
+        <i class="fas fa-info-circle"></i>
+      </div>
+      <div>
+        <p class="font-medium">Sobre o GoCourier</p>
+        <p class="text-xs text-muted">Versão 1.0.0</p>
+      </div>
+      <i class="fas fa-chevron-right text-muted ml-auto"></i>
+    </div>
+
+    <!-- SAIR -->
+    <div class="settings-item" style="margin-top: 2rem;" onclick="logout()">
+      <div class="settings-icon" style="color: #ff6666;">
+        <i class="fas fa-sign-out-alt"></i>
+      </div>
+      <div>
+        <p class="font-medium text-red-400">Terminar Sessão</p>
+        <p class="text-xs text-muted">Sair da sua conta</p>
+      </div>
+    </div>
+
+    <!-- BOTTOM NAV -->
+    <nav class="fixed bottom-0 left-0 right-0 z-40 glass border-t border-light px-4 py-3 flex justify-around items-center">
+      <button class="flex flex-col items-center text-muted" onclick="window.location.href='dashboard-dropshipper.html'">
+        <i class="fas fa-home text-2xl"></i>
+        <span class="text-[10px] mt-1">Início</span>
+      </button>
+      <button class="flex flex-col items-center text-muted" onclick="window.location.href='pedidos.html'">
+        <i class="fas fa-box text-2xl"></i>
+        <span class="text-[10px] mt-1">Pedidos</span>
+      </button>
+      <button class="flex flex-col items-center text-white">
+        <i class="fas fa-cog text-2xl"></i>
+        <span class="text-[10px] mt-1">Config</span>
+      </button>
+      <button class="flex flex-col items-center text-muted" onclick="window.location.href='perfil-dropshipper.html'">
+        <i class="fas fa-user text-2xl"></i>
+        <span class="text-[10px] mt-1">Perfil</span>
+      </button>
+    </nav>
+  </main>
+
+  <style>
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.95);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      backdrop-filter: blur(8px);
+    }
+    .loading-overlay.active {
+      display: flex;
+    }
+    .loading-spinner {
+      width: 50px;
+      height: 50px;
+      border: 3px solid #1a1a1a;
+      border-top: 3px solid #ffffff;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+
+  <script>
+    // Carregar dados do usuário
+    let usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado'));
+
+    function atualizarUserInfo() {
+      if (usuarioLogado) {
+        document.getElementById('userName').textContent = usuarioLogado.nome || 'TechStore MZ';
+        document.getElementById('userEmail').textContent = usuarioLogado.email || 'techstore@email.com';
+        
+        // Iniciais para o avatar
+        const nome = usuarioLogado.nome || 'TechStore';
+        const iniciais = nome.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+        document.getElementById('userInitials').textContent = iniciais;
+      }
+    }
+
+    // Salvar preferências de notificação
+    document.getElementById('pushNotifications').addEventListener('change', function(e) {
+      localStorage.setItem('pushNotifications', e.target.checked);
+    });
+
+    document.getElementById('emailNotifications').addEventListener('change', function(e) {
+      localStorage.setItem('emailNotifications', e.target.checked);
+    });
+
+    document.getElementById('smsNotifications').addEventListener('change', function(e) {
+      localStorage.setItem('smsNotifications', e.target.checked);
+    });
+
+    // Carregar preferências salvas
+    function carregarPreferencias() {
+      document.getElementById('pushNotifications').checked = localStorage.getItem('pushNotifications') !== 'false';
+      document.getElementById('emailNotifications').checked = localStorage.getItem('emailNotifications') === 'true';
+      document.getElementById('smsNotifications').checked = localStorage.getItem('smsNotifications') !== 'false';
+    }
+
+    function abrirWhatsApp() {
+      const numero = '258833333265';
+      const mensagem = encodeURIComponent('Olá! Preciso de ajuda com minha conta no GoCourier.');
+      window.open(`https://wa.me/${numero}?text=${mensagem}`, '_blank');
+    }
+
+    function logout() {
+      if (confirm('Tem certeza que deseja sair?')) {
+        document.getElementById('loading').classList.add('active');
+        setTimeout(() => {
+          localStorage.removeItem('usuarioLogado');
+          window.location.href = 'login.html';
+        }, 1000);
+      }
+    }
+
+    window.onload = () => {
+      atualizarUserInfo();
+      carregarPreferencias();
+    };
+  </script>
+</body>
+</html>

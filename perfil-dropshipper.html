@@ -1,0 +1,1194 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title></title>
+</head>
+
+<body>
+  
+</body>
+
+</html><!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>GoCourier · Perfil Dropshipper</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #000000;
+            color: #ffffff;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Loading */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .loading-overlay.active {
+            display: flex;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid #1a1a1a;
+            border-top: 3px solid #ffffff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Layout principal */
+        .app-layout {
+            display: flex;
+            height: 100vh;
+            width: 100%;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: #0a0a0a;
+            border-right: 1px solid #1a1a1a;
+            height: 100vh;
+            overflow-y: auto;
+            padding: 2rem 1rem;
+            transition: width 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .sidebar.closed {
+            width: 0;
+            padding: 0;
+            overflow: hidden;
+            border-right: none;
+        }
+
+        .sidebar-logo {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 2rem;
+            padding-left: 0.5rem;
+            white-space: nowrap;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+        }
+
+        .sidebar-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.8rem 1rem;
+            color: #888;
+            text-decoration: none;
+            border-radius: 0.8rem;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+
+        .sidebar-link:hover {
+            background: #1a1a1a;
+            color: #fff;
+        }
+
+        .sidebar-link.active {
+            background: #1a1a1a;
+            color: #fff;
+            border-left: 3px solid #fff;
+        }
+
+        .sidebar-link svg {
+            width: 1.2rem;
+            height: 1.2rem;
+            stroke: currentColor;
+            fill: none;
+            flex-shrink: 0;
+        }
+
+        /* Botão do menu */
+        .menu-toggle {
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            width: 45px;
+            height: 45px;
+            background: #0a0a0a;
+            border: 1px solid #1a1a1a;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 300;
+            transition: all 0.2s;
+        }
+
+        .menu-toggle:hover {
+            background: #1a1a1a;
+        }
+
+        .menu-toggle svg {
+            width: 24px;
+            height: 24px;
+            stroke: #fff;
+        }
+
+        /* Conteúdo principal */
+        .main-content {
+            flex: 1;
+            height: 100vh;
+            overflow-y: auto;
+            padding: 1rem 2rem;
+        }
+
+        /* Header do Perfil */
+        .profile-header {
+            background: #0a0a0a;
+            border: 1px solid #1a1a1a;
+            border-radius: 1.5rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: #1a1a1a;
+            border: 3px solid #333;
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .profile-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .avatar-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.7);
+            padding: 0.3rem;
+            text-align: center;
+            font-size: 0.7rem;
+            color: #fff;
+            display: none;
+        }
+
+        .profile-avatar:hover .avatar-overlay {
+            display: block;
+        }
+
+        .profile-info {
+            flex: 1;
+        }
+
+        .profile-name {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+        }
+
+        .profile-email {
+            color: #888;
+            margin-bottom: 1rem;
+        }
+
+        .profile-badges {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            background: #1f1f1f;
+            border: 1px solid #333;
+            border-radius: 2rem;
+            padding: 0.4rem 1rem;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .badge.verified {
+            border-color: #4caf50;
+            color: #4caf50;
+        }
+
+        .badge svg {
+            width: 16px;
+            height: 16px;
+            stroke: currentColor;
+        }
+
+        /* Stats do Perfil */
+        .profile-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: #0a0a0a;
+            border: 1px solid #1a1a1a;
+            border-radius: 1rem;
+            padding: 1.5rem;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+        }
+
+        .stat-label {
+            color: #888;
+            font-size: 0.85rem;
+        }
+
+        /* Grid principal */
+        .profile-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        /* Cards */
+        .card {
+            background: #0a0a0a;
+            border: 1px solid #1a1a1a;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.2rem;
+        }
+
+        .card-title {
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card-title svg {
+            width: 20px;
+            height: 20px;
+            stroke: #888;
+        }
+
+        .card-action {
+            color: #888;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+
+        .card-action:hover {
+            color: #fff;
+        }
+
+        /* Informações da loja */
+        .info-row {
+            display: flex;
+            padding: 0.8rem 0;
+            border-bottom: 1px solid #1a1a1a;
+        }
+
+        .info-label {
+            width: 120px;
+            color: #888;
+        }
+
+        .info-value {
+            flex: 1;
+        }
+
+        .info-value.editable {
+            cursor: pointer;
+            color: #4caf50;
+        }
+
+        /* Endereços */
+        .endereco-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem 0;
+            border-bottom: 1px solid #1a1a1a;
+        }
+
+        .endereco-info {
+            flex: 1;
+        }
+
+        .endereco-nome {
+            font-weight: 500;
+            margin-bottom: 0.2rem;
+        }
+
+        .endereco-detalhe {
+            font-size: 0.85rem;
+            color: #888;
+        }
+
+        .endereco-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-icon {
+            background: #1f1f1f;
+            border: 1px solid #333;
+            border-radius: 2rem;
+            padding: 0.3rem 0.8rem;
+            font-size: 0.8rem;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        /* Métodos de pagamento */
+        .pagamento-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.8rem 0;
+            border-bottom: 1px solid #1a1a1a;
+        }
+
+        .pagamento-icon {
+            width: 40px;
+            height: 40px;
+            background: #1f1f1f;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .pagamento-icon svg {
+            width: 24px;
+            height: 24px;
+            stroke: #888;
+        }
+
+        .pagamento-info {
+            flex: 1;
+        }
+
+        .pagamento-nome {
+            font-weight: 500;
+            margin-bottom: 0.2rem;
+        }
+
+        .pagamento-detalhe {
+            font-size: 0.85rem;
+            color: #888;
+        }
+
+        .pagamento-status {
+            font-size: 0.8rem;
+            color: #4caf50;
+        }
+
+        /* Produtos */
+        .produto-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem 0;
+            border-bottom: 1px solid #1a1a1a;
+        }
+
+        .produto-nome {
+            font-weight: 500;
+            margin-bottom: 0.2rem;
+        }
+
+        .produto-stats {
+            font-size: 0.8rem;
+            color: #888;
+        }
+
+        .produto-preco {
+            font-weight: 600;
+            color: #4caf50;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-container {
+            width: 90%;
+            max-width: 500px;
+            background: #0a0a0a;
+            border: 1px solid #1a1a1a;
+            border-radius: 1.5rem;
+            padding: 2rem;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: #666;
+            font-size: 2rem;
+            cursor: pointer;
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .form-label {
+            display: block;
+            color: #888;
+            font-size: 0.85rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 0.8rem;
+            padding: 0.8rem 1rem;
+            color: #fff;
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: #666;
+        }
+
+        .btn-primary {
+            background: #fff;
+            border: none;
+            border-radius: 2rem;
+            padding: 0.8rem 1.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        /* Responsivo */
+        @media (max-width: 1024px) {
+            .profile-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .profile-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            .profile-badges {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading -->
+    <div class="loading-overlay" id="loading">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Modal Editar Perfil -->
+    <div class="modal-overlay" id="modalEditar">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3>Editar Perfil</h3>
+                <button class="modal-close" onclick="fecharModal()">×</button>
+            </div>
+            <form id="editarForm" onsubmit="salvarPerfil(event)">
+                <div class="form-group">
+                    <label class="form-label">Nome da Loja</label>
+                    <input type="text" class="form-input" id="editNomeLoja" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Nome do Responsável</label>
+                    <input type="text" class="form-input" id="editNome" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Telefone</label>
+                    <input type="tel" class="form-input" id="editTelefone" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-input" id="editEmail" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">NIF</label>
+                    <input type="text" class="form-input" id="editNif">
+                </div>
+                <button type="submit" class="btn-primary">Salvar Alterações</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Endereço -->
+    <div class="modal-overlay" id="modalEndereco">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3>Novo Endereço</h3>
+                <button class="modal-close" onclick="fecharModal()">×</button>
+            </div>
+            <form onsubmit="salvarEndereco(event)">
+                <div class="form-group">
+                    <label class="form-label">Nome do Endereço</label>
+                    <input type="text" class="form-input" id="enderecoNome" placeholder="Ex: Loja principal" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Província</label>
+                    <select class="form-select" id="enderecoProvincia" required>
+                        <option value="">Selecione</option>
+                        <option value="Maputo Cidade">Maputo Cidade</option>
+                        <option value="Maputo">Maputo</option>
+                        <option value="Gaza">Gaza</option>
+                        <option value="Inhambane">Inhambane</option>
+                        <option value="Sofala">Sofala</option>
+                        <option value="Manica">Manica</option>
+                        <option value="Tete">Tete</option>
+                        <option value="Zambézia">Zambézia</option>
+                        <option value="Nampula">Nampula</option>
+                        <option value="Cabo Delgado">Cabo Delgado</option>
+                        <option value="Niassa">Niassa</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Cidade/Bairro</label>
+                    <input type="text" class="form-input" id="enderecoCidade" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Rua/Avenida</label>
+                    <input type="text" class="form-input" id="enderecoRua" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Número</label>
+                    <input type="text" class="form-input" id="enderecoNumero">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Ponto de Referência</label>
+                    <input type="text" class="form-input" id="enderecoRef" placeholder="Ex: Próximo ao mercado">
+                </div>
+                <button type="submit" class="btn-primary">Salvar Endereço</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Botão do menu -->
+    <div class="menu-toggle" id="menuToggle" onclick="toggleMenu()">
+        <svg viewBox="0 0 24 24">
+            <line x1="3" y1="12" x2="21" y2="12"/>
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+    </div>
+
+    <!-- Layout -->
+    <div class="app-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-logo">GoCourier</div>
+            <ul class="sidebar-menu">
+                <li class="sidebar-item">
+                    <a class="sidebar-link" onclick="navegar('dashboard')">
+                        <svg viewBox="0 0 24 24">
+                            <rect x="3" y="3" width="8" height="8" rx="2"/>
+                            <rect x="13" y="3" width="8" height="8" rx="2"/>
+                            <rect x="3" y="13" width="8" height="8" rx="2"/>
+                            <rect x="13" y="13" width="8" height="8" rx="2"/>
+                        </svg>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a class="sidebar-link active" onclick="navegar('perfil')">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                            <circle cx="12" cy="7" r="4"/>
+                        </svg>
+                        <span>Meu Perfil</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a class="sidebar-link" onclick="navegar('pedidos')">
+                        <svg viewBox="0 0 24 24">
+                            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+                            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+                        </svg>
+                        <span>Pedidos</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a class="sidebar-link" onclick="navegar('produtos')">
+                        <svg viewBox="0 0 24 24">
+                            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+                            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+                        </svg>
+                        <span>Produtos</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a class="sidebar-link" onclick="navegar('pagamentos')">
+                        <svg viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="2"/>
+                            <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/>
+                        </svg>
+                        <span>Pagamentos</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a class="sidebar-link" onclick="logout()">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                            <polyline points="16 17 21 12 16 7"/>
+                            <line x1="21" y1="12" x2="9" y2="12"/>
+                        </svg>
+                        <span>Sair</span>
+                    </a>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Conteúdo principal -->
+        <main class="main-content" id="mainContent">
+            <!-- Header do Perfil -->
+            <div class="profile-header">
+                <div class="profile-avatar" onclick="alterarFoto()">
+                    <img src="https://via.placeholder.com/120" alt="Avatar" id="profileAvatar">
+                    <div class="avatar-overlay">Alterar foto</div>
+                </div>
+                
+                <div class="profile-info">
+                    <h1 class="profile-name" id="profileName">Carregando...</h1>
+                    <div class="profile-email" id="profileEmail">email@exemplo.com</div>
+                    
+                    <div class="profile-badges">
+                        <span class="badge verified">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M20 6L9 17l-5-5"/>
+                            </svg>
+                            Conta verificada
+                        </span>
+                        <span class="badge">
+                            <svg viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="10"/>
+                                <path d="M12 6v6l4 2"/>
+                            </svg>
+                            Membro desde 2026
+                        </span>
+                    </div>
+                </div>
+                
+                <button class="btn-primary" style="width: auto; padding: 0.8rem 2rem;" onclick="abrirModalEditar()">Editar Perfil</button>
+            </div>
+
+            <!-- Stats -->
+            <div class="profile-stats">
+                <div class="stat-card">
+                    <div class="stat-value" id="statsTotalPedidos">0</div>
+                    <div class="stat-label">Total de pedidos</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statsEntregues">0</div>
+                    <div class="stat-label">Entregues</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statsEmAndamento">0</div>
+                    <div class="stat-label">Em andamento</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statsProdutos">0</div>
+                    <div class="stat-label">Produtos</div>
+                </div>
+            </div>
+
+            <!-- Grid principal -->
+            <div class="profile-grid">
+                <!-- Coluna esquerda -->
+                <div>
+                    <!-- Informações da Loja -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <svg viewBox="0 0 24 24">
+                                    <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+                                    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+                                </svg>
+                                Informações da Loja
+                            </div>
+                            <span class="card-action" onclick="abrirModalEditar()">Editar</span>
+                        </div>
+                        
+                        <div class="info-row">
+                            <span class="info-label">Loja</span>
+                            <span class="info-value" id="infoLoja">—</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Responsável</span>
+                            <span class="info-value" id="infoResponsavel">—</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">NIF</span>
+                            <span class="info-value" id="infoNif">—</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Telefone</span>
+                            <span class="info-value" id="infoTelefone">—</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Email</span>
+                            <span class="info-value" id="infoEmail">—</span>
+                        </div>
+                    </div>
+
+                    <!-- Endereços de Entrega -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <svg viewBox="0 0 24 24">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <path d="M12 2v4M12 22v-4M4 12H2M22 12h-2"/>
+                                </svg>
+                                Endereços de Entrega
+                            </div>
+                            <span class="card-action" onclick="abrirModalEndereco()">+ Adicionar</span>
+                        </div>
+                        
+                        <div id="enderecosContainer">
+                            <!-- Conteúdo via JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Coluna direita -->
+                <div>
+                    <!-- Métodos de Pagamento -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <svg viewBox="0 0 24 24">
+                                    <circle cx="12" cy="12" r="2"/>
+                                    <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/>
+                                </svg>
+                                Métodos de Pagamento
+                            </div>
+                            <span class="card-action" onclick="configurarPagamento()">Configurar</span>
+                        </div>
+                        
+                        <div class="pagamento-item">
+                            <div class="pagamento-icon">
+                                <svg viewBox="0 0 24 24">
+                                    <rect x="2" y="5" width="20" height="14" rx="2"/>
+                                    <line x1="2" y1="10" x2="22" y2="10"/>
+                                </svg>
+                            </div>
+                            <div class="pagamento-info">
+                                <div class="pagamento-nome">Emola</div>
+                                <div class="pagamento-detalhe">84 123 4567</div>
+                            </div>
+                            <div class="pagamento-status">Principal</div>
+                        </div>
+                        
+                        <div class="pagamento-item">
+                            <div class="pagamento-icon">
+                                <svg viewBox="0 0 24 24">
+                                    <rect x="2" y="5" width="20" height="14" rx="2"/>
+                                    <line x1="2" y1="10" x2="22" y2="10"/>
+                                </svg>
+                            </div>
+                            <div class="pagamento-info">
+                                <div class="pagamento-nome">Mpesa</div>
+                                <div class="pagamento-detalhe">85 123 4567</div>
+                            </div>
+                            <div class="pagamento-status">Secundário</div>
+                        </div>
+                        
+                        <div class="pagamento-item">
+                            <div class="pagamento-icon">
+                                <svg viewBox="0 0 24 24">
+                                    <rect x="2" y="5" width="20" height="14" rx="2"/>
+                                    <line x1="2" y1="10" x2="22" y2="10"/>
+                                </svg>
+                            </div>
+                            <div class="pagamento-info">
+                                <div class="pagamento-nome">Conta Bancária</div>
+                                <div class="pagamento-detalhe">BIM · 1234567</div>
+                            </div>
+                            <div class="pagamento-status">Pendente</div>
+                        </div>
+                    </div>
+
+                    <!-- Últimos Produtos -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <svg viewBox="0 0 24 24">
+                                    <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+                                    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+                                </svg>
+                                Últimos Produtos
+                            </div>
+                            <span class="card-action" onclick="navegar('produtos')">Ver todos</span>
+                        </div>
+                        
+                        <div id="produtosContainer">
+                            <!-- Conteúdo via JS -->
+                        </div>
+                    </div>
+
+                    <!-- Documentos -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <svg viewBox="0 0 24 24">
+                                    <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/>
+                                    <line x1="8" y1="8" x2="16" y2="8"/>
+                                    <line x1="8" y1="12" x2="16" y2="12"/>
+                                    <line x1="8" y1="16" x2="12" y2="16"/>
+                                </svg>
+                                Documentos
+                            </div>
+                        </div>
+                        
+                        <div class="info-row">
+                            <span class="info-label">BI</span>
+                            <span class="info-value verified">✓ Verificado</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">NIF</span>
+                            <span class="info-value verified">✓ Verificado</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Alvará</span>
+                            <span class="info-value">Pendente</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // ==================== DADOS DO USUÁRIO ====================
+        let usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado'));
+        
+        if (!usuarioLogado) {
+            window.location.href = 'login.html';
+        }
+
+        // Dados do perfil (salvos no localStorage)
+        let perfil = JSON.parse(localStorage.getItem(`perfil_${usuarioLogado.id}`)) || {
+            nomeLoja: usuarioLogado.nome || 'Minha Loja',
+            nome: usuarioLogado.nome || 'Usuário',
+            email: usuarioLogado.email || 'email@exemplo.com',
+            telefone: usuarioLogado.telefone || '84 123 4567',
+            nif: usuarioLogado.nif || '',
+            enderecos: [
+                {
+                    id: 1,
+                    nome: 'Loja Principal',
+                    provincia: 'Maputo',
+                    cidade: 'Matola',
+                    rua: 'Av. Principal',
+                    numero: '123',
+                    referencia: 'Próximo ao shopping'
+                }
+            ],
+            foto: usuarioLogado.foto || 'https://via.placeholder.com/120'
+        };
+
+        // Dados do dropshipper
+        let pedidos = JSON.parse(localStorage.getItem(`pedidos_${usuarioLogado.id}`)) || [];
+        let produtos = JSON.parse(localStorage.getItem(`produtos_${usuarioLogado.id}`)) || [];
+
+        // ==================== ATUALIZAR INTERFACE ====================
+        function atualizarInterface() {
+            // Informações básicas
+            document.getElementById('profileName').textContent = perfil.nomeLoja;
+            document.getElementById('profileEmail').textContent = perfil.email;
+            document.getElementById('profileAvatar').src = perfil.foto;
+            
+            document.getElementById('infoLoja').textContent = perfil.nomeLoja;
+            document.getElementById('infoResponsavel').textContent = perfil.nome;
+            document.getElementById('infoNif').textContent = perfil.nif || 'Não informado';
+            document.getElementById('infoTelefone').textContent = perfil.telefone;
+            document.getElementById('infoEmail').textContent = perfil.email;
+
+            // Stats
+            const entregues = pedidos.filter(p => p.status === 'delivered').length;
+            const andamento = pedidos.filter(p => p.status === 'progress' || p.status === 'pending').length;
+            
+            document.getElementById('statsTotalPedidos').textContent = pedidos.length;
+            document.getElementById('statsEntregues').textContent = entregues;
+            document.getElementById('statsEmAndamento').textContent = andamento;
+            document.getElementById('statsProdutos').textContent = produtos.length;
+
+            // Endereços
+            const enderecosContainer = document.getElementById('enderecosContainer');
+            if (perfil.enderecos.length === 0) {
+                enderecosContainer.innerHTML = `
+                    <div class="empty-state" style="padding: 1rem;">
+                        <p>Nenhum endereço cadastrado</p>
+                    </div>
+                `;
+            } else {
+                let html = '';
+                perfil.enderecos.forEach(ender => {
+                    html += `
+                        <div class="endereco-item">
+                            <div class="endereco-info">
+                                <div class="endereco-nome">${ender.nome}</div>
+                                <div class="endereco-detalhe">${ender.rua}, ${ender.numero} - ${ender.cidade}, ${ender.provincia}</div>
+                                ${ender.referencia ? `<div class="endereco-detalhe">Ref: ${ender.referencia}</div>` : ''}
+                            </div>
+                            <div class="endereco-actions">
+                                <button class="btn-icon" onclick="editarEndereco(${ender.id})">Editar</button>
+                                <button class="btn-icon" onclick="removerEndereco(${ender.id})">Remover</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                enderecosContainer.innerHTML = html;
+            }
+
+            // Produtos
+            const produtosContainer = document.getElementById('produtosContainer');
+            if (produtos.length === 0) {
+                produtosContainer.innerHTML = `
+                    <div class="empty-state" style="padding: 1rem;">
+                        <p>Nenhum produto cadastrado</p>
+                    </div>
+                `;
+            } else {
+                let html = '';
+                produtos.slice(0, 3).forEach(p => {
+                    html += `
+                        <div class="produto-item">
+                            <div>
+                                <div class="produto-nome">${p.nome}</div>
+                                <div class="produto-stats">${p.quantidade || 0} em stock</div>
+                            </div>
+                            <div class="produto-preco">${p.preco || 0} MZN</div>
+                        </div>
+                    `;
+                });
+                produtosContainer.innerHTML = html;
+            }
+        }
+
+        // ==================== FUNÇÕES DO PERFIL ====================
+        function alterarFoto() {
+            alert('Funcionalidade: Alterar foto de perfil');
+        }
+
+        function abrirModalEditar() {
+            document.getElementById('editNomeLoja').value = perfil.nomeLoja;
+            document.getElementById('editNome').value = perfil.nome;
+            document.getElementById('editTelefone').value = perfil.telefone;
+            document.getElementById('editEmail').value = perfil.email;
+            document.getElementById('editNif').value = perfil.nif || '';
+            
+            document.getElementById('modalEditar').classList.add('active');
+        }
+
+        function salvarPerfil(e) {
+            e.preventDefault();
+
+            perfil.nomeLoja = document.getElementById('editNomeLoja').value;
+            perfil.nome = document.getElementById('editNome').value;
+            perfil.telefone = document.getElementById('editTelefone').value;
+            perfil.email = document.getElementById('editEmail').value;
+            perfil.nif = document.getElementById('editNif').value;
+
+            localStorage.setItem(`perfil_${usuarioLogado.id}`, JSON.stringify(perfil));
+            
+            // Atualizar também no usuário logado
+            usuarioLogado.nome = perfil.nome;
+            usuarioLogado.telefone = perfil.telefone;
+            localStorage.setItem('usuarioLogado', JSON.stringify(usuarioLogado));
+
+            fecharModal();
+            atualizarInterface();
+            alert('Perfil atualizado com sucesso!');
+        }
+
+        function abrirModalEndereco() {
+            document.getElementById('modalEndereco').classList.add('active');
+        }
+
+        function salvarEndereco(e) {
+            e.preventDefault();
+
+            const novoEndereco = {
+                id: Date.now(),
+                nome: document.getElementById('enderecoNome').value,
+                provincia: document.getElementById('enderecoProvincia').value,
+                cidade: document.getElementById('enderecoCidade').value,
+                rua: document.getElementById('enderecoRua').value,
+                numero: document.getElementById('enderecoNumero').value,
+                referencia: document.getElementById('enderecoRef').value
+            };
+
+            perfil.enderecos.push(novoEndereco);
+            localStorage.setItem(`perfil_${usuarioLogado.id}`, JSON.stringify(perfil));
+
+            fecharModal();
+            e.target.reset();
+            atualizarInterface();
+            alert('Endereço adicionado!');
+        }
+
+        function editarEndereco(id) {
+            alert('Editar endereço #' + id);
+        }
+
+        function removerEndereco(id) {
+            if (confirm('Remover este endereço?')) {
+                perfil.enderecos = perfil.enderecos.filter(e => e.id !== id);
+                localStorage.setItem(`perfil_${usuarioLogado.id}`, JSON.stringify(perfil));
+                atualizarInterface();
+            }
+        }
+
+        function configurarPagamento() {
+            alert('Configurar métodos de pagamento');
+        }
+
+        // ==================== NAVEGAÇÃO ====================
+        function toggleMenu() {
+            document.getElementById('sidebar').classList.toggle('closed');
+        }
+
+        function navegar(destino) {
+            mostrarLoading(true);
+            setTimeout(() => {
+                switch(destino) {
+                    case 'dashboard':
+                        window.location.href = 'dashboard-dropshipper.html';
+                        break;
+                    case 'perfil':
+                        window.location.href = 'perfil-dropshipper.html';
+                        break;
+                    case 'pedidos':
+                        window.location.href = 'pedidos.html';
+                        break;
+                    case 'produtos':
+                        window.location.href = 'produtos.html';
+                        break;
+                    case 'pagamentos':
+                        window.location.href = 'pagamentos.html';
+                        break;
+                    default:
+                        alert('Página em desenvolvimento');
+                }
+                mostrarLoading(false);
+            }, 500);
+        }
+
+        function fecharModal() {
+            document.getElementById('modalEditar').classList.remove('active');
+            document.getElementById('modalEndereco').classList.remove('active');
+        }
+
+        function mostrarLoading(show) {
+            const loading = document.getElementById('loading');
+            if (show) {
+                loading.classList.add('active');
+            } else {
+                loading.classList.remove('active');
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('usuarioLogado');
+            window.location.href = 'login.html';
+        }
+
+        // Inicialização
+        window.addEventListener('load', () => {
+            atualizarInterface();
+            if (window.innerWidth <= 768) {
+                document.getElementById('sidebar').classList.add('closed');
+            }
+        });
+    </script>
+</body>
+</html>

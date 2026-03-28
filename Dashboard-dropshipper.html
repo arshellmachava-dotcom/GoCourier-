@@ -1,0 +1,1645 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>GoCourier • Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body { 
+      background: #000000; 
+      color: #ffffff; 
+      font-family: 'Inter', system-ui, sans-serif; 
+      -webkit-tap-highlight-color: transparent;
+    }
+    .glass {
+      background: rgba(255,255,255,0.04);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .stat-card {
+      background: #111111;
+      transition: transform 0.25s ease;
+    }
+    .stat-card:active {
+      transform: scale(0.97);
+    }
+    .fab {
+      background: #ffffff;
+      color: #000000;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+      transition: all 0.3s;
+    }
+    .fab:active {
+      transform: scale(0.88);
+    }
+    input, select, button {
+      font-size: 16px;
+    }
+    .text-muted { color: #aaaaaa; }
+    .text-light { color: #dddddd; }
+    .border-light { border-color: rgba(255,255,255,0.08); }
+
+    /* Selo Azul */
+    .selo-azul {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      background: #2196f3;
+      border-radius: 50%;
+      margin-left: 4px;
+      font-size: 12px;
+      color: white;
+    }
+
+    /* Badge de verificação */
+    .verification-badge {
+      padding: 0.5rem 1rem;
+      border-radius: 2rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .verification-badge.pending {
+      background: rgba(255, 170, 0, 0.15);
+      color: #ffaa00;
+      border: 1px solid rgba(255, 170, 0, 0.3);
+    }
+    .verification-badge.verified {
+      background: rgba(76, 175, 80, 0.15);
+      color: #4caf50;
+      border: 1px solid rgba(76, 175, 80, 0.3);
+    }
+    .verification-badge.rejected {
+      background: rgba(255, 68, 68, 0.15);
+      color: #ff4444;
+      border: 1px solid rgba(255, 68, 68, 0.3);
+    }
+    .verification-badge.suspended {
+      background: rgba(255, 170, 0, 0.15);
+      color: #ffaa00;
+      border: 1px solid rgba(255, 170, 0, 0.3);
+    }
+    .verification-badge.banned {
+      background: rgba(255, 68, 68, 0.15);
+      color: #ff4444;
+      border: 1px solid rgba(255, 68, 68, 0.3);
+    }
+
+    /* Menu lateral */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: -280px;
+      width: 280px;
+      height: 100vh;
+      background: #0a0a0a;
+      border-right: 1px solid #1a1a1a;
+      z-index: 1000;
+      transition: left 0.3s ease;
+      padding: 2rem 1rem;
+      overflow-y: auto;
+    }
+
+    .sidebar.open {
+      left: 0;
+    }
+
+    .sidebar-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 999;
+      display: none;
+    }
+
+    .sidebar-overlay.active {
+      display: block;
+    }
+
+    .sidebar-logo {
+      font-size: 1.8rem;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 2rem;
+      padding-left: 0.5rem;
+    }
+
+    .sidebar-menu {
+      list-style: none;
+    }
+
+    .sidebar-item {
+      margin-bottom: 0.5rem;
+    }
+
+    .sidebar-link {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.8rem 1rem;
+      color: #888;
+      text-decoration: none;
+      border-radius: 0.8rem;
+      transition: all 0.2s;
+      font-size: 0.95rem;
+      cursor: pointer;
+    }
+
+    .sidebar-link:hover {
+      background: #1a1a1a;
+      color: #fff;
+    }
+
+    .sidebar-link i {
+      width: 24px;
+      font-size: 1.2rem;
+    }
+
+    .menu-toggle {
+      cursor: pointer;
+    }
+
+    /* Notificações */
+    .notificacao-item {
+      padding: 1rem;
+      border-bottom: 1px solid #222;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .notificacao-item:hover {
+      background: #1a1a1a;
+    }
+    .notificacao-item.unread {
+      background: rgba(33, 150, 243, 0.1);
+      border-left: 3px solid #2196f3;
+    }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.95);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-container {
+      background: #111;
+      border: 1px solid #333;
+      border-radius: 2rem;
+      padding: 2rem;
+      max-width: 500px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      color: #888;
+      cursor: pointer;
+      font-size: 1.5rem;
+    }
+
+    /* Card de pedido */
+    .pedido-card {
+      background: #111;
+      border: 1px solid #222;
+      border-radius: 1rem;
+      padding: 1rem;
+      margin-bottom: 0.8rem;
+      transition: all 0.2s;
+    }
+    .pedido-card:hover {
+      border-color: #4caf50;
+    }
+    .pedido-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+    }
+    .pedido-id {
+      color: #888;
+      font-size: 0.8rem;
+    }
+    .pedido-status {
+      padding: 0.2rem 0.8rem;
+      border-radius: 2rem;
+      font-size: 0.7rem;
+    }
+    .status-pending {
+      background: rgba(255, 170, 0, 0.15);
+      color: #ffaa00;
+    }
+    .status-progress {
+      background: rgba(76, 175, 80, 0.15);
+      color: #4caf50;
+    }
+    .status-delivered {
+      background: rgba(33, 150, 243, 0.15);
+      color: #2196f3;
+    }
+    .status-cancelled {
+      background: rgba(255, 68, 68, 0.15);
+      color: #ff4444;
+    }
+
+    /* Botões de ação */
+    .btn-success {
+      background: #4caf50;
+      color: white;
+      border: none;
+      border-radius: 2rem;
+      padding: 0.5rem 1rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-success:hover {
+      background: #45a049;
+    }
+    .btn-danger {
+      background: #ff4444;
+      color: white;
+      border: none;
+      border-radius: 2rem;
+      padding: 0.5rem 1rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-danger:hover {
+      background: #ff6666;
+    }
+    .btn-info {
+      background: #2196f3;
+      color: white;
+      border: none;
+      border-radius: 2rem;
+      padding: 0.5rem 1rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* Foto de perfil */
+    .profile-photo {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: #333;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      overflow: hidden;
+      border: 2px solid #4caf50;
+      margin: 0 auto 1rem;
+    }
+    .profile-photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .profile-photo i {
+      font-size: 2rem;
+      color: #666;
+    }
+
+    /* Filtros de entregas */
+    .filtros-entregas {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      overflow-x: auto;
+      padding-bottom: 0.5rem;
+    }
+    .filtro-btn {
+      background: #1a1a1a;
+      color: #888;
+      border: none;
+      border-radius: 2rem;
+      padding: 0.5rem 1rem;
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .filtro-btn.active {
+      background: #4caf50;
+      color: white;
+    }
+    .filtro-btn:hover {
+      background: #333;
+    }
+
+    /* Modal de bloqueio */
+    .blocked-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.95);
+      backdrop-filter: blur(10px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 99999;
+    }
+    .blocked-overlay.active {
+      display: flex;
+    }
+    .blocked-container {
+      background: #111;
+      border: 2px solid #ffaa00;
+      border-radius: 2rem;
+      padding: 2rem;
+      max-width: 400px;
+      text-align: center;
+    }
+    .blocked-icon {
+      font-size: 4rem;
+      color: #ffaa00;
+      margin-bottom: 1rem;
+    }
+    .blocked-title {
+      font-size: 2rem;
+      font-weight: bold;
+      margin-bottom: 1rem;
+    }
+    .blocked-message {
+      color: #aaa;
+      margin-bottom: 2rem;
+    }
+    .blocked-button {
+      background: #ffaa00;
+      color: black;
+      border: none;
+      border-radius: 2rem;
+      padding: 0.8rem 2rem;
+      font-weight: bold;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    .badge {
+      padding: 0.25rem 0.75rem;
+      border-radius: 2rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .badge.warning {
+      background: rgba(255, 170, 0, 0.2);
+      color: #ffaa00;
+    }
+    .badge.success {
+      background: rgba(76, 175, 80, 0.2);
+      color: #4caf50;
+    }
+  </style>
+</head>
+<body>
+  <!-- Modal de Conta Bloqueada -->
+  <div class="blocked-overlay" id="blockedModal">
+    <div class="blocked-container">
+      <div class="blocked-icon">
+        <i class="fas fa-exclamation-triangle"></i>
+      </div>
+      <div class="blocked-title" id="blockedTitle">Conta Suspensa</div>
+      <div class="blocked-message" id="blockedMessage">Sua conta foi suspensa temporariamente.</div>
+      <button class="blocked-button" onclick="window.fecharBlockedModal()">OK</button>
+    </div>
+  </div>
+
+  <!-- Sidebar Overlay -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="window.closeSidebar()"></div>
+
+  <!-- Sidebar Menu -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-logo">GoCourier</div>
+    <ul class="sidebar-menu">
+      <li class="sidebar-item">
+        <div class="sidebar-link" onclick="window.navegar('dashboard')">
+          <i class="fas fa-home"></i>
+          <span>Dashboard</span>
+        </div>
+      </li>
+      <li class="sidebar-item">
+        <div class="sidebar-link" onclick="window.navegar('novo-pedido')">
+          <i class="fas fa-plus-circle"></i>
+          <span>Novo Pedido</span>
+        </div>
+      </li>
+      <li class="sidebar-item">
+        <div class="sidebar-link" onclick="window.navegar('pedidos')">
+          <i class="fas fa-box"></i>
+          <span>Pedidos</span>
+        </div>
+      </li>
+      <li class="sidebar-item">
+        <div class="sidebar-link" onclick="window.navegar('entregadores')">
+          <i class="fas fa-motorcycle"></i>
+          <span>Entregadores</span>
+        </div>
+      </li>
+      <li class="sidebar-item">
+        <div class="sidebar-link" onclick="window.navegar('clientes')">
+          <i class="fas fa-users"></i>
+          <span>Clientes</span>
+        </div>
+      </li>
+      <li class="sidebar-item">
+        <div class="sidebar-link" onclick="window.navegar('relatorios')">
+          <i class="fas fa-chart-bar"></i>
+          <span>Relatórios</span>
+        </div>
+      </li>
+      <li class="sidebar-item">
+        <div class="sidebar-link" onclick="window.navegar('pagamentos')">
+          <i class="fas fa-credit-card"></i>
+          <span>Pagamentos</span>
+        </div>
+      </li>
+      <li class="sidebar-item">
+        <div class="sidebar-link" onclick="window.navegar('notificacoes')">
+          <i class="fas fa-bell"></i>
+          <span>Notificações</span>
+        </div>
+      </li>
+      <li class="sidebar-item">
+        <div class="sidebar-link" onclick="window.navegar('configuracoes')">
+          <i class="fas fa-cog"></i>
+          <span>Configurações</span>
+        </div>
+      </li>
+      <li class="sidebar-item">
+        <div class="sidebar-link" onclick="window.navegar('suporte')">
+          <i class="fas fa-headset"></i>
+          <span>Suporte</span>
+        </div>
+      </li>
+      <li class="sidebar-item">
+        <div class="sidebar-link" onclick="window.navegar('perfil')">
+          <i class="fas fa-user"></i>
+          <span>Meu Perfil</span>
+        </div>
+      </li>
+      <li class="sidebar-item">
+        <div class="sidebar-link" onclick="window.logout()">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Sair</span>
+        </div>
+      </li>
+    </ul>
+  </div>
+
+  <!-- HEADER FIXO -->
+  <header class="fixed top-0 left-0 right-0 z-40 bg-black/90 backdrop-blur-xl border-b border-light px-5 py-4 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="menu-toggle" onclick="window.toggleSidebar()">
+        <i class="fas fa-bars text-2xl text-light"></i>
+      </div>
+      <img 
+        src="ei_1773419339504-removebg-preview.png" 
+        alt="GoCourier" 
+        class="h-12 w-auto"
+      />
+      <span class="font-bold text-xl tracking-tight">GoCourier</span>
+    </div>
+    
+    <div class="flex items-center gap-5">
+      <div class="relative cursor-pointer" onclick="window.abrirNotificacoes()">
+        <i class="fas fa-bell text-xl text-light"></i>
+        <span class="absolute -top-1 -right-1 bg-gray-700 text-[9px] font-bold px-1.5 py-0.5 rounded-full leading-none" id="notificacoesBadge">0</span>
+      </div>
+      <div class="w-9 h-9 bg-gray-800 rounded-full flex items-center justify-center text-sm font-medium cursor-pointer relative" id="userAvatar" onclick="window.navegar('perfil')">
+        <img id="avatarImg" src="" class="w-full h-full rounded-full object-cover hidden">
+        <span id="userInitials">TM</span>
+        <span class="absolute -bottom-1 -right-1" id="seloNoAvatar"></span>
+      </div>
+    </div>
+  </header>
+
+  <div class="h-20"></div>
+
+  <!-- CONTEÚDO -->
+  <main class="flex-1 px-5 pb-28">
+    
+    <div class="flex justify-between items-end mb-6">
+      <div>
+        <h1 class="text-2xl sm:text-3xl font-semibold flex items-center gap-2">
+          Dashboard
+          <span id="seloNoNome"></span>
+        </h1>
+        <p class="text-muted text-sm" id="userInfo">TechStore MZ • Maputo</p>
+      </div>
+      <div id="verification-badge" class="verification-badge pending">
+        <i class="fas fa-shield-alt"></i>
+        Pendente
+      </div>
+    </div>
+
+    <!-- AVISOS -->
+    <div id="verification-warning" class="glass rounded-3xl p-5 mb-7 border border-orange-500/30" style="display: none;">
+      <div class="flex items-center justify-between">
+        <div class="flex-1">
+          <p class="font-semibold text-base text-light">Verificação necessária</p>
+          <p class="text-muted text-sm mt-1">Complete seus documentos para criar pedidos.</p>
+        </div>
+        <a href="verificacao.html" class="bg-white text-black font-medium px-6 py-3 rounded-2xl text-sm whitespace-nowrap hover:bg-gray-200 transition">
+          Verificar agora
+        </a>
+      </div>
+    </div>
+
+    <div id="verification-rejected" class="glass rounded-3xl p-5 mb-7 border border-red-500/30" style="display: none;">
+      <div class="flex items-center justify-between">
+        <div class="flex-1">
+          <p class="font-semibold text-base text-red-400">Verificação reprovada</p>
+          <p class="text-muted text-sm mt-1" id="rejected-message">Seus documentos foram reprovados. Envie novamente.</p>
+        </div>
+        <a href="verificacao.html" class="bg-white text-black font-medium px-6 py-3 rounded-2xl text-sm whitespace-nowrap hover:bg-gray-200 transition">
+          Reenviar
+        </a>
+      </div>
+    </div>
+
+    <div id="suspended-warning" class="glass rounded-3xl p-5 mb-7 border border-yellow-500/30" style="display: none;">
+      <div class="flex items-center gap-3">
+        <i class="fas fa-exclamation-triangle text-yellow-500 text-2xl"></i>
+        <div>
+          <p class="font-semibold text-base text-yellow-400">Conta suspensa</p>
+          <p class="text-muted text-sm mt-1" id="suspended-message">Sua conta foi suspensa temporariamente.</p>
+        </div>
+      </div>
+    </div>
+
+    <div id="banned-warning" class="glass rounded-3xl p-5 mb-7 border border-red-500/30" style="display: none;">
+      <div class="flex items-center gap-3">
+        <i class="fas fa-ban text-red-500 text-2xl"></i>
+        <div>
+          <p class="font-semibold text-base text-red-400">Conta banida</p>
+          <p class="text-muted text-sm mt-1" id="banned-message">Sua conta foi banida permanentemente.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ESTATÍSTICAS -->
+    <div class="grid grid-cols-2 gap-4 mb-8">
+      <div class="stat-card rounded-3xl p-6">
+        <p class="text-xs text-muted uppercase tracking-wider">Pedidos hoje</p>
+        <p class="text-5xl font-semibold mt-3" id="statsPedidosHoje">0</p>
+        <p class="text-muted text-xs mt-4" id="statsVariacao">+0 desde ontem</p>
+      </div>
+      <div class="stat-card rounded-3xl p-6">
+        <p class="text-xs text-muted uppercase tracking-wider">Concluídos</p>
+        <p class="text-5xl font-semibold mt-3" id="statsConcluidos">0</p>
+        <p class="text-muted text-xs mt-4" id="statsConcluidosHoje">hoje</p>
+      </div>
+    </div>
+
+    <!-- FILTROS PARA ENTREGAS -->
+    <div class="mb-4">
+      <p class="text-xs uppercase tracking-wider text-muted mb-3">Minhas Entregas</p>
+      <div class="filtros-entregas">
+        <button class="filtro-btn active" onclick="window.filtrarEntregas('todas')">Todas</button>
+        <button class="filtro-btn" onclick="window.filtrarEntregas('pending')">Pendentes</button>
+        <button class="filtro-btn" onclick="window.filtrarEntregas('progress')">Aceitas</button>
+        <button class="filtro-btn" onclick="window.filtrarEntregas('delivered')">Concluídas</button>
+        <button class="filtro-btn" onclick="window.filtrarEntregas('cancelled')">Canceladas</button>
+      </div>
+    </div>
+
+    <!-- LISTA DE ENTREGAS -->
+    <div class="mb-6">
+      <div class="flex justify-between items-center mb-4">
+        <p class="text-xs uppercase tracking-wider text-muted">Lista de Entregas</p>
+        <span class="text-xs bg-gray-800 px-3 py-1 rounded-full" id="totalEntregas">0</span>
+      </div>
+      <div id="entregasLista" class="space-y-3">
+        <!-- Entregas serão inseridas aqui -->
+      </div>
+    </div>
+
+    <!-- MEUS PEDIDOS -->
+    <div class="mb-6">
+      <div class="flex justify-between items-center mb-4">
+        <p class="text-xs uppercase tracking-wider text-muted">Meus Pedidos</p>
+        <span class="text-xs bg-gray-800 px-3 py-1 rounded-full" id="totalPedidos">0</span>
+      </div>
+      <div id="pedidosLista" class="space-y-3">
+        <!-- Pedidos serão inseridos aqui -->
+      </div>
+    </div>
+
+    <!-- ATIVIDADE RECENTE -->
+    <div>
+      <p class="text-xs uppercase tracking-wider text-muted mb-4">Atividade recente</p>
+      <div id="atividadeRecente" class="glass rounded-3xl p-5 text-center text-muted text-sm py-6 border-light">
+        Nenhuma atividade recente
+      </div>
+    </div>
+  </main>
+
+  <!-- BOTTOM NAV -->
+  <nav class="fixed bottom-0 left-0 right-0 z-40 glass border-t border-light px-4 py-3 flex justify-around items-center">
+    <button class="flex flex-col items-center text-white" onclick="window.navegar('dashboard')">
+      <i class="fas fa-home text-2xl"></i>
+      <span class="text-[10px] mt-1">Início</span>
+    </button>
+    <button class="flex flex-col items-center text-muted" onclick="window.navegar('pedidos')">
+      <i class="fas fa-box text-2xl"></i>
+      <span class="text-[10px] mt-1">Pedidos</span>
+    </button>
+    <button class="flex flex-col items-center text-muted" onclick="window.navegar('entregadores')">
+      <i class="fas fa-motorcycle text-2xl"></i>
+      <span class="text-[10px] mt-1">Entregas</span>
+    </button>
+    <button class="flex flex-col items-center text-muted" onclick="window.navegar('configuracoes')">
+      <i class="fas fa-cog text-2xl"></i>
+      <span class="text-[10px] mt-1">Config</span>
+    </button>
+  </nav>
+
+  <!-- FAB -->
+  <button id="fab" onclick="window.createNewOrder()"
+          class="fab fixed bottom-20 right-6 w-14 h-14 rounded-3xl flex items-center justify-center text-3xl shadow-2xl z-50">
+    <i class="fas fa-plus"></i>
+  </button>
+
+  <!-- MODAL DE NOTIFICAÇÕES -->
+  <div class="modal-overlay" id="notificacoesModal">
+    <div class="modal-container">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold">Notificações</h2>
+        <button onclick="window.fecharNotificacoes()" class="text-gray-400 text-3xl">&times;</button>
+      </div>
+      <div id="notificacoesLista" class="space-y-3 max-h-96 overflow-y-auto">
+        <!-- Notificações serão inseridas aqui -->
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE NOVO PEDIDO -->
+  <div class="modal-overlay" id="novoPedidoModal">
+    <div class="modal-container">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold">Novo Pedido</h2>
+        <button onclick="window.fecharNovoPedidoModal()" class="text-gray-400 text-3xl">&times;</button>
+      </div>
+      
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm text-gray-400 mb-2">Cliente</label>
+          <input type="text" id="pedidoCliente" class="w-full bg-black border border-gray-800 rounded-xl p-3" placeholder="Nome do cliente">
+        </div>
+        
+        <div>
+          <label class="block text-sm text-gray-400 mb-2">Produto</label>
+          <input type="text" id="pedidoProduto" class="w-full bg-black border border-gray-800 rounded-xl p-3" placeholder="Produto a entregar">
+        </div>
+        
+        <div>
+          <label class="block text-sm text-gray-400 mb-2">Endereço</label>
+          <input type="text" id="pedidoEndereco" class="w-full bg-black border border-gray-800 rounded-xl p-3" placeholder="Endereço completo">
+        </div>
+        
+        <div>
+          <label class="block text-sm text-gray-400 mb-2">Cidade</label>
+          <select id="pedidoCidade" class="w-full bg-black border border-gray-800 rounded-xl p-3">
+            <option value="Maputo Cidade">Maputo Cidade</option>
+            <option value="Matola">Matola</option>
+            <option value="Beira">Beira</option>
+            <option value="Nampula">Nampula</option>
+            <option value="Quelimane">Quelimane</option>
+            <option value="Tete">Tete</option>
+          </select>
+        </div>
+        
+        <div>
+          <label class="block text-sm text-gray-400 mb-2">Valor (MZN)</label>
+          <input type="number" id="pedidoValor" class="w-full bg-black border border-gray-800 rounded-xl p-3" placeholder="150">
+        </div>
+        
+        <div>
+          <label class="block text-sm text-gray-400 mb-2">Observações</label>
+          <textarea id="pedidoObs" rows="2" class="w-full bg-black border border-gray-800 rounded-xl p-3" placeholder="Ex: Atrás do contentor azul"></textarea>
+        </div>
+
+        <button onclick="window.salvarNovoPedido()" class="w-full bg-white text-black font-bold py-3 rounded-xl mt-4">
+          Criar Pedido
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE CONFIGURAÇÕES -->
+  <div class="modal-overlay" id="configModal">
+    <div class="modal-container relative">
+      <div class="modal-close" onclick="window.closeConfigModal()">✕</div>
+      <h2 class="text-2xl font-bold mb-6">Configurações</h2>
+      
+      <div class="space-y-6">
+        <!-- Foto de Perfil -->
+        <div>
+          <label class="block text-sm text-muted mb-2">Foto de Perfil</label>
+          <div class="profile-photo" onclick="document.getElementById('fotoPerfil').click()">
+            <input type="file" id="fotoPerfil" accept="image/*" class="hidden" onchange="window.atualizarFotoPerfil(this)">
+            <img id="fotoPerfilPreview" src="" class="w-full h-full object-cover hidden">
+            <i class="fas fa-camera" id="fotoPerfilIcon"></i>
+          </div>
+          <p class="text-xs text-center text-muted mt-2">Clique para alterar foto</p>
+        </div>
+
+        <!-- Status de Verificação -->
+        <div>
+          <label class="block text-sm text-muted mb-2">Verificação de Documentos</label>
+          <div class="bg-black/50 rounded-xl p-4 space-y-3">
+            <div class="flex justify-between items-center">
+              <span>Bilhete de Identidade</span>
+              <span class="badge" id="statusBI">Pendente</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span>Selfie com Documento</span>
+              <span class="badge" id="statusSelfie">Pendente</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span>Comprovativo de Residência</span>
+              <span class="badge" id="statusResidencia">Pendente</span>
+            </div>
+          </div>
+          <button onclick="window.location.href='verificacao.html'" class="w-full mt-3 bg-emerald-600 text-white py-3 rounded-xl hover:bg-emerald-700 transition">
+            <i class="fas fa-shield-alt mr-2"></i>Fazer Verificação
+          </button>
+        </div>
+
+        <div>
+          <label class="block text-sm text-muted mb-2">Cidade de Atuação</label>
+          <select id="configCidade" class="w-full bg-black border border-gray-800 rounded-xl p-3" disabled>
+            <option value="Maputo Cidade">Maputo Cidade</option>
+            <option value="Matola">Matola</option>
+            <option value="Beira">Beira</option>
+            <option value="Nampula">Nampula</option>
+            <option value="Quelimane">Quelimane</option>
+            <option value="Tete">Tete</option>
+            <option value="Lichinga">Lichinga</option>
+            <option value="Pemba">Pemba</option>
+          </select>
+          <p class="text-xs text-muted mt-2">Cidade definida no cadastro. Não pode ser alterada.</p>
+        </div>
+
+        <div>
+          <label class="block text-sm text-muted mb-2">Informações Pessoais</label>
+          <div class="bg-black/50 rounded-xl p-4 space-y-3">
+            <div>
+              <p class="text-xs text-muted">Nome</p>
+              <p class="font-medium" id="configNome">Carregando...</p>
+            </div>
+            <div>
+              <p class="text-xs text-muted">Email</p>
+              <p class="font-medium" id="configEmail">Carregando...</p>
+            </div>
+            <div>
+              <p class="text-xs text-muted">Telefone</p>
+              <p class="font-medium" id="configTelefone">Carregando...</p>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm text-muted mb-2">Estatísticas</label>
+          <div class="bg-black/50 rounded-xl p-4 space-y-3">
+            <div class="flex justify-between">
+              <span>Total entregas</span>
+              <span class="font-bold" id="configTotalEntregas">0</span>
+            </div>
+            <div class="flex justify-between">
+              <span>Total ganho</span>
+              <span class="font-bold text-emerald-400" id="configTotalGanho">0 MT</span>
+            </div>
+          </div>
+        </div>
+
+        <button onclick="window.closeConfigModal()" class="w-full bg-white text-black font-bold py-3 rounded-2xl hover:bg-gray-200 transition">
+          Fechar
+        </button>
+      </div>
+    </div>
+  </div>
+
+<script>
+// ========== INICIALIZAÇÃO DO SUPABASE ==========
+const SUPABASE_URL = 'https://fpgfdyzdl dvfmiuwwpdp.supabase.co'
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZwZ2ZkeXpkbGR2Zm1pdXd3cGRwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM1MDAwNTEsImV4cCI6MjA4OTA3NjA1MX0.r02O8hmvfCHlkyFmakgjQcHANtX545gO4LDtHixbo_Q'
+
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+
+// ========== VARIÁVEIS GLOBAIS ==========
+let usuarioLogado = null;
+let todasEntregas = [];
+let filtroEntregasAtual = 'todas';
+
+// ========== VERIFICAR LOGIN ==========
+function verificarLogin() {
+  const usuario = JSON.parse(localStorage.getItem('usuarioLogado'));
+  
+  if (!usuario) {
+    window.location.href = 'login.html';
+    return null;
+  }
+  
+  return usuario;
+}
+
+// ========== VERIFICAR CONTA SUSPENSA/BANIDA ==========
+function verificarBloqueio() {
+  if (usuarioLogado.banido) {
+    mostrarBlockedModal('Conta Banida', usuarioLogado.motivoBanimento || 'Sua conta foi banida permanentemente.');
+    return true;
+  }
+  if (usuarioLogado.suspenso) {
+    mostrarBlockedModal('Conta Suspensa', usuarioLogado.motivoSuspensao || 'Sua conta foi suspensa temporariamente.');
+    return true;
+  }
+  return false;
+}
+
+function mostrarBlockedModal(titulo, mensagem) {
+  const modal = document.getElementById('blockedModal');
+  document.getElementById('blockedTitle').textContent = titulo;
+  document.getElementById('blockedMessage').textContent = mensagem;
+  modal.classList.add('active');
+  
+  document.querySelectorAll('button').forEach(btn => {
+    if (!btn.classList.contains('blocked-button')) {
+      btn.disabled = true;
+    }
+  });
+  const fab = document.getElementById('fab');
+  if (fab) {
+    fab.style.opacity = '0.35';
+    fab.style.pointerEvents = 'none';
+  }
+}
+
+function fecharBlockedModal() {
+  document.getElementById('blockedModal').classList.remove('active');
+}
+
+// ========== CARREGAR ENTREGAS ==========
+async function carregarEntregas() {
+  if (verificarBloqueio()) return;
+  
+  try {
+    const { data, error } = await supabaseClient
+      .from('entregas')
+      .select('*')
+      .eq('dropshipper_id', usuarioLogado.id)
+      .order('created_at', { ascending: false });
+    
+    if (error) throw error;
+    
+    todasEntregas = data || [];
+    filtrarEntregas(filtroEntregasAtual);
+    
+    const totalEntregas = todasEntregas.length;
+    const totalGanho = todasEntregas.reduce((sum, e) => sum + (e.valor || 0), 0);
+    
+    const configTotal = document.getElementById('configTotalEntregas');
+    const configGanho = document.getElementById('configTotalGanho');
+    if (configTotal) configTotal.textContent = totalEntregas;
+    if (configGanho) configGanho.textContent = totalGanho + ' MT';
+    
+  } catch (error) {
+    console.error('Erro ao carregar entregas:', error);
+  }
+}
+
+// ========== FILTRAR ENTREGAS ==========
+function filtrarEntregas(filtro) {
+  filtroEntregasAtual = filtro;
+  
+  const botoes = document.querySelectorAll('.filtro-btn');
+  botoes.forEach(btn => {
+    btn.classList.remove('active');
+    if (btn.textContent.toLowerCase().includes(filtro === 'todas' ? 'todas' : 
+        filtro === 'pending' ? 'pendentes' :
+        filtro === 'progress' ? 'aceitas' :
+        filtro === 'delivered' ? 'concluídas' : 'canceladas')) {
+      btn.classList.add('active');
+    }
+  });
+  
+  let entregasFiltradas = [...todasEntregas];
+  
+  if (filtro !== 'todas') {
+    entregasFiltradas = entregasFiltradas.filter(e => e.status === filtro);
+  }
+  
+  const totalSpan = document.getElementById('totalEntregas');
+  if (totalSpan) totalSpan.textContent = entregasFiltradas.length;
+  
+  renderizarEntregas(entregasFiltradas);
+}
+
+// ========== RENDERIZAR ENTREGAS ==========
+function renderizarEntregas(entregas) {
+  const container = document.getElementById('entregasLista');
+  if (!container) return;
+  
+  if (entregas.length === 0) {
+    container.innerHTML = '<div class="glass rounded-3xl p-5 text-center text-muted text-sm py-6">Nenhuma entrega encontrada</div>';
+    return;
+  }
+  
+  container.innerHTML = entregas.map(e => {
+    let statusClass = 'status-pending';
+    let statusText = 'Pendente';
+    let statusIcon = 'fa-clock';
+    let statusColor = '#ffaa00';
+    
+    switch(e.status) {
+      case 'pending':
+        statusClass = 'status-pending';
+        statusText = 'Aguardando entregador';
+        statusIcon = 'fa-clock';
+        break;
+      case 'progress':
+        statusClass = 'status-progress';
+        statusText = 'Em andamento';
+        statusIcon = 'fa-motorcycle';
+        statusColor = '#4caf50';
+        break;
+      case 'delivered':
+        statusClass = 'status-delivered';
+        statusText = 'Entregue';
+        statusIcon = 'fa-check-circle';
+        statusColor = '#2196f3';
+        break;
+      case 'cancelled':
+        statusClass = 'status-cancelled';
+        statusText = 'Cancelada';
+        statusIcon = 'fa-times-circle';
+        statusColor = '#ff4444';
+        break;
+    }
+    
+    return `
+      <div class="pedido-card">
+        <div class="pedido-header">
+          <span class="pedido-id">#${e.id ? e.id.substring(0, 8) : 'N/A'}</span>
+          <span class="pedido-status ${statusClass}">
+            <i class="fas ${statusIcon} mr-1" style="color: ${statusColor}"></i>
+            ${statusText}
+          </span>
+        </div>
+        <p class="font-bold text-lg">${e.cliente || 'N/A'}</p>
+        <p class="text-sm text-gray-400 mt-1">${e.produto || 'N/A'}</p>
+        <p class="text-xs text-gray-500 mt-2">📍 ${e.endereco || e.bairro || 'N/A'} • ${e.cidade || 'N/A'}</p>
+        ${e.entregador_nome ? `<p class="text-xs text-gray-500 mt-1">🛵 Entregador: ${e.entregador_nome}</p>` : ''}
+        <div class="flex justify-between items-center mt-3">
+          <span class="text-emerald-400 font-bold text-xl">${e.valor || 0} MZN</span>
+          <span class="text-xs text-gray-500">${e.created_at ? new Date(e.created_at).toLocaleDateString() : 'N/A'}</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ========== CARREGAR PEDIDOS ==========
+async function carregarPedidos() {
+  if (verificarBloqueio()) return;
+  
+  try {
+    const { data, error } = await supabaseClient
+      .from('pedidos')
+      .select('*')
+      .eq('dropshipper_id', usuarioLogado.id)
+      .order('created_at', { ascending: false });
+    
+    if (error) throw error;
+    
+    const meusPedidos = data || [];
+    const lista = document.getElementById('pedidosLista');
+    const totalEl = document.getElementById('totalPedidos');
+    const statsHoje = document.getElementById('statsPedidosHoje');
+    const statsConcluidos = document.getElementById('statsConcluidos');
+    
+    if (totalEl) totalEl.textContent = meusPedidos.length;
+    
+    const hoje = new Date().toLocaleDateString('pt-BR');
+    const pedidosHoje = meusPedidos.filter(p => p.created_at ? new Date(p.created_at).toLocaleDateString('pt-BR') === hoje : false).length;
+    const concluidosHoje = meusPedidos.filter(p => p.status === 'delivered' && (p.created_at ? new Date(p.created_at).toLocaleDateString('pt-BR') === hoje : false)).length;
+    
+    if (statsHoje) statsHoje.textContent = pedidosHoje;
+    if (statsConcluidos) statsConcluidos.textContent = concluidosHoje;
+    
+    if (!lista) return;
+    
+    if (meusPedidos.length === 0) {
+      lista.innerHTML = '<div class="glass rounded-3xl p-5 text-center text-muted text-sm py-6">Nenhum pedido ainda. Crie seu primeiro pedido!</div>';
+      return;
+    }
+    
+    const ultimosPedidos = meusPedidos.slice(0, 5);
+    lista.innerHTML = ultimosPedidos.map(p => {
+      let statusClass = 'status-pending';
+      let statusText = 'Pendente';
+      let acoes = '';
+      
+      if (p.status === 'pending') {
+        statusClass = 'status-pending';
+        statusText = 'Pendente';
+        acoes = `
+          <div class="flex gap-3 mt-4">
+            <button onclick="window.marcarComoConcluido('${p.id}')" class="btn-success flex-1 py-2">✓ Concluir</button>
+            <button onclick="window.cancelarPedido('${p.id}')" class="btn-danger flex-1 py-2">✗ Cancelar</button>
+          </div>
+        `;
+      } else if (p.status === 'progress') {
+        statusClass = 'status-progress';
+        statusText = 'Em andamento';
+        acoes = `
+          <div class="mt-3 p-2 bg-green-900/20 rounded-xl">
+            <p class="text-xs text-green-400 text-center">🚚 Pedido aceito por ${p.entregador_nome || 'entregador'}</p>
+          </div>
+        `;
+      } else if (p.status === 'delivered') {
+        statusClass = 'status-delivered';
+        statusText = 'Entregue';
+      } else if (p.status === 'cancelled') {
+        statusClass = 'status-cancelled';
+        statusText = 'Cancelado';
+      }
+      
+      return `
+        <div class="pedido-card">
+          <div class="pedido-header">
+            <span class="pedido-id">#${p.id ? p.id.substring(0, 8) : 'N/A'}</span>
+            <span class="pedido-status ${statusClass}">${statusText}</span>
+          </div>
+          <p class="font-bold text-lg">${p.cliente || 'N/A'}</p>
+          <p class="text-sm text-gray-400 mt-1">${p.produto || 'N/A'}</p>
+          <p class="text-xs text-gray-500 mt-2">📍 ${p.endereco || 'N/A'} • ${p.cidade || 'N/A'}</p>
+          <div class="flex justify-between items-center mt-3">
+            <span class="text-emerald-400 font-bold text-xl">${p.valor || 0} MZN</span>
+            <span class="text-xs text-gray-500">${p.created_at ? new Date(p.created_at).toLocaleDateString() : 'N/A'}</span>
+          </div>
+          ${acoes}
+        </div>
+      `;
+    }).join('');
+    
+  } catch (error) {
+    console.error('Erro ao carregar pedidos:', error);
+  }
+}
+
+// ========== MARCAR COMO CONCLUÍDO ==========
+async function marcarComoConcluido(pedidoId) {
+  if (verificarBloqueio()) return;
+  if (!confirm('✅ Confirmar que este pedido foi entregue?')) return;
+  
+  try {
+    const { error } = await supabaseClient
+      .from('pedidos')
+      .update({ status: 'delivered' })
+      .eq('id', pedidoId);
+    
+    if (error) throw error;
+    
+    await carregarPedidos();
+    await carregarEntregas();
+    alert('✅ Pedido marcado como concluído!');
+  } catch (error) {
+    console.error('Erro ao concluir pedido:', error);
+    alert('Erro ao concluir pedido. Tente novamente.');
+  }
+}
+
+// ========== CANCELAR PEDIDO ==========
+async function cancelarPedido(pedidoId) {
+  if (verificarBloqueio()) return;
+  if (!confirm('❌ Tem certeza que deseja cancelar este pedido?')) return;
+  
+  try {
+    const { error } = await supabaseClient
+      .from('pedidos')
+      .update({ status: 'cancelled' })
+      .eq('id', pedidoId);
+    
+    if (error) throw error;
+    
+    await carregarPedidos();
+    await carregarEntregas();
+    alert('❌ Pedido cancelado!');
+  } catch (error) {
+    console.error('Erro ao cancelar pedido:', error);
+    alert('Erro ao cancelar pedido. Tente novamente.');
+  }
+}
+
+// ========== NOVO PEDIDO ==========
+function createNewOrder() {
+  if (verificarBloqueio()) return;
+  
+  if (usuarioLogado.verificacaoStatus !== 'aprovado') {
+    alert("Conta não verificada.\nConclua a verificação para criar pedidos.");
+    return;
+  }
+  
+  document.getElementById('novoPedidoModal').classList.add('active');
+}
+
+function fecharNovoPedidoModal() {
+  document.getElementById('novoPedidoModal').classList.remove('active');
+}
+
+async function salvarNovoPedido() {
+  if (verificarBloqueio()) return;
+  
+  const cliente = document.getElementById('pedidoCliente').value;
+  const produto = document.getElementById('pedidoProduto').value;
+  const endereco = document.getElementById('pedidoEndereco').value;
+  const cidade = document.getElementById('pedidoCidade').value;
+  const valor = document.getElementById('pedidoValor').value;
+  const obs = document.getElementById('pedidoObs').value;
+  
+  if (!cliente || !produto || !endereco || !cidade || !valor) {
+    alert('Preencha todos os campos obrigatórios');
+    return;
+  }
+  
+  const novoPedido = {
+    id: Date.now().toString(),
+    dropshipper_id: usuarioLogado.id,
+    dropshipper_nome: usuarioLogado.nome,
+    cliente: cliente,
+    produto: produto,
+    endereco: endereco,
+    cidade: cidade,
+    valor: parseFloat(valor),
+    obs: obs,
+    status: 'pending',
+    entregador_id: null,
+    entregador_nome: null,
+    created_at: new Date().toISOString()
+  };
+  
+  try {
+    const { error } = await supabaseClient
+      .from('pedidos')
+      .insert([novoPedido]);
+    
+    if (error) throw error;
+    
+    const novaEntrega = {
+      id: Date.now().toString(),
+      pedido_id: novoPedido.id,
+      dropshipper_id: usuarioLogado.id,
+      dropshipper_nome: usuarioLogado.nome,
+      cliente: cliente,
+      telefone: '',
+      produto: produto,
+      local: 'Loja',
+      valor: parseFloat(valor),
+      cidade: cidade,
+      endereco: endereco,
+      status: 'pending',
+      entregador_id: null,
+      entregador_nome: null,
+      created_at: new Date().toISOString()
+    };
+    
+    await supabaseClient.from('entregas').insert([novaEntrega]);
+    
+    fecharNovoPedidoModal();
+    
+    document.getElementById('pedidoCliente').value = '';
+    document.getElementById('pedidoProduto').value = '';
+    document.getElementById('pedidoEndereco').value = '';
+    document.getElementById('pedidoValor').value = '';
+    document.getElementById('pedidoObs').value = '';
+    
+    await carregarPedidos();
+    await carregarEntregas();
+    alert('✅ Pedido criado com sucesso!');
+    
+  } catch (error) {
+    console.error('Erro ao criar pedido:', error);
+    alert('Erro ao criar pedido. Tente novamente.');
+  }
+}
+
+// ========== FUNÇÕES DO MENU ==========
+function toggleSidebar() {
+  if (verificarBloqueio()) return;
+  
+  document.getElementById('sidebar').classList.add('open');
+  document.getElementById('sidebarOverlay').classList.add('active');
+}
+
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').classList.remove('active');
+}
+
+function navegar(destino) {
+  if (verificarBloqueio()) return;
+  
+  closeSidebar();
+  
+  switch(destino) {
+    case 'dashboard':
+      window.location.href = 'dashboard-dropshipper.html';
+      break;
+    case 'novo-pedido':
+      createNewOrder();
+      break;
+    case 'pedidos':
+      window.location.href = 'pedidos.html';
+      break;
+    case 'entregadores':
+      window.location.href = 'entregadores.html';
+      break;
+    case 'clientes':
+      window.location.href = 'clientes.html';
+      break;
+    case 'relatorios':
+      window.location.href = 'relatorios.html';
+      break;
+    case 'pagamentos':
+      window.location.href = 'pagamentos.html';
+      break;
+    case 'notificacoes':
+      abrirNotificacoes();
+      break;
+    case 'configuracoes':
+      abrirConfigModal();
+      break;
+    case 'suporte':
+      window.location.href = 'suporte.html';
+      break;
+    case 'perfil':
+      window.location.href = 'perfil-dropshipper.html';
+      break;
+    default:
+      alert('Página em desenvolvimento');
+  }
+}
+
+function logout() {
+  if (verificarBloqueio()) return;
+  
+  closeSidebar();
+  if (confirm('Tem certeza que deseja sair?')) {
+    localStorage.removeItem('usuarioLogado');
+    window.location.href = 'login.html';
+  }
+}
+
+// ========== NOTIFICAÇÕES ==========
+function carregarNotificacoes() {
+  if (verificarBloqueio()) return;
+  
+  const notificacoes = JSON.parse(localStorage.getItem(`notificacoes_${usuarioLogado.id}`)) || [];
+  const badge = document.getElementById('notificacoesBadge');
+  const naoLidas = notificacoes.filter(n => !n.lida).length;
+  
+  if (badge) {
+    badge.textContent = naoLidas;
+    badge.style.backgroundColor = naoLidas > 0 ? '#ff4444' : '#374151';
+  }
+}
+
+function abrirNotificacoes() {
+  if (verificarBloqueio()) return;
+  
+  const modal = document.getElementById('notificacoesModal');
+  const lista = document.getElementById('notificacoesLista');
+  const notificacoes = JSON.parse(localStorage.getItem(`notificacoes_${usuarioLogado.id}`)) || [];
+  
+  if (!lista) return;
+  
+  if (notificacoes.length === 0) {
+    lista.innerHTML = '<p class="text-center text-gray-500 py-8">Nenhuma notificação</p>';
+  } else {
+    lista.innerHTML = notificacoes.sort((a, b) => new Date(b.data) - new Date(a.data)).map(n => `
+      <div class="notificacao-item ${!n.lida ? 'unread' : ''}" onclick="window.marcarNotificacaoComoLida('${n.id}')">
+        <p class="font-bold">${n.titulo}</p>
+        <p class="text-sm text-gray-400 mt-1">${n.mensagem}</p>
+        <p class="text-xs text-gray-500 mt-2">${new Date(n.data).toLocaleString()}</p>
+      </div>
+    `).join('');
+  }
+  
+  if (modal) modal.classList.add('active');
+}
+
+function fecharNotificacoes() {
+  const modal = document.getElementById('notificacoesModal');
+  if (modal) modal.classList.remove('active');
+}
+
+function marcarNotificacaoComoLida(id) {
+  let notificacoes = JSON.parse(localStorage.getItem(`notificacoes_${usuarioLogado.id}`)) || [];
+  const index = notificacoes.findIndex(n => n.id == id);
+  
+  if (index !== -1) {
+    notificacoes[index].lida = true;
+    localStorage.setItem(`notificacoes_${usuarioLogado.id}`, JSON.stringify(notificacoes));
+    carregarNotificacoes();
+    abrirNotificacoes();
+  }
+}
+
+// ========== CONFIGURAÇÕES ==========
+function abrirConfigModal() {
+  if (verificarBloqueio()) return;
+  
+  const modal = document.getElementById('configModal');
+  if (modal) modal.classList.add('active');
+  carregarConfiguracoes();
+  carregarFotoPerfil();
+}
+
+function closeConfigModal() {
+  const modal = document.getElementById('configModal');
+  if (modal) modal.classList.remove('active');
+}
+
+function carregarConfiguracoes() {
+  const nomeEl = document.getElementById('configNome');
+  const emailEl = document.getElementById('configEmail');
+  const telefoneEl = document.getElementById('configTelefone');
+  const cidadeEl = document.getElementById('configCidade');
+  
+  if (nomeEl) nomeEl.textContent = usuarioLogado.nome;
+  if (emailEl) emailEl.textContent = usuarioLogado.email;
+  if (telefoneEl) telefoneEl.textContent = usuarioLogado.telefone;
+  if (cidadeEl) cidadeEl.value = usuarioLogado.cidade;
+}
+
+function carregarFotoPerfil() {
+  const fotoPreview = document.getElementById('fotoPerfilPreview');
+  const fotoIcon = document.getElementById('fotoPerfilIcon');
+  const avatarImg = document.getElementById('avatarImg');
+  const avatarInitials = document.getElementById('userInitials');
+  
+  if (usuarioLogado.fotoPerfil) {
+    if (fotoPreview) {
+      fotoPreview.src = usuarioLogado.fotoPerfil;
+      fotoPreview.classList.remove('hidden');
+    }
+    if (fotoIcon) fotoIcon.classList.add('hidden');
+    if (avatarImg) {
+      avatarImg.src = usuarioLogado.fotoPerfil;
+      avatarImg.classList.remove('hidden');
+    }
+    if (avatarInitials) avatarInitials.classList.add('hidden');
+  }
+}
+
+function atualizarFotoPerfil(input) {
+  if (input.files && input.files[0]) {
+    const reader = new FileReader();
+    
+    reader.onload = function(e) {
+      const fotoPreview = document.getElementById('fotoPerfilPreview');
+      const fotoIcon = document.getElementById('fotoPerfilIcon');
+      const avatarImg = document.getElementById('avatarImg');
+      const avatarInitials = document.getElementById('userInitials');
+      
+      if (fotoPreview) {
+        fotoPreview.src = e.target.result;
+        fotoPreview.classList.remove('hidden');
+      }
+      if (fotoIcon) fotoIcon.classList.add('hidden');
+      if (avatarImg) {
+        avatarImg.src = e.target.result;
+        avatarImg.classList.remove('hidden');
+      }
+      if (avatarInitials) avatarInitials.classList.add('hidden');
+      
+      usuarioLogado.fotoPerfil = e.target.result;
+      localStorage.setItem('usuarioLogado', JSON.stringify(usuarioLogado));
+    };
+    
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+
+function atualizarUserInfo() {
+  const userInfo = document.getElementById('userInfo');
+  const userInitials = document.getElementById('userInitials');
+  
+  if (userInfo) userInfo.innerHTML = `${usuarioLogado.nome || 'TechStore'} • ${usuarioLogado.cidade || 'Maputo'}`;
+  if (userInitials) userInitials.textContent = (usuarioLogado.nome || 'TM').substring(0, 2).toUpperCase();
+}
+
+function atualizarSeloAzul() {
+  const seloNoNome = document.getElementById('seloNoNome');
+  const seloNoAvatar = document.getElementById('seloNoAvatar');
+  
+  if (usuarioLogado.seloAzul) {
+    if (seloNoNome) seloNoNome.innerHTML = '<span class="selo-azul">✓</span>';
+    if (seloNoAvatar) seloNoAvatar.innerHTML = '<span class="selo-azul text-[8px]" style="width: 12px; height: 12px;">✓</span>';
+  } else {
+    if (seloNoNome) seloNoNome.innerHTML = '';
+    if (seloNoAvatar) seloNoAvatar.innerHTML = '';
+  }
+}
+
+function verificarStatusVerificacao() {
+  const status = usuarioLogado.verificacaoStatus || 'pendente';
+  const warning = document.getElementById('verification-warning');
+  const rejected = document.getElementById('verification-rejected');
+  const suspended = document.getElementById('suspended-warning');
+  const banned = document.getElementById('banned-warning');
+  const badge = document.getElementById('verification-badge');
+  const fab = document.getElementById('fab');
+  
+  if (warning) warning.style.display = 'none';
+  if (rejected) rejected.style.display = 'none';
+  if (suspended) suspended.style.display = 'none';
+  if (banned) banned.style.display = 'none';
+  
+  if (usuarioLogado.banido) {
+    if (banned) banned.style.display = 'flex';
+    if (badge) {
+      badge.innerHTML = '<i class="fas fa-ban"></i> Banido';
+      badge.className = 'verification-badge banned';
+    }
+    if (fab) {
+      fab.style.opacity = '0.35';
+      fab.style.pointerEvents = 'none';
+    }
+    return;
+  }
+  
+  if (usuarioLogado.suspenso) {
+    if (suspended) suspended.style.display = 'flex';
+    if (badge) {
+      badge.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Suspenso';
+      badge.className = 'verification-badge suspended';
+    }
+    if (fab) {
+      fab.style.opacity = '0.35';
+      fab.style.pointerEvents = 'none';
+    }
+    return;
+  }
+  
+  switch(status) {
+    case 'aprovado':
+      if (warning) warning.style.display = 'none';
+      if (rejected) rejected.style.display = 'none';
+      if (badge) {
+        badge.innerHTML = '<i class="fas fa-check-circle"></i> Verificado';
+        badge.className = 'verification-badge verified';
+      }
+      if (fab) {
+        fab.style.opacity = '1';
+        fab.style.pointerEvents = 'auto';
+      }
+      break;
+      
+    case 'reprovado':
+      if (warning) warning.style.display = 'none';
+      if (rejected) rejected.style.display = 'flex';
+      if (badge) {
+        badge.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Reprovado';
+        badge.className = 'verification-badge rejected';
+      }
+      if (fab) {
+        fab.style.opacity = '0.35';
+        fab.style.pointerEvents = 'none';
+      }
+      break;
+      
+    default:
+      if (warning) warning.style.display = 'flex';
+      if (rejected) rejected.style.display = 'none';
+      if (badge) {
+        badge.innerHTML = '<i class="fas fa-shield-alt"></i> Pendente';
+        badge.className = 'verification-badge pending';
+      }
+      if (fab) {
+        fab.style.opacity = '0.35';
+        fab.style.pointerEvents = 'none';
+      }
+      break;
+  }
+}
+
+// ========== ATUALIZAÇÃO EM TEMPO REAL ==========
+function setupRealtimeSubscriptions() {
+  supabaseClient
+    .channel('pedidos_changes')
+    .on('postgres_changes', { 
+      event: '*', 
+      schema: 'public', 
+      table: 'pedidos',
+      filter: `dropshipper_id=eq.${usuarioLogado.id}`
+    }, () => {
+      carregarPedidos();
+    })
+    .subscribe();
+  
+  supabaseClient
+    .channel('entregas_changes')
+    .on('postgres_changes', { 
+      event: '*', 
+      schema: 'public', 
+      table: 'entregas',
+      filter: `dropshipper_id=eq.${usuarioLogado.id}`
+    }, () => {
+      carregarEntregas();
+    })
+    .subscribe();
+}
+
+// ========== INICIALIZAÇÃO ==========
+window.onload = () => {
+  usuarioLogado = verificarLogin();
+  if (!usuarioLogado) return;
+  
+  if (verificarBloqueio()) return;
+  
+  verificarStatusVerificacao();
+  atualizarUserInfo();
+  atualizarSeloAzul();
+  carregarNotificacoes();
+  carregarPedidos();
+  carregarEntregas();
+  carregarFotoPerfil();
+  setupRealtimeSubscriptions();
+  
+  setInterval(() => {
+    const usuarioAtual = JSON.parse(localStorage.getItem('usuarioLogado'));
+    if (usuarioAtual) {
+      if (usuarioAtual.verificacaoStatus !== usuarioLogado.verificacaoStatus ||
+          usuarioAtual.suspenso !== usuarioLogado.suspenso ||
+          usuarioAtual.banido !== usuarioLogado.banido) {
+        usuarioLogado = usuarioAtual;
+        
+        if (usuarioLogado.suspenso || usuarioLogado.banido) {
+          verificarBloqueio();
+        }
+        
+        verificarStatusVerificacao();
+        carregarNotificacoes();
+        atualizarSeloAzul();
+      }
+    }
+  }, 10000);
+};
+
+// Expor funções globalmente
+window.filtrarEntregas = filtrarEntregas;
+window.navegar = navegar;
+window.toggleSidebar = toggleSidebar;
+window.closeSidebar = closeSidebar;
+window.logout = logout;
+window.abrirNotificacoes = abrirNotificacoes;
+window.fecharNotificacoes = fecharNotificacoes;
+window.marcarNotificacaoComoLida = marcarNotificacaoComoLida;
+window.createNewOrder = createNewOrder;
+window.fecharNovoPedidoModal = fecharNovoPedidoModal;
+window.salvarNovoPedido = salvarNovoPedido;
+window.marcarComoConcluido = marcarComoConcluido;
+window.cancelarPedido = cancelarPedido;
+window.abrirConfigModal = abrirConfigModal;
+window.closeConfigModal = closeConfigModal;
+window.atualizarFotoPerfil = atualizarFotoPerfil;
+window.fecharBlockedModal = fecharBlockedModal;
+</script>
+</body>
+</html>

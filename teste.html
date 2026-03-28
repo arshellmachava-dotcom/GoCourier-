@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>GoCourier • Painel Supremo</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      font-family: 'Inter', system-ui, sans-serif;
+    }
+    
+    body { 
+      background: #000000; 
+      color: #ffffff; 
+      min-height: 100vh;
+      background-image: radial-gradient(circle at 20% 30%, rgba(0, 100, 255, 0.05) 0%, transparent 30%),
+                        radial-gradient(circle at 80% 70%, rgba(0, 200, 255, 0.05) 0%, transparent 35%);
+    }
+
+    .glass {
+      background: rgba(20, 20, 30, 0.7);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    .glass-card {
+      background: rgba(25, 25, 35, 0.8);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      transition: all 0.2s;
+    }
+
+    .glass-card:hover {
+      border-color: rgba(255, 255, 255, 0.15);
+      transform: translateY(-2px);
+    }
+
+    .stat-card {
+      background: linear-gradient(145deg, #111111, #0a0a0a);
+      border: 1px solid #222;
+      border-radius: 1.5rem;
+      padding: 1.5rem;
+      transition: all 0.3s;
+    }
+
+    .stat-card:hover {
+      border-color: #4caf50;
+      transform: translateY(-4px);
+    }
+
+    .badge {
+      padding: 0.25rem 0.75rem;
+      border-radius: 2rem;
+      font-size: 0.7rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .badge.blue {
+      background: rgba(33, 150, 243, 0.15);
+      color: #2196f3;
+      border: 1px solid rgba(33, 150, 243, 0.3);
+    }
+
+    .badge.success {
+      background: rgba(76, 175, 80, 0.15);
+      color: #4caf50;
+      border: 1px solid rgba(76, 175, 80, 0.3);
+    }
+
+    .badge.warning {
+      background: rgba(255, 170, 0, 0.15);
+      color: #ffaa00;
+      border: 1px solid rgba(255, 170, 0, 0.3);
+    }
+
+    .badge.error {
+      background: rgba(255, 68, 68, 0.15);
+      color: #ff4444;
+      border: 1px solid rgba(255, 68, 68, 0.3);
+    }
+
+    .tab {
+      padding: 0.75rem 1.5rem;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+      font-weight: 500;
+    }
+
+    .tab.active {
+      border-bottom-color: #4caf50;
+      color: #4caf50;
+      font-weight: 600;
+    }
+
+    .tab:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.95);
+      backdrop-filter: blur(10px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-container {
+      background: #111;
+      border: 1px solid #333;
+      border-radius: 2rem;
+      padding: 2rem;
+      max-width: 900px;
+      width: 95%;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .btn-primary {
+      background: white;
+      color: black;
+      border: none;
+      border-radius: 2rem;
+      padding: 0.6rem 1.2rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-primary:hover {
+      background: #f0f0f0;
+    }
+
+    .btn-success {
+      background: #4caf50;
+      color: white;
+      border: none;
+      border-radius: 2rem;
+      padding: 0.6rem 1.2rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-success:hover {
+      background: #45a049;
+    }
+
+    .btn-error {
+      background: #ff4444;
+      color: white;
+      border: none;
+      border-radius: 2rem;
+      padding: 0.6rem 1.2rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-error:hover {
+      background: #ff6666;
+    }
+
+    .btn-blue {
+      background: #2196f3;
+      color: white;
+      border: none;
+      border-radius: 2rem;
+      padding: 0.6rem 1.2rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-blue:hover {
+      background: #42a5f5;
+    }
+
+    .search-box {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 2rem;
+      padding: 0.5rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .search-box input {
+      background: transparent;
+      border: none;
+      color: white;
+      width: 100%;
+      outline: none;
+    }
+
+    .image-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+
+    .image-item {
+      background: #1a1a1a;
+      border-radius: 1rem;
+      padding: 0.5rem;
+      border: 1px solid #333;
+    }
+
+    .image-item img {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 0.5rem;
+      cursor: pointer;
+    }
+
+    .image-item img:hover {
+      opacity: 0.8;
+    }
+
+    .selo-azul {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      background: #2196f3;
+      border-radius: 50%;
+      margin-left: 4px;
+      font-size: 12px;
+      color: white;
+    }
+  </style>
+</head>
+<body class="p-6">
+
+  <!-- Loading -->
+  <div class="fixed inset-0 bg-black/90 backdrop-blur-xl z-50 hidden items-center justify-center" id="loading">
+    <div class="w-16 h-16 border-4 border-gray-700 border-t-white rounded-full animate-spin"></div>
+  </div>
+
+  <!-- Modal de Usuário -->
+  <div class="modal-overlay" id="usuarioModal">
+    <div class="modal-container relative">
+      <div class="modal-close absolute top-4 right-4 text-2xl cursor-pointer hover:text-white" onclick="fecharModalUsuario()">✕</div>
+      <div id="usuarioModalContent"></div>
+    </div>
+  </div>
+
+  <!-- HEADER -->
+  <header class="flex justify-between items-center mb-8">
+    <div class="flex items-center gap-4">
+      <img src="ei_1773419339504-removebg-preview.png" alt="GoCourier" class="h-16 w-auto">
+      <h1 class="text-4xl font-black">PAINEL SUPREMO</h1>
+    </div>
+    <div class="glass px-6 py-3 rounded-full flex items-center gap-4">
+      <i class="fas fa-crown text-yellow-400 text-2xl"></i>
+      <span class="font-bold">Administrador</span>
+    </div>
+  </header>
+
+  <!-- STATS -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+    <div class="stats-card">
+      <p class="text-gray-400 text-sm">Total Usuários</p>
+      <p class="text-3xl font-bold" id="totalUsuarios">0</p>
+    </div>
+    <div class="stats-card">
+      <p class="text-gray-400 text-sm">Dropshippers</p>
+      <p class="text-3xl font-bold text-blue-400" id="totalDropshippers">0</p>
+    </div>
+    <div class="stats-card">
+      <p class="text-gray-400 text-sm">Entregadores</p>
+      <p class="text-3xl font-bold text-emerald-400" id="totalEntregadores">0</p>
+    </div>
+    <div class="stats-card">
+      <p class="text-gray-400 text-sm">Verif. Pendentes</p>
+      <p class="text-3xl font-bold text-orange-400" id="verificacoesPendentes">0</p>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="glass rounded-t-2xl p-2 flex flex-wrap gap-2 border-b border-gray-800">
+    <div class="tab active" onclick="mudarTab('verificacoes')">📄 Verificações</div>
+    <div class="tab" onclick="mudarTab('usuarios')">👥 Usuários</div>
+    <div class="tab" onclick="mudarTab('entregadores')">🛵 Entregadores</div>
+    <div class="tab" onclick="mudarTab('dropshippers')">🛒 Dropshippers</div>
+  </div>
+
+  <!-- CONTEÚDO -->
+  <div class="glass rounded-b-2xl p-6 min-h-[500px]">
+
+    <!-- TAB VERIFICAÇÕES -->
+    <div id="tabVerificacoes">
+      <h2 class="text-xl font-bold mb-4">Solicitações de Verificação</h2>
+      <div id="verificacoesLista" class="space-y-6"></div>
+    </div>
+
+    <!-- TAB USUÁRIOS -->
+    <div id="tabUsuarios" style="display: none;">
+      <div class="flex gap-4 mb-4">
+        <div class="search-box flex-1">
+          <i class="fas fa-search text-gray-500"></i>
+          <input type="text" id="searchUsuarios" placeholder="Buscar usuários..." onkeyup="filtrarUsuarios()">
+        </div>
+      </div>
+      <div id="usuariosLista" class="space-y-3"></div>
+    </div>
+
+    <!-- TAB ENTREGADORES -->
+    <div id="tabEntregadores" style="display: none;">
+      <div class="flex gap-4 mb-4">
+        <div class="search-box flex-1">
+          <i class="fas fa-search text-gray-500"></i>
+          <input type="text" id="searchEntregadores" placeholder="Buscar entregadores..." onkeyup="filtrarEntregadores()">
+        </div>
+      </div>
+      <div id="entregadoresLista" class="space-y-3"></div>
+    </div>
+
+    <!-- TAB DROPSHIPPERS -->
+    <div id="tabDropshippers" style="display: none;">
+      <div class="flex gap-4 mb-4">
+        <div class="search-box flex-1">
+          <i class="fas fa-search text-gray-500"></i>
+          <input type="text" id="searchDropshippers" placeholder="Buscar dropshippers..." onkeyup="filtrarDropshippers()">
+        </div>
+      </div>
+      <div id="dropshippersLista" class="space-y-3"></div>
+    </div>
+
+  </div>
+
+  <script>
+    // ========== DADOS ==========
+    let usuarios = JSON.parse(localStorage.getItem('usuarios')) || [];
+    let verificacoes = JSON.parse(localStorage.getItem('verificacoes')) || [];
+    let tabAtual = 'verificacoes';
+
+    // ========== ATUALIZAR STATS ==========
+    function atualizarStats() {
+      document.getElementById('totalUsuarios').textContent = usuarios.length;
+      document.getElementById('totalDropshippers').textContent = usuarios.filter(u => u.tipo === 'dropshipper').length;
+      document.getElementById('totalEntregadores').textContent = usuarios.filter(u => u.tipo === 'delivery').length;
+      document.getElementById('verificacoesPendentes').textContent = verificacoes.filter(v => v.status === 'pendente').length;
+    }
+
+    // ========== MUDAR TABS ==========
+    function mudarTab(tab) {
+      tabAtual = tab;
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      event.target.classList.add('active');
+      
+      document.getElementById('tabVerificacoes').style.display = 'none';
+      document.getElementById('tabUsuarios').style.display = 'none';
+      document.getElementById('tabEntregadores').style.display = 'none';
+      document.getElementById('tabDropshippers').style.display = 'none';
+      
+      if (tab === 'verificacoes') {
+        document.getElementById('tabVerificacoes').style.display = 'block';
+        carregarVerificacoes();
+      } else if (tab === 'usuarios') {
+        document.getElementById('tabUsuarios').style.display = 'block';
+        filtrarUsuarios();
+      } else if (tab === 'entregadores') {
+        document.getElementById('tabEntregadores').style.display = 'block';
+        filtrarEntregadores();
+      } else if (tab === 'dropshippers') {
+        document.getElementById('tabDropshippers').style.display = 'block';
+        filtrarDropshippers();
+      }
+    }
+
+    // ========== CARREGAR VERIFICAÇÕES COM FOTOS ==========
+    function carregarVerificacoes() {
+      const lista = document.getElementById('verificacoesLista');
+      const pendentes = verificacoes.filter(v => v.status === 'pendente');
+      
+      if (pendentes.length === 0) {
+        lista.innerHTML = '<p class="text-gray-400 text-center py-8">Nenhuma verificação pendente</p>';
+        return;
+      }
+      
+      lista.innerHTML = pendentes.map(v => {
+        const usuario = usuarios.find(u => u.id === v.usuarioId) || { nome: 'Desconhecido', email: '', tipo: '' };
+        
+        return `
+          <div class="glass-card rounded-2xl p-6">
+            <div class="flex justify-between items-start mb-4">
+              <div>
+                <h3 class="font-bold text-xl">${v.nome}</h3>
+                <p class="text-sm text-gray-400">${usuario.email || 'Sem email'}</p>
+                <p class="text-xs text-gray-500 mt-1">Tipo: ${usuario.tipo === 'dropshipper' ? 'Dropshipper' : 'Entregador'}</p>
+              </div>
+              <span class="badge warning">Pendente</span>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4 mb-4 text-sm">
+              <div><span class="text-gray-400">BI:</span> ${v.biNumero || '---'}</div>
+              <div><span class="text-gray-400">Enviado:</span> ${new Date(v.dataEnvio).toLocaleString()}</div>
+            </div>
+
+            <!-- FOTOS DOS DOCUMENTOS -->
+            <div class="mb-4">
+              <p class="text-sm font-bold mb-3 text-blue-400">📸 Documentos anexados:</p>
+              <div class="grid grid-cols-2 gap-4">
+                ${v.fotos?.biFrente ? `
+                  <div class="bg-black rounded-xl p-3 border border-gray-700">
+                    <p class="text-xs text-gray-400 mb-2">Frente do BI</p>
+                    <img src="${v.fotos.biFrente}" class="w-full h-40 object-cover rounded-lg cursor-pointer border border-gray-700" onclick="window.open('${v.fotos.biFrente}')">
+                  </div>
+                ` : ''}
+                
+                ${v.fotos?.biVerso ? `
+                  <div class="bg-black rounded-xl p-3 border border-gray-700">
+                    <p class="text-xs text-gray-400 mb-2">Verso do BI</p>
+                    <img src="${v.fotos.biVerso}" class="w-full h-40 object-cover rounded-lg cursor-pointer border border-gray-700" onclick="window.open('${v.fotos.biVerso}')">
+                  </div>
+                ` : ''}
+                
+                ${v.fotos?.selfie ? `
+                  <div class="bg-black rounded-xl p-3 border border-gray-700">
+                    <p class="text-xs text-gray-400 mb-2">Selfie</p>
+                    <img src="${v.fotos.selfie}" class="w-full h-40 object-cover rounded-lg cursor-pointer border border-gray-700" onclick="window.open('${v.fotos.selfie}')">
+                  </div>
+                ` : ''}
+                
+                ${v.fotos?.residencia ? `
+                  <div class="bg-black rounded-xl p-3 border border-gray-700">
+                    <p class="text-xs text-gray-400 mb-2">Comprovativo</p>
+                    <img src="${v.fotos.residencia}" class="w-full h-40 object-cover rounded-lg cursor-pointer border border-gray-700" onclick="window.open('${v.fotos.residencia}')">
+                  </div>
+                ` : ''}
+              </div>
+            </div>
+
+            <div class="flex gap-3 mt-4">
+              <button onclick="aprovarVerificacao('${v.id}')" class="btn-success flex-1 py-3">✓ Aprovar</button>
+              <button onclick="reprovarVerificacao('${v.id}')" class="btn-error flex-1 py-3">✗ Reprovar</button>
+              <button onclick="darSeloAzul('${v.usuarioId}')" class="btn-blue flex-1 py-3">🔵 Selo</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ========== APROVAR ==========
+    function aprovarVerificacao(id) {
+      if (!confirm('Aprovar esta verificação?')) return;
+      
+      showLoading(true);
+      
+      setTimeout(() => {
+        const vIndex = verificacoes.findIndex(v => v.id == id);
+        if (vIndex === -1) return;
+        
+        const usuarioId = verificacoes[vIndex].usuarioId;
+        
+        verificacoes[vIndex].status = 'aprovado';
+        localStorage.setItem('verificacoes', JSON.stringify(verificacoes));
+        
+        const uIndex = usuarios.findIndex(u => u.id === usuarioId);
+        if (uIndex !== -1) {
+          usuarios[uIndex].verificado = true;
+          usuarios[uIndex].verificacaoStatus = 'aprovado';
+          localStorage.setItem('usuarios', JSON.stringify(usuarios));
+          
+          const logado = JSON.parse(localStorage.getItem('usuarioLogado'));
+          if (logado && logado.id === usuarioId) {
+            logado.verificado = true;
+            logado.verificacaoStatus = 'aprovado';
+            localStorage.setItem('usuarioLogado', JSON.stringify(logado));
+          }
+        }
+        
+        showLoading(false);
+        alert('✅ Verificação aprovada!');
+        carregarVerificacoes();
+        atualizarStats();
+      }, 500);
+    }
+
+    // ========== REPROVAR ==========
+    function reprovarVerificacao(id) {
+      const motivo = prompt('Motivo da reprovação:');
+      if (!motivo) return;
+      
+      showLoading(true);
+      
+      setTimeout(() => {
+        const vIndex = verificacoes.findIndex(v => v.id == id);
+        if (vIndex === -1) return;
+        
+        const usuarioId = verificacoes[vIndex].usuarioId;
+        
+        verificacoes[vIndex].status = 'reprovado';
+        verificacoes[vIndex].observacoes = motivo;
+        localStorage.setItem('verificacoes', JSON.stringify(verificacoes));
+        
+        const uIndex = usuarios.findIndex(u => u.id === usuarioId);
+        if (uIndex !== -1) {
+          usuarios[uIndex].verificado = false;
+          usuarios[uIndex].verificacaoStatus = 'reprovado';
+          localStorage.setItem('usuarios', JSON.stringify(usuarios));
+          
+          const logado = JSON.parse(localStorage.getItem('usuarioLogado'));
+          if (logado && logado.id === usuarioId) {
+            logado.verificado = false;
+            logado.verificacaoStatus = 'reprovado';
+            localStorage.setItem('usuarioLogado', JSON.stringify(logado));
+          }
+        }
+        
+        showLoading(false);
+        alert('❌ Verificação reprovada!');
+        carregarVerificacoes();
+        atualizarStats();
+      }, 500);
+    }
+
+    // ========== DAR SELO AZUL ==========
+    function darSeloAzul(usuarioId) {
+      if (!confirm('Dar selo azul de verificado para este usuário?')) return;
+      
+      const uIndex = usuarios.findIndex(u => u.id == usuarioId);
+      if (uIndex !== -1) {
+        usuarios[uIndex].seloAzul = true;
+        localStorage.setItem('usuarios', JSON.stringify(usuarios));
+        
+        const logado = JSON.parse(localStorage.getItem('usuarioLogado'));
+        if (logado && logado.id == usuarioId) {
+          logado.seloAzul = true;
+          localStorage.setItem('usuarioLogado', JSON.stringify(logado));
+        }
+        
+        alert('🔵 Selo azul concedido!');
+        carregarVerificacoes();
+      }
+    }
+
+    // ========== FILTRAR USUÁRIOS ==========
+    function filtrarUsuarios() {
+      const busca = document.getElementById('searchUsuarios')?.value.toLowerCase() || '';
+      
+      let filtrados = usuarios.filter(u => u.tipo !== 'admin');
+      
+      if (busca) {
+        filtrados = filtrados.filter(u => 
+          u.nome?.toLowerCase().includes(busca) || 
+          u.email?.toLowerCase().includes(busca)
+        );
+      }
+      
+      const lista = document.getElementById('usuariosLista');
+      
+      if (filtrados.length === 0) {
+        lista.innerHTML = '<p class="text-gray-400 text-center py-8">Nenhum usuário encontrado</p>';
+        return;
+      }
+      
+      lista.innerHTML = filtrados.map(u => `
+        <div class="glass-card rounded-2xl p-4 flex justify-between items-center">
+          <div>
+            <div class="flex items-center gap-2">
+              <p class="font-bold">${u.nome || 'Sem nome'}</p>
+              ${u.seloAzul ? '<span class="selo-azul">✓</span>' : ''}
+              ${u.verificado ? '<span class="badge success">Verif</span>' : ''}
+            </div>
+            <p class="text-sm text-gray-400">${u.email || 'Sem email'}</p>
+            <p class="text-xs text-gray-500">Tipo: ${u.tipo}</p>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="verUsuario('${u.id}')" class="btn-primary text-sm px-3 py-1">Ver</button>
+            <button onclick="darSeloAzul('${u.id}')" class="btn-blue text-sm px-3 py-1">🔵</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // ========== FILTRAR ENTREGADORES ==========
+    function filtrarEntregadores() {
+      const busca = document.getElementById('searchEntregadores')?.value.toLowerCase() || '';
+      
+      let filtrados = usuarios.filter(u => u.tipo === 'delivery');
+      
+      if (busca) {
+        filtrados = filtrados.filter(u => 
+          u.nome?.toLowerCase().includes(busca) || 
+          u.email?.toLowerCase().includes(busca)
+        );
+      }
+      
+      const lista = document.getElementById('entregadoresLista');
+      
+      if (filtrados.length === 0) {
+        lista.innerHTML = '<p class="text-gray-400 text-center py-8">Nenhum entregador encontrado</p>';
+        return;
+      }
+      
+      lista.innerHTML = filtrados.map(u => `
+        <div class="glass-card rounded-2xl p-4 flex justify-between items-center">
+          <div>
+            <div class="flex items-center gap-2">
+              <p class="font-bold">${u.nome}</p>
+              ${u.seloAzul ? '<span class="selo-azul">✓</span>' : ''}
+            </div>
+            <p class="text-sm text-gray-400">${u.email}</p>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="verUsuario('${u.id}')" class="btn-primary text-sm px-3 py-1">Ver</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // ========== FILTRAR DROPSHIPPERS ==========
+    function filtrarDropshippers() {
+      const busca = document.getElementById('searchDropshippers')?.value.toLowerCase() || '';
+      
+      let filtrados = usuarios.filter(u => u.tipo === 'dropshipper');
+      
+      if (busca) {
+        filtrados = filtrados.filter(u => 
+          u.nome?.toLowerCase().includes(busca) || 
+          u.email?.toLowerCase().includes(busca)
+        );
+      }
+      
+      const lista = document.getElementById('dropshippersLista');
+      
+      if (filtrados.length === 0) {
+        lista.innerHTML = '<p class="text-gray-400 text-center py-8">Nenhum dropshipper encontrado</p>';
+        return;
+      }
+      
+      lista.innerHTML = filtrados.map(u => `
+        <div class="glass-card rounded-2xl p-4 flex justify-between items-center">
+          <div>
+            <div class="flex items-center gap-2">
+              <p class="font-bold">${u.nome}</p>
+              ${u.seloAzul ? '<span class="selo-azul">✓</span>' : ''}
+            </div>
+            <p class="text-sm text-gray-400">${u.email}</p>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="verUsuario('${u.id}')" class="btn-primary text-sm px-3 py-1">Ver</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // ========== VER USUÁRIO ==========
+    function verUsuario(id) {
+      const usuario = usuarios.find(u => u.id == id);
+      if (!usuario) return;
+      
+      const verificacao = verificacoes.find(v => v.usuarioId == id);
+      
+      let fotosHtml = '';
+      if (verificacao && verificacao.fotos) {
+        fotosHtml = `
+          <div class="mt-4">
+            <p class="font-bold mb-2">📸 Documentos:</p>
+            <div class="grid grid-cols-2 gap-3">
+              ${verificacao.fotos.biFrente ? `<img src="${verificacao.fotos.biFrente}" class="w-full h-32 object-cover rounded-lg cursor-pointer" onclick="window.open('${verificacao.fotos.biFrente}')">` : ''}
+              ${verificacao.fotos.selfie ? `<img src="${verificacao.fotos.selfie}" class="w-full h-32 object-cover rounded-lg cursor-pointer" onclick="window.open('${verificacao.fotos.selfie}')">` : ''}
+            </div>
+          </div>
+        `;
+      }
+      
+      const content = document.getElementById('usuarioModalContent');
+      content.innerHTML = `
+        <h2 class="text-2xl font-bold mb-4">Detalhes do Usuário</h2>
+        <div class="space-y-3">
+          <p><span class="text-gray-400">Nome:</span> ${usuario.nome} ${usuario.seloAzul ? '<span class="selo-azul">✓</span>' : ''}</p>
+          <p><span class="text-gray-400">Email:</span> ${usuario.email}</p>
+          <p><span class="text-gray-400">Tipo:</span> ${usuario.tipo}</p>
+          <p><span class="text-gray-400">Status:</span> ${usuario.verificado ? '✓ Verificado' : '⏳ Pendente'}</p>
+          ${fotosHtml}
+        </div>
+        <button onclick="fecharModalUsuario()" class="btn-primary w-full mt-6 py-3">Fechar</button>
+      `;
+      
+      document.getElementById('usuarioModal').classList.add('active');
+    }
+
+    function fecharModalUsuario() {
+      document.getElementById('usuarioModal').classList.remove('active');
+    }
+
+    // ========== LOADING ==========
+    function showLoading(show) {
+      const loading = document.getElementById('loading');
+      if (show) {
+        loading.classList.add('flex');
+      } else {
+        loading.classList.remove('flex');
+      }
+    }
+
+    // ========== INICIAR ==========
+    window.onload = function() {
+      if (!usuarios.find(u => u.tipo === 'admin')) {
+        usuarios.push({
+          id: 'admin',
+          nome: 'Administrador',
+          email: 'admin@gocourier.com',
+          tipo: 'admin',
+          verificado: true
+        });
+        localStorage.setItem('usuarios', JSON.stringify(usuarios));
+      }
+      
+      atualizarStats();
+      carregarVerificacoes();
+    };
+  </script>
+</body>
+</html>

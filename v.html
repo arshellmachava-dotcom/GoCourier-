@@ -1,0 +1,1465 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>GoCourier • Painel Supremo</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      font-family: 'Inter', system-ui, sans-serif;
+    }
+    
+    body { 
+      background: #000000; 
+      color: #ffffff; 
+      min-height: 100vh;
+      background-image: radial-gradient(circle at 20% 30%, rgba(0, 100, 255, 0.05) 0%, transparent 30%),
+                        radial-gradient(circle at 80% 70%, rgba(0, 200, 255, 0.05) 0%, transparent 35%);
+    }
+
+    .glass {
+      background: rgba(20, 20, 30, 0.7);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    .glass-card {
+      background: rgba(25, 25, 35, 0.8);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      transition: all 0.2s;
+    }
+
+    .glass-card:hover {
+      border-color: rgba(255, 255, 255, 0.15);
+      transform: translateY(-2px);
+    }
+
+    .stat-card {
+      background: linear-gradient(145deg, #111111, #0a0a0a);
+      border: 1px solid #222;
+      border-radius: 1.5rem;
+      padding: 1.5rem;
+      transition: all 0.3s;
+    }
+
+    .stat-card:hover {
+      border-color: #4caf50;
+      transform: translateY(-4px);
+    }
+
+    .badge {
+      padding: 0.25rem 0.75rem;
+      border-radius: 2rem;
+      font-size: 0.7rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .badge.blue {
+      background: rgba(33, 150, 243, 0.15);
+      color: #2196f3;
+      border: 1px solid rgba(33, 150, 243, 0.3);
+    }
+
+    .badge.success {
+      background: rgba(76, 175, 80, 0.15);
+      color: #4caf50;
+      border: 1px solid rgba(76, 175, 80, 0.3);
+    }
+
+    .badge.warning {
+      background: rgba(255, 170, 0, 0.15);
+      color: #ffaa00;
+      border: 1px solid rgba(255, 170, 0, 0.3);
+    }
+
+    .badge.error {
+      background: rgba(255, 68, 68, 0.15);
+      color: #ff4444;
+      border: 1px solid rgba(255, 68, 68, 0.3);
+    }
+
+    .badge.premium {
+      background: rgba(255, 215, 0, 0.15);
+      color: gold;
+      border: 1px solid rgba(255, 215, 0, 0.3);
+    }
+
+    .badge.bronze {
+      background: rgba(205, 127, 50, 0.15);
+      color: #cd7f32;
+      border: 1px solid rgba(205, 127, 50, 0.3);
+    }
+
+    .badge.silver {
+      background: rgba(192, 192, 192, 0.15);
+      color: #c0c0c0;
+      border: 1px solid rgba(192, 192, 192, 0.3);
+    }
+
+    .badge.gold {
+      background: rgba(255, 215, 0, 0.15);
+      color: gold;
+      border: 1px solid rgba(255, 215, 0, 0.3);
+    }
+
+    .badge.elite {
+      background: linear-gradient(145deg, rgba(0, 255, 255, 0.15), rgba(128, 0, 255, 0.15));
+      color: #00ffff;
+      border: 1px solid rgba(0, 255, 255, 0.3);
+    }
+
+    .tab {
+      padding: 0.75rem 1.5rem;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+      font-weight: 500;
+    }
+
+    .tab.active {
+      border-bottom-color: #4caf50;
+      color: #4caf50;
+      font-weight: 600;
+    }
+
+    .tab:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.95);
+      backdrop-filter: blur(10px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-container {
+      background: #111;
+      border: 1px solid #333;
+      border-radius: 2rem;
+      padding: 2rem;
+      max-width: 900px;
+      width: 95%;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .btn-primary {
+      background: white;
+      color: black;
+      border: none;
+      border-radius: 2rem;
+      padding: 0.6rem 1.2rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-primary:hover {
+      background: #f0f0f0;
+      transform: translateY(-1px);
+    }
+
+    .btn-success {
+      background: #4caf50;
+      color: white;
+      border: none;
+      border-radius: 2rem;
+      padding: 0.6rem 1.2rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-success:hover {
+      background: #45a049;
+      transform: translateY(-1px);
+    }
+
+    .btn-error {
+      background: #ff4444;
+      color: white;
+      border: none;
+      border-radius: 2rem;
+      padding: 0.6rem 1.2rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-error:hover {
+      background: #ff6666;
+      transform: translateY(-1px);
+    }
+
+    .btn-warning {
+      background: #ffaa00;
+      color: black;
+      border: none;
+      border-radius: 2rem;
+      padding: 0.6rem 1.2rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-warning:hover {
+      background: #ffbb00;
+    }
+
+    .btn-blue {
+      background: #2196f3;
+      color: white;
+      border: none;
+      border-radius: 2rem;
+      padding: 0.6rem 1.2rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-blue:hover {
+      background: #42a5f5;
+    }
+
+    .stats-card {
+      background: #111;
+      border-radius: 1rem;
+      padding: 1.2rem;
+      border: 1px solid #222;
+    }
+
+    .search-box {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 2rem;
+      padding: 0.5rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .search-box input {
+      background: transparent;
+      border: none;
+      color: white;
+      width: 100%;
+      outline: none;
+    }
+
+    .image-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+
+    .image-item {
+      background: #1a1a1a;
+      border-radius: 1rem;
+      padding: 0.75rem;
+      border: 1px solid #333;
+      transition: all 0.2s;
+    }
+
+    .image-item:hover {
+      border-color: #2196f3;
+      transform: scale(1.02);
+    }
+
+    .image-item img {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      border: 2px solid transparent;
+    }
+
+    .image-item img:hover {
+      border-color: #2196f3;
+    }
+
+    .selo-azul {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      background: #2196f3;
+      border-radius: 50%;
+      margin-left: 4px;
+      font-size: 12px;
+      color: white;
+    }
+
+    .level-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      margin-right: 4px;
+      font-size: 12px;
+    }
+
+    .leaderboard-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem;
+      border-bottom: 1px solid #222;
+    }
+
+    .leaderboard-item:last-child {
+      border-bottom: none;
+    }
+
+    .leaderboard-rank {
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      font-weight: bold;
+    }
+
+    .rank-1 {
+      background: gold;
+      color: black;
+    }
+
+    .rank-2 {
+      background: #c0c0c0;
+      color: black;
+    }
+
+    .rank-3 {
+      background: #cd7f32;
+      color: black;
+    }
+
+    /* Debug panel */
+    .debug-panel {
+      background: #0a0a0a;
+      border: 1px solid #ffaa00;
+      border-radius: 1rem;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      display: none;
+    }
+
+    .debug-panel.show {
+      display: block;
+    }
+
+    .debug-log {
+      font-family: monospace;
+      font-size: 0.8rem;
+      color: #0f0;
+      max-height: 200px;
+      overflow-y: auto;
+      padding: 0.5rem;
+      background: #111;
+      border-radius: 0.5rem;
+    }
+  </style>
+</head>
+<body class="p-6">
+
+  <!-- Loading -->
+  <div class="fixed inset-0 bg-black/90 backdrop-blur-xl z-50 hidden items-center justify-center" id="loading">
+    <div class="w-16 h-16 border-4 border-gray-700 border-t-white rounded-full animate-spin"></div>
+  </div>
+
+  <!-- Modal de Usuário -->
+  <div class="modal-overlay" id="usuarioModal">
+    <div class="modal-container relative">
+      <div class="modal-close absolute top-4 right-4 text-2xl cursor-pointer hover:text-white" onclick="fecharModalUsuario()">✕</div>
+      <div id="usuarioModalContent"></div>
+    </div>
+  </div>
+
+  <!-- Modal de Notificação -->
+  <div class="modal-overlay" id="notificacaoModal">
+    <div class="modal-container relative">
+      <div class="modal-close absolute top-4 right-4 text-2xl cursor-pointer hover:text-white" onclick="fecharNotificacaoModal()">✕</div>
+      <h2 class="text-2xl font-bold mb-4">Enviar Notificação</h2>
+      <div class="space-y-4">
+        <input type="text" id="notificacaoTitulo" class="w-full bg-black border border-gray-800 rounded-xl p-3" placeholder="Título">
+        <textarea id="notificacaoMensagem" rows="4" class="w-full bg-black border border-gray-800 rounded-xl p-3" placeholder="Mensagem"></textarea>
+        <button onclick="enviarNotificacaoGeral()" class="btn-success w-full py-3">Enviar para todos</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Debug Panel (hidden by default) -->
+  <div class="debug-panel" id="debugPanel">
+    <div class="flex justify-between items-center mb-2">
+      <h3 class="font-bold text-yellow-400">🔍 Debug - Dados das Verificações</h3>
+      <button onclick="fecharDebug()" class="text-sm text-gray-400">✕</button>
+    </div>
+    <div class="debug-log" id="debugLog"></div>
+  </div>
+
+  <!-- HEADER -->
+  <header class="flex justify-between items-center mb-8">
+    <div class="flex items-center gap-4">
+      <img src="ei_1773419339504-removebg-preview.png" alt="GoCourier" class="h-16 w-auto">
+      <h1 class="text-4xl font-black">PAINEL SUPREMO</h1>
+    </div>
+    <div class="glass px-6 py-3 rounded-full flex items-center gap-4">
+      <i class="fas fa-crown text-yellow-400 text-2xl"></i>
+      <span class="font-bold">Administrador</span>
+      <button onclick="abrirDebug()" class="ml-2 text-xs bg-gray-800 px-2 py-1 rounded">🐞 Debug</button>
+    </div>
+  </header>
+
+  <!-- 📊 DASHBOARD GERAL -->
+  <div class="mb-8">
+    <h2 class="text-2xl font-bold mb-4 flex items-center gap-2">
+      <i class="fas fa-chart-line text-blue-400"></i> 
+      Dashboard Geral
+    </h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="stat-card">
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="text-gray-400 text-sm">Total Usuários</p>
+            <p class="text-4xl font-bold" id="totalUsuarios">0</p>
+          </div>
+          <div class="w-12 h-12 bg-blue-500/20 rounded-full flex items-center justify-center">
+            <i class="fas fa-users text-blue-400 text-xl"></i>
+          </div>
+        </div>
+        <p class="text-xs text-gray-500 mt-2">+0 hoje</p>
+      </div>
+
+      <div class="stat-card">
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="text-gray-400 text-sm">Pedidos Hoje</p>
+            <p class="text-4xl font-bold" id="pedidosHoje">0</p>
+          </div>
+          <div class="w-12 h-12 bg-green-500/20 rounded-full flex items-center justify-center">
+            <i class="fas fa-box text-green-400 text-xl"></i>
+          </div>
+        </div>
+        <p class="text-xs text-gray-500 mt-2">+0 que ontem</p>
+      </div>
+
+      <div class="stat-card">
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="text-gray-400 text-sm">Receita Hoje</p>
+            <p class="text-4xl font-bold" id="receitaHoje">0 MZN</p>
+          </div>
+          <div class="w-12 h-12 bg-yellow-500/20 rounded-full flex items-center justify-center">
+            <i class="fas fa-coins text-yellow-400 text-xl"></i>
+          </div>
+        </div>
+        <p class="text-xs text-gray-500 mt-2">💰 0 MZN líquido</p>
+      </div>
+
+      <div class="stat-card">
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="text-gray-400 text-sm">Entregadores Online</p>
+            <p class="text-4xl font-bold" id="entregadoresOnline">0</p>
+          </div>
+          <div class="w-12 h-12 bg-purple-500/20 rounded-full flex items-center justify-center">
+            <i class="fas fa-motorcycle text-purple-400 text-xl"></i>
+          </div>
+        </div>
+        <p class="text-xs text-gray-500 mt-2">🟢 0 disponíveis</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- TABS PRINCIPAIS -->
+  <div class="glass rounded-t-2xl p-2 flex flex-wrap gap-2 border-b border-gray-800">
+    <div class="tab active" onclick="mudarTab('dashboard')">📊 Dashboard</div>
+    <div class="tab" onclick="mudarTab('usuarios')">👥 Usuários</div>
+    <div class="tab" onclick="mudarTab('verificacoes')">🪪 Verificações</div>
+    <div class="tab" onclick="mudarTab('pedidos')">📦 Pedidos</div>
+    <div class="tab" onclick="mudarTab('entregadores')">🛵 Entregadores</div>
+    <div class="tab" onclick="mudarTab('dropshippers')">🛒 Dropshippers</div>
+    <div class="tab" onclick="mudarTab('ranking')">🏆 Ranking</div>
+    <div class="tab" onclick="mudarTab('logs')">🧾 Logs</div>
+    <div class="tab" onclick="mudarTab('config')">⚙️ Config</div>
+  </div>
+
+  <!-- CONTEÚDO PRINCIPAL -->
+  <div class="glass rounded-b-2xl p-6 min-h-[500px]">
+
+    <!-- TAB DASHBOARD -->
+    <div id="tabDashboard">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Gráfico/Stats à esquerda -->
+        <div class="lg:col-span-2 space-y-4">
+          <div class="glass-card rounded-2xl p-5">
+            <h3 class="font-bold text-lg mb-4">Atividade Recente</h3>
+            <div class="space-y-3" id="atividadeRecente">
+              <p class="text-gray-400 text-center py-4">Nenhuma atividade recente</p>
+            </div>
+          </div>
+
+          <!-- Leaderboard rápido -->
+          <div class="glass-card rounded-2xl p-5">
+            <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
+              <i class="fas fa-trophy text-yellow-400"></i>
+              TOP Entregadores da Semana
+            </h3>
+            <div id="leaderboardSemanal" class="space-y-2">
+              <p class="text-gray-400 text-center py-4">Nenhum entregador ainda</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cards à direita -->
+        <div class="space-y-4">
+          <div class="glass-card rounded-2xl p-5">
+            <h3 class="font-bold text-lg mb-3">Resumo Rápido</h3>
+            <div class="space-y-3">
+              <div class="flex justify-between">
+                <span class="text-gray-400">Verificações pendentes</span>
+                <span class="font-bold" id="resumoVerifPendentes">0</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-400">Entregas em andamento</span>
+                <span class="font-bold" id="resumoEntregasAndamento">0</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-400">Pedidos hoje</span>
+                <span class="font-bold" id="resumoPedidosHoje">0</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-400">Taxa de conclusão</span>
+                <span class="font-bold text-green-400">0%</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="glass-card rounded-2xl p-5">
+            <h3 class="font-bold text-lg mb-3">Ações Rápidas</h3>
+            <div class="space-y-2">
+              <button onclick="abrirNotificacaoModal()" class="btn-primary w-full py-3 text-sm">
+                <i class="fas fa-bell mr-2"></i>Enviar notificação
+              </button>
+              <button onclick="window.location.href='verificacao.html'" class="btn-blue w-full py-3 text-sm">
+                <i class="fas fa-shield-alt mr-2"></i>Verificar documentos
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB USUÁRIOS -->
+    <div id="tabUsuarios" style="display: none;">
+      <div class="flex gap-4 mb-4">
+        <div class="search-box flex-1">
+          <i class="fas fa-search text-gray-500"></i>
+          <input type="text" id="searchUsuarios" placeholder="Buscar usuários..." onkeyup="filtrarUsuarios()">
+        </div>
+        <select id="filtroTipoUsuario" class="bg-black border border-gray-800 rounded-xl px-4" onchange="filtrarUsuarios()">
+          <option value="todos">Todos</option>
+          <option value="dropshipper">Dropshippers</option>
+          <option value="delivery">Entregadores</option>
+          <option value="verificado">Verificados</option>
+          <option value="pendente">Pendentes</option>
+          <option value="suspenso">Suspensos</option>
+        </select>
+      </div>
+      <div id="usuariosLista" class="space-y-3"></div>
+    </div>
+
+    <!-- TAB VERIFICAÇÕES -->
+    <div id="tabVerificacoes" style="display: none;">
+      <h2 class="text-xl font-bold mb-4">Solicitações de Verificação</h2>
+      <div id="verificacoesLista" class="space-y-6"></div>
+    </div>
+
+    <!-- TAB PEDIDOS -->
+    <div id="tabPedidos" style="display: none;">
+      <div class="flex gap-4 mb-4">
+        <div class="search-box flex-1">
+          <i class="fas fa-search text-gray-500"></i>
+          <input type="text" id="searchPedidos" placeholder="Buscar pedidos..." onkeyup="filtrarPedidos()">
+        </div>
+        <select id="filtroStatusPedido" class="bg-black border border-gray-800 rounded-xl px-4" onchange="filtrarPedidos()">
+          <option value="todos">Todos</option>
+          <option value="pendente">Pendentes</option>
+          <option value="progress">Em andamento</option>
+          <option value="concluido">Concluídos</option>
+          <option value="cancelado">Cancelados</option>
+        </select>
+      </div>
+      <div id="pedidosLista" class="space-y-3"></div>
+    </div>
+
+    <!-- TAB ENTREGADORES -->
+    <div id="tabEntregadores" style="display: none;">
+      <div class="flex gap-4 mb-4">
+        <div class="search-box flex-1">
+          <i class="fas fa-search text-gray-500"></i>
+          <input type="text" id="searchEntregadores" placeholder="Buscar entregadores..." onkeyup="filtrarEntregadores()">
+        </div>
+        <select id="filtroStatusEntregador" class="bg-black border border-gray-800 rounded-xl px-4" onchange="filtrarEntregadores()">
+          <option value="todos">Todos</option>
+          <option value="online">Online</option>
+          <option value="offline">Offline</option>
+          <option value="verificado">Verificados</option>
+        </select>
+      </div>
+      <div id="entregadoresLista" class="space-y-3"></div>
+    </div>
+
+    <!-- TAB DROPSHIPPERS -->
+    <div id="tabDropshippers" style="display: none;">
+      <div class="flex gap-4 mb-4">
+        <div class="search-box flex-1">
+          <i class="fas fa-search text-gray-500"></i>
+          <input type="text" id="searchDropshippers" placeholder="Buscar dropshippers..." onkeyup="filtrarDropshippers()">
+        </div>
+      </div>
+      <div id="dropshippersLista" class="space-y-3"></div>
+    </div>
+
+    <!-- TAB RANKING -->
+    <div id="tabRanking" style="display: none;">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="glass-card rounded-2xl p-5">
+          <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
+            <i class="fas fa-crown text-yellow-400"></i>
+            TOP Entregadores (Geral)
+          </h3>
+          <div id="rankingGeral" class="space-y-2"></div>
+        </div>
+        <div class="glass-card rounded-2xl p-5">
+          <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
+            <i class="fas fa-chart-line text-green-400"></i>
+            TOP Dropshippers
+          </h3>
+          <div id="rankingDropshippers" class="space-y-2"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB LOGS -->
+    <div id="tabLogs" style="display: none;">
+      <div class="flex gap-4 mb-4">
+        <div class="search-box flex-1">
+          <i class="fas fa-search text-gray-500"></i>
+          <input type="text" id="searchLogs" placeholder="Buscar logs...">
+        </div>
+      </div>
+      <div id="logsLista" class="space-y-2 max-h-96 overflow-y-auto">
+        <p class="text-gray-400 text-center py-4">Nenhum log disponível</p>
+      </div>
+    </div>
+
+    <!-- TAB CONFIG -->
+    <div id="tabConfig" style="display: none;">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="glass-card rounded-2xl p-5">
+          <h3 class="font-bold text-lg mb-4">Configurações Gerais</h3>
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm text-gray-400 mb-2">Taxa de entrega mínima (MZN)</label>
+              <input type="number" id="taxaMinima" class="w-full bg-black border border-gray-800 rounded-xl p-3" value="50">
+            </div>
+            <div>
+              <label class="block text-sm text-gray-400 mb-2">Comissão do app (%)</label>
+              <input type="number" id="comissaoApp" class="w-full bg-black border border-gray-800 rounded-xl p-3" value="10">
+            </div>
+            <div>
+              <label class="block text-sm text-gray-400 mb-2">Limite de pedidos por entregador</label>
+              <input type="number" id="limitePedidos" class="w-full bg-black border border-gray-800 rounded-xl p-3" value="5">
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-card rounded-2xl p-5">
+          <h3 class="font-bold text-lg mb-4">Sistema de Selos</h3>
+          <div class="space-y-4">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="selo-azul">✓</span>
+                <span>Selo azul (verificado)</span>
+              </div>
+              <span class="badge success">Ativo</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="level-icon bg-yellow-400 text-black">🥇</span>
+                <span>Entregador Ouro (200+ entregas)</span>
+              </div>
+              <span class="badge gold">Ouro</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="level-icon bg-purple-500">💎</span>
+                <span>Entregador Elite (500+ entregas)</span>
+              </div>
+              <span class="badge elite">Elite</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ========== DADOS REAIS ==========
+    let usuarios = JSON.parse(localStorage.getItem('usuarios')) || [];
+    let verificacoes = JSON.parse(localStorage.getItem('verificacoes')) || [];
+    let pedidos = JSON.parse(localStorage.getItem('todosPedidos')) || [];
+    let notificacoes = JSON.parse(localStorage.getItem('notificacoesSistema')) || [];
+    let logs = JSON.parse(localStorage.getItem('logs')) || [];
+    let tabAtual = 'dashboard';
+
+    // ========== DEBUG ==========
+    function abrirDebug() {
+      const panel = document.getElementById('debugPanel');
+      const log = document.getElementById('debugLog');
+      
+      log.innerHTML = '';
+      
+      // Mostrar todas verificações
+      log.innerHTML += '📋 VERIFICAÇÕES NO SISTEMA:\n';
+      log.innerHTML += JSON.stringify(verificacoes, null, 2) + '\n\n';
+      
+      // Mostrar estrutura de fotos
+      log.innerHTML += '📸 ESTRUTURA DAS FOTOS:\n';
+      verificacoes.forEach(v => {
+        if (v.fotos) {
+          log.innerHTML += `\nUsuário: ${v.nome}\n`;
+          log.innerHTML += `Tem fotos: ${Object.keys(v.fotos).join(', ')}\n`;
+          if (v.fotos.biFrente) log.innerHTML += `BI Frente: ${v.fotos.biFrente.substring(0, 50)}...\n`;
+          if (v.fotos.selfie) log.innerHTML += `Selfie: ${v.fotos.selfie.substring(0, 50)}...\n`;
+        } else {
+          log.innerHTML += `\n${v.nome} - NÃO TEM FOTOS!\n`;
+        }
+      });
+      
+      panel.classList.add('show');
+    }
+
+    function fecharDebug() {
+      document.getElementById('debugPanel').classList.remove('show');
+    }
+
+    // ========== ATUALIZAR STATS ==========
+    function atualizarStats() {
+      const hoje = new Date().toLocaleDateString('pt-BR');
+      const pedidosHoje = pedidos.filter(p => p.data === hoje).length;
+      const receitaHoje = pedidos
+        .filter(p => p.status === 'delivered' && p.data === hoje)
+        .reduce((acc, p) => acc + (p.valor || 0), 0);
+      
+      const entregadoresOnline = usuarios.filter(u => u.tipo === 'delivery' && u.status === 'online').length;
+      const dropshippersAtivos = usuarios.filter(u => u.tipo === 'dropshipper').length;
+      const entregadoresAtivos = usuarios.filter(u => u.tipo === 'delivery').length;
+      const verificacoesPendentes = verificacoes.filter(v => v.status === 'pendente').length;
+
+      document.getElementById('totalUsuarios').textContent = usuarios.length;
+      document.getElementById('pedidosHoje').textContent = pedidosHoje;
+      document.getElementById('receitaHoje').textContent = receitaHoje + ' MZN';
+      document.getElementById('entregadoresOnline').textContent = entregadoresOnline;
+      
+      document.getElementById('resumoVerifPendentes').textContent = verificacoesPendentes;
+      document.getElementById('resumoEntregasAndamento').textContent = pedidos.filter(p => p.status === 'progress').length;
+      document.getElementById('resumoPedidosHoje').textContent = pedidosHoje;
+    }
+
+    // ========== CARREGAR ATIVIDADE RECENTE ==========
+    function carregarAtividadeRecente() {
+      const container = document.getElementById('atividadeRecente');
+      const atividades = [
+        ...logs.slice(-5),
+        ...pedidos.slice(-3).map(p => ({ tipo: 'pedido', texto: `Pedido ${p.id} criado`, data: p.data })),
+        ...verificacoes.slice(-3).map(v => ({ tipo: 'verificacao', texto: `Verificação de ${v.nome}`, data: v.dataEnvio }))
+      ].sort((a, b) => new Date(b.data) - new Date(a.data)).slice(0, 5);
+
+      if (atividades.length === 0) {
+        container.innerHTML = '<p class="text-gray-400 text-center py-4">Nenhuma atividade recente</p>';
+        return;
+      }
+
+      container.innerHTML = atividades.map(a => `
+        <div class="flex items-center gap-3 p-2 border-b border-gray-800">
+          <i class="fas fa-circle text-xs ${a.tipo === 'pedido' ? 'text-blue-400' : a.tipo === 'verificacao' ? 'text-yellow-400' : 'text-green-400'}"></i>
+          <span class="flex-1">${a.texto}</span>
+          <span class="text-xs text-gray-500">${new Date(a.data).toLocaleTimeString()}</span>
+        </div>
+      `).join('');
+    }
+
+    // ========== CARREGAR LEADERBOARD ==========
+    function carregarLeaderboard() {
+      const container = document.getElementById('leaderboardSemanal');
+      const entregadores = usuarios.filter(u => u.tipo === 'delivery')
+        .map(u => ({
+          ...u,
+          entregas: u.entregas || Math.floor(Math.random() * 50)
+        }))
+        .sort((a, b) => b.entregas - a.entregas)
+        .slice(0, 3);
+
+      if (entregadores.length === 0) {
+        container.innerHTML = '<p class="text-gray-400 text-center py-4">Nenhum entregador ainda</p>';
+        return;
+      }
+
+      container.innerHTML = entregadores.map((e, i) => `
+        <div class="leaderboard-item">
+          <div class="leaderboard-rank rank-${i+1}">${i+1}</div>
+          <div class="flex-1">
+            <div class="flex items-center gap-2">
+              <span class="font-bold">${e.nome}</span>
+              ${e.verificado ? '<span class="selo-azul">✓</span>' : ''}
+            </div>
+            <p class="text-xs text-gray-400">${e.entregas} entregas</p>
+          </div>
+          <span class="text-yellow-400 font-bold">⭐ ${e.avaliacao || '5.0'}</span>
+        </div>
+      `).join('');
+    }
+
+    // ========== CARREGAR VERIFICAÇÕES COM FOTOS ==========
+    function carregarVerificacoes() {
+      const lista = document.getElementById('verificacoesLista');
+      const pendentes = verificacoes.filter(v => v.status === 'pendente');
+      
+      if (pendentes.length === 0) {
+        lista.innerHTML = '<p class="text-gray-400 text-center py-8">Nenhuma verificação pendente</p>';
+        return;
+      }
+      
+      lista.innerHTML = pendentes.map(v => {
+        const usuario = usuarios.find(u => u.id === v.usuarioId) || { nome: 'Desconhecido', email: '', tipo: '' };
+        
+        // Verificar se tem fotos
+        const temFotos = v.fotos && (v.fotos.biFrente || v.fotos.biVerso || v.fotos.selfie || v.fotos.residencia);
+        
+        // Debug: mostrar no console se tem fotos
+        if (temFotos) {
+          console.log('Fotos encontradas para', v.nome, Object.keys(v.fotos));
+        } else {
+          console.log('Sem fotos para', v.nome);
+        }
+        
+        return `
+          <div class="glass-card rounded-2xl p-6">
+            <div class="flex justify-between items-start mb-4">
+              <div>
+                <h3 class="font-bold text-xl">${v.nome}</h3>
+                <p class="text-sm text-gray-400">${usuario.email || 'Sem email'}</p>
+                <p class="text-xs text-gray-500 mt-1">Tipo: ${usuario.tipo === 'dropshipper' ? 'Dropshipper' : 'Entregador'}</p>
+              </div>
+              <span class="badge warning">Pendente</span>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4 mb-4 text-sm">
+              <div><span class="text-gray-400">BI:</span> ${v.biNumero || '---'}</div>
+              <div><span class="text-gray-400">Enviado:</span> ${new Date(v.dataEnvio).toLocaleString()}</div>
+            </div>
+
+            <!-- FOTOS DOS DOCUMENTOS -->
+            ${temFotos ? `
+              <div class="mb-4">
+                <p class="text-sm font-bold mb-3 text-blue-400">📸 Documentos anexados:</p>
+                <div class="image-grid">
+                  ${v.fotos.biFrente ? `
+                    <div class="image-item">
+                      <p class="text-xs text-gray-400 mb-1">Frente do BI</p>
+                      <img src="${v.fotos.biFrente}" 
+                           onerror="this.onerror=null; this.src='https://via.placeholder.com/400x200/ff0000/fff?text=ERRO+AO+CARREGAR'; this.parentElement.style.borderColor='red';"
+                           onclick="window.open('${v.fotos.biFrente}')"
+                           class="w-full h-40 object-cover rounded-lg cursor-pointer">
+                    </div>
+                  ` : ''}
+                  
+                  ${v.fotos.biVerso ? `
+                    <div class="image-item">
+                      <p class="text-xs text-gray-400 mb-1">Verso do BI</p>
+                      <img src="${v.fotos.biVerso}" 
+                           onerror="this.onerror=null; this.src='https://via.placeholder.com/400x200/ff0000/fff?text=ERRO+AO+CARREGAR'; this.parentElement.style.borderColor='red';"
+                           onclick="window.open('${v.fotos.biVerso}')"
+                           class="w-full h-40 object-cover rounded-lg cursor-pointer">
+                    </div>
+                  ` : ''}
+                  
+                  ${v.fotos.selfie ? `
+                    <div class="image-item">
+                      <p class="text-xs text-gray-400 mb-1">Selfie</p>
+                      <img src="${v.fotos.selfie}" 
+                           onerror="this.onerror=null; this.src='https://via.placeholder.com/400x200/ff0000/fff?text=ERRO+AO+CARREGAR'; this.parentElement.style.borderColor='red';"
+                           onclick="window.open('${v.fotos.selfie}')"
+                           class="w-full h-40 object-cover rounded-lg cursor-pointer">
+                    </div>
+                  ` : ''}
+                  
+                  ${v.fotos.residencia ? `
+                    <div class="image-item">
+                      <p class="text-xs text-gray-400 mb-1">Comprovativo</p>
+                      <img src="${v.fotos.residencia}" 
+                           onerror="this.onerror=null; this.src='https://via.placeholder.com/400x200/ff0000/fff?text=ERRO+AO+CARREGAR'; this.parentElement.style.borderColor='red';"
+                           onclick="window.open('${v.fotos.residencia}')"
+                           class="w-full h-40 object-cover rounded-lg cursor-pointer">
+                    </div>
+                  ` : ''}
+                </div>
+              </div>
+            ` : `
+              <div class="bg-red-900/20 border border-red-500/30 rounded-xl p-4 mb-4">
+                <p class="text-red-400 text-sm">⚠ Nenhuma foto anexada para esta verificação</p>
+              </div>
+            `}
+
+            <div class="flex gap-3 mt-4">
+              <button onclick="aprovarVerificacao('${v.id}')" class="btn-success flex-1 py-3">✓ Aprovar</button>
+              <button onclick="reprovarVerificacao('${v.id}')" class="btn-error flex-1 py-3">✗ Reprovar</button>
+              <button onclick="darSeloAzul('${v.usuarioId}')" class="btn-blue flex-1 py-3">🔵 Selo</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ========== APROVAR VERIFICAÇÃO ==========
+    function aprovarVerificacao(id) {
+      if (!confirm('Aprovar esta verificação?')) return;
+      
+      showLoading(true);
+      
+      setTimeout(() => {
+        const vIndex = verificacoes.findIndex(v => v.id == id);
+        if (vIndex === -1) return;
+        
+        const usuarioId = verificacoes[vIndex].usuarioId;
+        
+        verificacoes[vIndex].status = 'aprovado';
+        localStorage.setItem('verificacoes', JSON.stringify(verificacoes));
+        
+        const uIndex = usuarios.findIndex(u => u.id === usuarioId);
+        if (uIndex !== -1) {
+          usuarios[uIndex].verificado = true;
+          usuarios[uIndex].verificacaoStatus = 'aprovado';
+          localStorage.setItem('usuarios', JSON.stringify(usuarios));
+          
+          const logado = JSON.parse(localStorage.getItem('usuarioLogado'));
+          if (logado && logado.id === usuarioId) {
+            logado.verificado = true;
+            logado.verificacaoStatus = 'aprovado';
+            localStorage.setItem('usuarioLogado', JSON.stringify(logado));
+          }
+        }
+        
+        logs.push({
+          tipo: 'verificacao_aprovada',
+          usuarioId: usuarioId,
+          data: new Date().toISOString()
+        });
+        localStorage.setItem('logs', JSON.stringify(logs));
+        
+        showLoading(false);
+        alert('✅ Verificação aprovada!');
+        carregarVerificacoes();
+        atualizarStats();
+      }, 500);
+    }
+
+    // ========== REPROVAR VERIFICAÇÃO ==========
+    function reprovarVerificacao(id) {
+      const motivo = prompt('Motivo da reprovação:');
+      if (!motivo) return;
+      
+      showLoading(true);
+      
+      setTimeout(() => {
+        const vIndex = verificacoes.findIndex(v => v.id == id);
+        if (vIndex === -1) return;
+        
+        const usuarioId = verificacoes[vIndex].usuarioId;
+        
+        verificacoes[vIndex].status = 'reprovado';
+        verificacoes[vIndex].observacoes = motivo;
+        localStorage.setItem('verificacoes', JSON.stringify(verificacoes));
+        
+        const uIndex = usuarios.findIndex(u => u.id === usuarioId);
+        if (uIndex !== -1) {
+          usuarios[uIndex].verificado = false;
+          usuarios[uIndex].verificacaoStatus = 'reprovado';
+          localStorage.setItem('usuarios', JSON.stringify(usuarios));
+          
+          const logado = JSON.parse(localStorage.getItem('usuarioLogado'));
+          if (logado && logado.id === usuarioId) {
+            logado.verificado = false;
+            logado.verificacaoStatus = 'reprovado';
+            localStorage.setItem('usuarioLogado', JSON.stringify(logado));
+          }
+        }
+        
+        showLoading(false);
+        alert('❌ Verificação reprovada!');
+        carregarVerificacoes();
+        atualizarStats();
+      }, 500);
+    }
+
+    // ========== DAR SELO AZUL ==========
+    function darSeloAzul(usuarioId) {
+      if (!confirm('Dar selo azul de verificado para este usuário?')) return;
+      
+      const uIndex = usuarios.findIndex(u => u.id == usuarioId);
+      if (uIndex !== -1) {
+        usuarios[uIndex].seloAzul = true;
+        localStorage.setItem('usuarios', JSON.stringify(usuarios));
+        
+        const logado = JSON.parse(localStorage.getItem('usuarioLogado'));
+        if (logado && logado.id == usuarioId) {
+          logado.seloAzul = true;
+          localStorage.setItem('usuarioLogado', JSON.stringify(logado));
+        }
+        
+        alert('🔵 Selo azul concedido!');
+        carregarVerificacoes();
+      }
+    }
+
+    // ========== ENVIAR NOTIFICAÇÃO GERAL ==========
+    function enviarNotificacaoGeral() {
+      const titulo = document.getElementById('notificacaoTitulo').value;
+      const msg = document.getElementById('notificacaoMensagem').value;
+      
+      if (!titulo || !msg) {
+        alert('Preencha título e mensagem');
+        return;
+      }
+      
+      showLoading(true);
+      
+      setTimeout(() => {
+        usuarios.forEach(u => {
+          let notifUsuario = JSON.parse(localStorage.getItem(`notificacoes_${u.id}`)) || [];
+          notifUsuario.unshift({
+            id: Date.now(),
+            titulo: titulo,
+            mensagem: msg,
+            data: new Date().toISOString(),
+            lida: false
+          });
+          localStorage.setItem(`notificacoes_${u.id}`, JSON.stringify(notifUsuario));
+        });
+        
+        notificacoes.push({
+          id: Date.now(),
+          titulo: titulo,
+          mensagem: msg,
+          data: new Date().toISOString()
+        });
+        localStorage.setItem('notificacoesSistema', JSON.stringify(notificacoes));
+        
+        showLoading(false);
+        alert('✅ Notificação enviada para todos!');
+        fecharNotificacaoModal();
+      }, 1000);
+    }
+
+    // ========== FILTROS ==========
+    function filtrarUsuarios() {
+      const busca = document.getElementById('searchUsuarios')?.value.toLowerCase() || '';
+      const tipo = document.getElementById('filtroTipoUsuario')?.value || 'todos';
+      
+      let filtrados = usuarios;
+      
+      if (tipo === 'dropshipper') filtrados = filtrados.filter(u => u.tipo === 'dropshipper');
+      else if (tipo === 'delivery') filtrados = filtrados.filter(u => u.tipo === 'delivery');
+      else if (tipo === 'verificado') filtrados = filtrados.filter(u => u.verificado);
+      else if (tipo === 'pendente') filtrados = filtrados.filter(u => !u.verificado);
+      else if (tipo === 'suspenso') filtrados = filtrados.filter(u => u.suspenso);
+      
+      if (busca) {
+        filtrados = filtrados.filter(u => 
+          u.nome?.toLowerCase().includes(busca) || 
+          u.email?.toLowerCase().includes(busca)
+        );
+      }
+      
+      const lista = document.getElementById('usuariosLista');
+      if (!lista) return;
+      
+      if (filtrados.length === 0) {
+        lista.innerHTML = '<p class="text-gray-400 text-center py-8">Nenhum usuário encontrado</p>';
+        return;
+      }
+      
+      lista.innerHTML = filtrados.map(u => `
+        <div class="glass-card rounded-2xl p-4 flex justify-between items-center">
+          <div class="flex-1">
+            <div class="flex items-center gap-2">
+              <p class="font-bold">${u.nome || 'Sem nome'}</p>
+              ${u.seloAzul ? '<span class="selo-azul">✓</span>' : ''}
+              ${u.verificado ? '<span class="badge success text-xs">Verificado</span>' : ''}
+              ${u.suspenso ? '<span class="badge error">Suspenso</span>' : ''}
+            </div>
+            <p class="text-sm text-gray-400">${u.email || 'Sem email'}</p>
+            <p class="text-xs text-gray-500">Tipo: ${u.tipo} | ID: ${u.id}</p>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="verUsuario('${u.id}')" class="btn-primary text-sm px-3 py-1">Ver</button>
+            <button onclick="suspenderUsuario('${u.id}')" class="btn-warning text-sm px-3 py-1">Suspender</button>
+            <button onclick="darSeloAzul('${u.id}')" class="btn-blue text-sm px-3 py-1">🔵</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // ========== VER USUÁRIO ==========
+    function verUsuario(id) {
+      const usuario = usuarios.find(u => u.id == id);
+      if (!usuario) return;
+      
+      const content = document.getElementById('usuarioModalContent');
+      const verificacao = verificacoes.find(v => v.usuarioId == id);
+      
+      let fotosHtml = '';
+      if (verificacao && verificacao.fotos) {
+        fotosHtml = `
+          <div class="mt-4">
+            <p class="font-bold mb-2">📸 Documentos anexados:</p>
+            <div class="image-grid">
+              ${verificacao.fotos.biFrente ? `
+                <div class="image-item">
+                  <img src="${verificacao.fotos.biFrente}" onerror="this.src='https://via.placeholder.com/400x200/ff0000/fff?text=ERRO'" onclick="window.open('${verificacao.fotos.biFrente}')">
+                </div>
+              ` : ''}
+              ${verificacao.fotos.biVerso ? `
+                <div class="image-item">
+                  <img src="${verificacao.fotos.biVerso}" onerror="this.src='https://via.placeholder.com/400x200/ff0000/fff?text=ERRO'" onclick="window.open('${verificacao.fotos.biVerso}')">
+                </div>
+              ` : ''}
+              ${verificacao.fotos.selfie ? `
+                <div class="image-item">
+                  <img src="${verificacao.fotos.selfie}" onerror="this.src='https://via.placeholder.com/400x200/ff0000/fff?text=ERRO'" onclick="window.open('${verificacao.fotos.selfie}')">
+                </div>
+              ` : ''}
+              ${verificacao.fotos.residencia ? `
+                <div class="image-item">
+                  <img src="${verificacao.fotos.residencia}" onerror="this.src='https://via.placeholder.com/400x200/ff0000/fff?text=ERRO'" onclick="window.open('${verificacao.fotos.residencia}')">
+                </div>
+              ` : ''}
+            </div>
+          </div>
+        `;
+      }
+      
+      content.innerHTML = `
+        <h2 class="text-2xl font-bold mb-4">Detalhes do Usuário</h2>
+        <div class="space-y-4">
+          <div class="flex items-center gap-2">
+            <p class="text-xl font-bold">${usuario.nome}</p>
+            ${usuario.seloAzul ? '<span class="selo-azul text-lg">✓</span>' : ''}
+          </div>
+          <p><span class="text-gray-400">Email:</span> ${usuario.email}</p>
+          <p><span class="text-gray-400">Tipo:</span> ${usuario.tipo}</p>
+          <p><span class="text-gray-400">Status:</span> ${usuario.verificado ? '✓ Verificado' : '⏳ Pendente'}</p>
+          ${usuario.suspenso ? '<p class="text-red-400">⚠ Conta suspensa</p>' : ''}
+          
+          ${fotosHtml}
+        </div>
+        <div class="flex gap-3 mt-6">
+          <button onclick="fecharModalUsuario()" class="btn-primary flex-1 py-3">Fechar</button>
+          <button onclick="darSeloAzul('${usuario.id}')" class="btn-blue flex-1 py-3">🔵 Dar selo</button>
+        </div>
+      `;
+      
+      document.getElementById('usuarioModal').classList.add('active');
+    }
+
+    function suspenderUsuario(id) {
+      if (!confirm('Suspender este usuário?')) return;
+      
+      const uIndex = usuarios.findIndex(u => u.id == id);
+      if (uIndex !== -1) {
+        usuarios[uIndex].suspenso = true;
+        localStorage.setItem('usuarios', JSON.stringify(usuarios));
+        filtrarUsuarios();
+      }
+    }
+
+    // ========== FILTRAR ENTREGADORES ==========
+    function filtrarEntregadores() {
+      const busca = document.getElementById('searchEntregadores')?.value.toLowerCase() || '';
+      const status = document.getElementById('filtroStatusEntregador')?.value || 'todos';
+      
+      let filtrados = usuarios.filter(u => u.tipo === 'delivery');
+      
+      if (status === 'online') filtrados = filtrados.filter(u => u.status === 'online');
+      else if (status === 'offline') filtrados = filtrados.filter(u => u.status !== 'online');
+      else if (status === 'verificado') filtrados = filtrados.filter(u => u.verificado);
+      
+      if (busca) {
+        filtrados = filtrados.filter(u => 
+          u.nome?.toLowerCase().includes(busca) || 
+          u.email?.toLowerCase().includes(busca)
+        );
+      }
+      
+      const lista = document.getElementById('entregadoresLista');
+      if (!lista) return;
+      
+      if (filtrados.length === 0) {
+        lista.innerHTML = '<p class="text-gray-400 text-center py-8">Nenhum entregador encontrado</p>';
+        return;
+      }
+      
+      lista.innerHTML = filtrados.map(u => `
+        <div class="glass-card rounded-2xl p-4 flex justify-between items-center">
+          <div>
+            <div class="flex items-center gap-2">
+              <p class="font-bold">${u.nome}</p>
+              ${u.seloAzul ? '<span class="selo-azul">✓</span>' : ''}
+              ${u.verificado ? '<span class="badge success">Verif</span>' : ''}
+            </div>
+            <p class="text-sm text-gray-400">${u.email}</p>
+            <div class="flex gap-3 mt-1 text-xs">
+              <span>🛵 ${u.entregas || 0} entregas</span>
+              <span>⭐ ${u.avaliacao || '5.0'}</span>
+              <span>💰 ${u.ganhos || 0} MZN</span>
+            </div>
+          </div>
+          <div class="flex gap-2">
+            <span class="badge ${u.status === 'online' ? 'success' : 'error'}">${u.status === 'online' ? '🟢 Online' : '⚫ Offline'}</span>
+            <button onclick="verUsuario('${u.id}')" class="btn-primary text-sm px-3 py-1">Ver</button>
+            <button onclick="darSeloAzul('${u.id}')" class="btn-blue text-sm px-3 py-1">🔵</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // ========== FILTRAR DROPSHIPPERS ==========
+    function filtrarDropshippers() {
+      const busca = document.getElementById('searchDropshippers')?.value.toLowerCase() || '';
+      
+      let filtrados = usuarios.filter(u => u.tipo === 'dropshipper');
+      
+      if (busca) {
+        filtrados = filtrados.filter(u => 
+          u.nome?.toLowerCase().includes(busca) || 
+          u.email?.toLowerCase().includes(busca)
+        );
+      }
+      
+      const lista = document.getElementById('dropshippersLista');
+      if (!lista) return;
+      
+      if (filtrados.length === 0) {
+        lista.innerHTML = '<p class="text-gray-400 text-center py-8">Nenhum dropshipper encontrado</p>';
+        return;
+      }
+      
+      lista.innerHTML = filtrados.map(u => `
+        <div class="glass-card rounded-2xl p-4 flex justify-between items-center">
+          <div>
+            <div class="flex items-center gap-2">
+              <p class="font-bold">${u.nome}</p>
+              ${u.seloAzul ? '<span class="selo-azul">✓</span>' : ''}
+            </div>
+            <p class="text-sm text-gray-400">${u.email}</p>
+            <div class="flex gap-3 mt-1 text-xs">
+              <span>📦 ${u.pedidos || 0} pedidos</span>
+              <span>💰 ${u.totalGanho || 0} MZN</span>
+            </div>
+          </div>
+          <div class="flex gap-2">
+            <span class="badge ${u.verificado ? 'success' : 'warning'}">${u.verificado ? 'Verificado' : 'Pendente'}</span>
+            <button onclick="verUsuario('${u.id}')" class="btn-primary text-sm px-3 py-1">Ver</button>
+            <button onclick="darSeloAzul('${u.id}')" class="btn-blue text-sm px-3 py-1">🔵</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // ========== FILTRAR PEDIDOS ==========
+    function filtrarPedidos() {
+      const busca = document.getElementById('searchPedidos')?.value.toLowerCase() || '';
+      const status = document.getElementById('filtroStatusPedido')?.value || 'todos';
+      
+      let filtrados = pedidos;
+      
+      if (status !== 'todos') {
+        filtrados = filtrados.filter(p => p.status === status);
+      }
+      
+      if (busca) {
+        filtrados = filtrados.filter(p => 
+          p.id?.toLowerCase().includes(busca) || 
+          p.cliente?.toLowerCase().includes(busca)
+        );
+      }
+      
+      const lista = document.getElementById('pedidosLista');
+      if (!lista) return;
+      
+      if (filtrados.length === 0) {
+        lista.innerHTML = '<p class="text-gray-400 text-center py-8">Nenhum pedido encontrado</p>';
+        return;
+      }
+      
+      lista.innerHTML = filtrados.map(p => `
+        <div class="glass-card rounded-2xl p-4 flex justify-between items-center">
+          <div>
+            <p class="font-bold">Pedido ${p.id}</p>
+            <p class="text-sm text-gray-400">Cliente: ${p.cliente}</p>
+            <p class="text-xs text-gray-500">Loja: ${p.dropshipper || 'N/A'}</p>
+          </div>
+          <div class="flex gap-2">
+            <span class="badge ${p.status === 'delivered' ? 'success' : p.status === 'progress' ? 'warning' : 'error'}">
+              ${p.status === 'delivered' ? 'Entregue' : p.status === 'progress' ? 'Em andamento' : 'Pendente'}
+            </span>
+            <button onclick="verPedido('${p.id}')" class="btn-primary text-sm px-3 py-1">Ver</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function verPedido(id) {
+      alert(`Ver pedido ${id}`);
+    }
+
+    // ========== MUDAR TABS ==========
+    function mudarTab(tab) {
+      tabAtual = tab;
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      event.target.classList.add('active');
+      
+      document.getElementById('tabDashboard').style.display = 'none';
+      document.getElementById('tabUsuarios').style.display = 'none';
+      document.getElementById('tabVerificacoes').style.display = 'none';
+      document.getElementById('tabPedidos').style.display = 'none';
+      document.getElementById('tabEntregadores').style.display = 'none';
+      document.getElementById('tabDropshippers').style.display = 'none';
+      document.getElementById('tabRanking').style.display = 'none';
+      document.getElementById('tabLogs').style.display = 'none';
+      document.getElementById('tabConfig').style.display = 'none';
+      
+      if (tab === 'dashboard') {
+        document.getElementById('tabDashboard').style.display = 'block';
+        carregarAtividadeRecente();
+        carregarLeaderboard();
+      } else if (tab === 'usuarios') {
+        document.getElementById('tabUsuarios').style.display = 'block';
+        filtrarUsuarios();
+      } else if (tab === 'verificacoes') {
+        document.getElementById('tabVerificacoes').style.display = 'block';
+        carregarVerificacoes();
+      } else if (tab === 'pedidos') {
+        document.getElementById('tabPedidos').style.display = 'block';
+        filtrarPedidos();
+      } else if (tab === 'entregadores') {
+        document.getElementById('tabEntregadores').style.display = 'block';
+        filtrarEntregadores();
+      } else if (tab === 'dropshippers') {
+        document.getElementById('tabDropshippers').style.display = 'block';
+        filtrarDropshippers();
+      } else if (tab === 'ranking') {
+        document.getElementById('tabRanking').style.display = 'block';
+        carregarRanking();
+      } else if (tab === 'logs') {
+        document.getElementById('tabLogs').style.display = 'block';
+        carregarLogs();
+      } else if (tab === 'config') {
+        document.getElementById('tabConfig').style.display = 'block';
+      }
+    }
+
+    function carregarRanking() {
+      document.getElementById('rankingGeral').innerHTML = '<p class="text-gray-400 text-center py-4">Ranking em desenvolvimento</p>';
+      document.getElementById('rankingDropshippers').innerHTML = '<p class="text-gray-400 text-center py-4">Ranking em desenvolvimento</p>';
+    }
+
+    function carregarLogs() {
+      const lista = document.getElementById('logsLista');
+      if (logs.length === 0) {
+        lista.innerHTML = '<p class="text-gray-400 text-center py-4">Nenhum log disponível</p>';
+        return;
+      }
+      
+      lista.innerHTML = logs.slice(-20).reverse().map(log => `
+        <div class="text-sm p-2 border-b border-gray-800">
+          <span class="text-gray-400">${new Date(log.data).toLocaleString()}</span>
+          <span class="ml-2">${log.tipo}</span>
+        </div>
+      `).join('');
+    }
+
+    // ========== MODAIS ==========
+    function abrirNotificacaoModal() {
+      document.getElementById('notificacaoModal').classList.add('active');
+    }
+
+    function fecharNotificacaoModal() {
+      document.getElementById('notificacaoModal').classList.remove('active');
+      document.getElementById('notificacaoTitulo').value = '';
+      document.getElementById('notificacaoMensagem').value = '';
+    }
+
+    function fecharModalUsuario() {
+      document.getElementById('usuarioModal').classList.remove('active');
+    }
+
+    // ========== LOADING ==========
+    function showLoading(show) {
+      const loading = document.getElementById('loading');
+      if (show) {
+        loading.classList.add('flex');
+      } else {
+        loading.classList.remove('flex');
+      }
+    }
+
+    // ========== INICIAR ==========
+    window.onload = function() {
+      if (!usuarios.find(u => u.tipo === 'admin')) {
+        usuarios.push({
+          id: 'admin',
+          nome: 'Administrador',
+          email: 'admin@gocourier.com',
+          tipo: 'admin',
+          verificado: true
+        });
+        localStorage.setItem('usuarios', JSON.stringify(usuarios));
+      }
+      
+      atualizarStats();
+      carregarAtividadeRecente();
+      carregarLeaderboard();
+      carregarVerificacoes();
+    };
+  </script>
+</body>
+</html>

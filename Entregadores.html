@@ -1,0 +1,1564 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>GoCourier • Entregas</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body { 
+      background: #000000; 
+      color: #ffffff; 
+      font-family: 'Inter', system-ui, sans-serif; 
+      -webkit-tap-highlight-color: transparent;
+      min-height: 100vh;
+      position: relative;
+    }
+    
+    .glass {
+      background: rgba(255,255,255,0.04);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    
+    .stat-card {
+      background: #111111;
+      transition: transform 0.25s ease;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    
+    .stat-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(255,255,255,0.15);
+    }
+    
+    .delivery-card {
+      background: #111111;
+      transition: all 0.3s;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    
+    .delivery-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(255,255,255,0.15);
+    }
+    
+    .delivery-card.pending {
+      border-left: 4px solid #ffaa00;
+    }
+    
+    .btn-accept {
+      background: #4caf50;
+      color: white;
+      border: none;
+      border-radius: 2rem;
+      padding: 0.6rem 1.5rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .btn-accept:hover {
+      background: #45a049;
+      transform: scale(1.02);
+    }
+    
+    .btn-accept:disabled {
+      background: #666;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .btn-reject {
+      background: transparent;
+      color: #ff6b6b;
+      border: 1px solid #ff6b6b;
+      border-radius: 2rem;
+      padding: 0.6rem 1.5rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .btn-reject:hover {
+      background: rgba(255,107,107,0.1);
+    }
+    
+    .btn-success {
+      background: #4caf50;
+      color: white;
+      border: none;
+      border-radius: 2rem;
+      padding: 0.8rem 1rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      flex: 1;
+    }
+    
+    .btn-success:hover {
+      background: #45a049;
+    }
+    
+    .btn-danger {
+      background: #ff4444;
+      color: white;
+      border: none;
+      border-radius: 2rem;
+      padding: 0.8rem 1rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      flex: 1;
+    }
+    
+    .btn-danger:hover {
+      background: #ff6666;
+    }
+    
+    .badge {
+      padding: 0.25rem 0.75rem;
+      border-radius: 2rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    
+    .badge.warning {
+      background: rgba(255, 170, 0, 0.2);
+      color: #ffaa00;
+      border: 1px solid rgba(255, 170, 0, 0.3);
+    }
+    
+    .badge.success {
+      background: rgba(76, 175, 80, 0.2);
+      color: #4caf50;
+      border: 1px solid rgba(76, 175, 80, 0.3);
+    }
+    
+    .badge.info {
+      background: rgba(33, 150, 243, 0.2);
+      color: #2196f3;
+      border: 1px solid rgba(33, 150, 243, 0.3);
+    }
+    
+    .badge.error {
+      background: rgba(255, 68, 68, 0.2);
+      color: #ff4444;
+      border: 1px solid rgba(255, 68, 68, 0.3);
+    }
+    
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.95);
+      backdrop-filter: blur(10px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+    
+    .modal-overlay.active {
+      display: flex;
+    }
+    
+    .modal-container {
+      background: #111;
+      border: 1px solid #333;
+      border-radius: 2rem;
+      padding: 2rem;
+      max-width: 500px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    
+    .modal-close {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      color: #888;
+      cursor: pointer;
+      font-size: 1.5rem;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.1);
+    }
+    
+    .modal-close:hover {
+      background: rgba(255,255,255,0.2);
+    }
+    
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.9);
+      backdrop-filter: blur(10px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+    }
+    
+    .loading-overlay.active {
+      display: flex;
+    }
+    
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 4px solid #333;
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    .verification-banner {
+      background: linear-gradient(135deg, #331100, #221100);
+      border: 1px solid #ffaa00;
+      border-radius: 1rem;
+      padding: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .verification-banner:hover {
+      background: #442200;
+    }
+    
+    .verification-banner.warning {
+      border-color: #ffaa00;
+    }
+    
+    .verification-banner.success {
+      border-color: #4caf50;
+      background: #112211;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .toast-notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #111;
+      border: 1px solid #333;
+      border-radius: 12px;
+      padding: 16px 20px;
+      color: white;
+      z-index: 10001;
+      display: none;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    .toast-notification.show {
+      display: flex;
+    }
+
+    .toast-notification.success {
+      border-left: 4px solid #4caf50;
+    }
+
+    .toast-notification.error {
+      border-left: 4px solid #ff4444;
+    }
+
+    .toast-notification.warning {
+      border-left: 4px solid #ffaa00;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+    }
+
+    .empty-state i {
+      font-size: 4rem;
+      color: #333;
+      margin-bottom: 1rem;
+    }
+
+    .empty-state p {
+      color: #666;
+      font-size: 0.9rem;
+    }
+
+    .search-box {
+      background: #111;
+      border: 1px solid #333;
+      border-radius: 2rem;
+      padding: 0.8rem 1.2rem;
+      width: 100%;
+      color: white;
+      margin-bottom: 1rem;
+    }
+
+    .search-box:focus {
+      outline: none;
+      border-color: #4caf50;
+    }
+
+    .filter-chip {
+      background: #111;
+      border: 1px solid #333;
+      border-radius: 2rem;
+      padding: 0.5rem 1rem;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .filter-chip:hover {
+      background: #222;
+    }
+
+    .filter-chip.active {
+      background: #4caf50;
+      border-color: #4caf50;
+    }
+
+    .pagination {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-top: 2rem;
+    }
+
+    .pagination button {
+      background: #111;
+      border: 1px solid #333;
+      border-radius: 8px;
+      padding: 0.5rem 1rem;
+      color: white;
+      cursor: pointer;
+    }
+
+    .pagination button:hover {
+      background: #222;
+    }
+
+    .pagination button.active {
+      background: #4caf50;
+      border-color: #4caf50;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" id="loading">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast-notification" id="toast">
+    <i class="fas" id="toastIcon"></i>
+    <span id="toastMessage"></span>
+  </div>
+
+  <!-- Modal Configurações -->
+  <div class="modal-overlay" id="configModal">
+    <div class="modal-container relative">
+      <div class="modal-close" onclick="closeConfigModal()">✕</div>
+      <h2 class="text-2xl font-bold mb-6">⚙️ Configurações</h2>
+      
+      <div class="space-y-6">
+        <!-- Status de Verificação -->
+        <div>
+          <label class="block text-sm text-gray-400 mb-2">Verificação de Documentos</label>
+          <div class="bg-black/50 rounded-xl p-4 space-y-3">
+            <div class="flex justify-between items-center">
+              <span>Bilhete de Identidade</span>
+              <span class="badge" id="statusBI">Pendente</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span>Selfie com Documento</span>
+              <span class="badge" id="statusSelfie">Pendente</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span>Comprovativo de Residência</span>
+              <span class="badge" id="statusResidencia">Pendente</span>
+            </div>
+          </div>
+          <button onclick="window.location.href='verificacao.html'" class="w-full mt-3 bg-emerald-600 text-white py-3 rounded-xl hover:bg-emerald-700 transition">
+            <i class="fas fa-shield-alt mr-2"></i>Fazer Verificação
+          </button>
+        </div>
+
+        <div>
+          <label class="block text-sm text-gray-400 mb-2">📍 Cidade de Atuação</label>
+          <select id="configCidade" class="w-full bg-black border border-gray-800 rounded-xl p-3 text-white" disabled>
+            <option value="Maputo Cidade">Maputo Cidade</option>
+            <option value="Matola">Matola</option>
+            <option value="Beira">Beira</option>
+            <option value="Nampula">Nampula</option>
+            <option value="Quelimane">Quelimane</option>
+            <option value="Tete">Tete</option>
+            <option value="Lichinga">Lichinga</option>
+            <option value="Pemba">Pemba</option>
+          </select>
+          <p class="text-xs text-gray-500 mt-2">Cidade definida no cadastro. Não pode ser alterada.</p>
+        </div>
+
+        <div>
+          <label class="block text-sm text-gray-400 mb-2">👤 Informações Pessoais</label>
+          <div class="bg-black/50 rounded-xl p-4 space-y-3">
+            <div>
+              <p class="text-xs text-gray-500">Nome</p>
+              <p class="font-medium" id="configNome">Carregando...</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500">Email</p>
+              <p class="font-medium" id="configEmail">Carregando...</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500">Telefone</p>
+              <p class="font-medium" id="configTelefone">Carregando...</p>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm text-gray-400 mb-2">📊 Estatísticas</label>
+          <div class="bg-black/50 rounded-xl p-4 space-y-3">
+            <div class="flex justify-between">
+              <span>Total entregas</span>
+              <span class="font-bold" id="configTotalEntregas">0</span>
+            </div>
+            <div class="flex justify-between">
+              <span>Total ganho</span>
+              <span class="font-bold text-emerald-400" id="configTotalGanho">0 MT</span>
+            </div>
+            <div class="flex justify-between">
+              <span>Média por entrega</span>
+              <span class="font-bold text-emerald-400" id="configMedia">0 MT</span>
+            </div>
+          </div>
+        </div>
+
+        <button onclick="closeConfigModal()" class="w-full bg-white text-black font-bold py-3 rounded-2xl hover:bg-gray-200 transition">
+          Fechar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Pedidos Disponíveis -->
+  <div class="modal-overlay" id="pedidosModal">
+    <div class="modal-container relative">
+      <div class="modal-close" onclick="closePedidosModal()">✕</div>
+      <h2 class="text-2xl font-bold mb-2">📦 Pedidos Disponíveis</h2>
+      <p class="text-sm text-gray-400 mb-6" id="pedidosCidadeInfo">Carregando...</p>
+      
+      <!-- Barra de pesquisa nos pedidos -->
+      <input type="text" class="search-box" id="searchPedidos" placeholder="🔍 Buscar por cliente ou produto..." onkeyup="filtrarPedidos()">
+      
+      <div id="pedidosList" class="space-y-4 max-h-96 overflow-y-auto pr-2">
+        <!-- Pedidos serão inseridos aqui -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Detalhes da Entrega -->
+  <div class="modal-overlay" id="detalhesModal">
+    <div class="modal-container relative">
+      <div class="modal-close" onclick="closeDetalhesModal()">✕</div>
+      <h2 class="text-2xl font-bold mb-4">📋 Detalhes da Entrega</h2>
+      <div id="detalhesConteudo" class="space-y-4">
+        <!-- Conteúdo dinâmico -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Estatísticas -->
+  <div class="modal-overlay" id="estatisticasModal">
+    <div class="modal-container relative">
+      <div class="modal-close" onclick="closeEstatisticasModal()">✕</div>
+      <h2 class="text-2xl font-bold mb-6">📈 Estatísticas Detalhadas</h2>
+      
+      <div class="space-y-6">
+        <div class="bg-black/50 rounded-xl p-4">
+          <h3 class="font-semibold mb-3">Resumo do Período</h3>
+          <div class="space-y-2">
+            <div class="flex justify-between">
+              <span class="text-gray-400">Total de entregas</span>
+              <span class="font-bold" id="statsTotalEntregas">0</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-400">Valor total</span>
+              <span class="font-bold text-emerald-400" id="statsValorTotal">0 MT</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-400">Média por entrega</span>
+              <span class="font-bold" id="statsMedia">0 MT</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-black/50 rounded-xl p-4">
+          <h3 class="font-semibold mb-3">Status das Entregas</h3>
+          <div class="space-y-2">
+            <div class="flex justify-between">
+              <span class="text-gray-400">Concluídas</span>
+              <span class="font-bold text-green-400" id="statsConcluidas">0</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-400">Em andamento</span>
+              <span class="font-bold text-yellow-400" id="statsAndamento">0</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-400">Canceladas</span>
+              <span class="font-bold text-red-400" id="statsCanceladas">0</span>
+            </div>
+          </div>
+        </div>
+
+        <button onclick="closeEstatisticasModal()" class="w-full bg-white text-black font-bold py-3 rounded-2xl hover:bg-gray-200 transition">
+          Fechar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- HEADER -->
+  <header class="fixed top-0 left-0 right-0 z-40 bg-black/90 backdrop-blur-xl border-b border-gray-800 px-5 py-4 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <button onclick="window.history.back()" class="text-2xl text-gray-400 hover:text-white transition">
+        <i class="fas fa-arrow-left"></i>
+      </button>
+      <img 
+        src="ei_1773419339504-removebg-preview.png" 
+        alt="GoCourier" 
+        class="h-12 w-auto"
+        onerror="this.style.display='none'"
+      />
+      <span class="font-bold text-xl tracking-tight">GoCourier</span>
+    </div>
+    
+    <div class="flex items-center gap-5">
+      <div class="w-9 h-9 bg-gradient-to-br from-emerald-500 to-green-600 rounded-full flex items-center justify-center text-sm font-medium shadow-lg" id="userInitials">
+        TM
+      </div>
+    </div>
+  </header>
+
+  <div class="h-20"></div>
+
+  <!-- CONTEÚDO PRINCIPAL -->
+  <main class="flex-1 px-5 pb-28">
+    
+    <!-- Saudação e Localização -->
+    <div class="mb-6 flex justify-between items-start">
+      <div>
+        <h1 class="text-3xl font-semibold">Olá, <span id="userName">Carlos</span>!</h1>
+        <p class="text-gray-400 text-sm mt-1" id="userLocation">Carregando...</p>
+      </div>
+      <span class="badge info flex items-center gap-1" id="userCidade">
+        <i class="fas fa-map-marker-alt text-xs"></i> Maputo
+      </span>
+    </div>
+
+    <!-- BANNER DE VERIFICAÇÃO (se não verificado) -->
+    <div id="verificationBanner" class="verification-banner warning mb-6" onclick="window.location.href='verificacao.html'">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-orange-500/20 rounded-full flex items-center justify-center">
+          <i class="fas fa-shield-alt text-orange-500"></i>
+        </div>
+        <div>
+          <p class="font-bold">Verificação necessária</p>
+          <p class="text-sm text-gray-400">Complete seus documentos para começar</p>
+        </div>
+      </div>
+      <i class="fas fa-chevron-right text-gray-500"></i>
+    </div>
+
+    <!-- BANNER DE VERIFICAÇÃO (se verificado) -->
+    <div id="verifiedBanner" class="verification-banner success mb-6 hidden" onclick="window.location.href='verificacao.html'">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-green-500/20 rounded-full flex items-center justify-center">
+          <i class="fas fa-check-circle text-green-500"></i>
+        </div>
+        <div>
+          <p class="font-bold">Documentos verificados</p>
+          <p class="text-sm text-gray-400">Clique para ver detalhes</p>
+        </div>
+      </div>
+      <i class="fas fa-chevron-right text-gray-500"></i>
+    </div>
+
+    <!-- RESUMO COM ESTATÍSTICAS -->
+    <div class="grid grid-cols-2 gap-4 mb-6">
+      <div class="stat-card rounded-2xl p-5">
+        <p class="text-xs text-gray-400 mb-1 flex items-center gap-1">
+          <i class="fas fa-box"></i> Total entregas
+        </p>
+        <p id="totalEntregas" class="text-4xl font-bold">0</p>
+        <p class="text-xs text-gray-500 mt-2">Nenhuma entrega ainda</p>
+      </div>
+      <div class="stat-card rounded-2xl p-5">
+        <p class="text-xs text-gray-400 mb-1 flex items-center gap-1">
+          <i class="fas fa-coins"></i> Ganhos
+        </p>
+        <p id="totalGanho" class="text-4xl font-bold text-emerald-400">0 MT</p>
+        <p class="text-xs text-gray-500 mt-2">Comece a entregar</p>
+      </div>
+    </div>
+
+    <!-- STATUS DO ENTREGADOR -->
+    <div class="glass rounded-3xl p-4 mb-6 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-3 h-3 rounded-full bg-green-500 animate-pulse"></div>
+        <span class="font-medium">Disponível para entregas</span>
+      </div>
+      <span class="text-sm text-gray-400 flex items-center gap-1">
+        <i class="fas fa-map-marker-alt"></i> <span id="statusCidade">Maputo</span>
+      </span>
+    </div>
+
+    <!-- BOTÃO PEDIDOS DISPONÍVEIS -->
+    <button onclick="abrirPedidosModal()" class="w-full glass rounded-3xl p-5 mb-8 flex items-center justify-between hover:bg-white/5 transition disabled:opacity-50 disabled:cursor-not-allowed" id="pedidosButton">
+      <div class="flex items-center gap-4">
+        <div class="w-14 h-14 bg-emerald-900/30 rounded-full flex items-center justify-center">
+          <i class="fas fa-motorcycle text-3xl text-emerald-400"></i>
+        </div>
+        <div class="text-left">
+          <p class="font-bold text-lg">Pedidos Disponíveis</p>
+          <p class="text-sm text-gray-400" id="pedidosCount">0 disponíveis</p>
+        </div>
+      </div>
+      <i class="fas fa-chevron-right text-gray-500 text-xl"></i>
+    </button>
+
+    <!-- AVISO DE VERIFICAÇÃO -->
+    <div id="verificationWarning" class="glass rounded-3xl p-5 mb-6 border border-orange-500/30 bg-orange-500/5">
+      <div class="flex items-center gap-3">
+        <i class="fas fa-exclamation-triangle text-orange-500 text-xl"></i>
+        <p class="text-sm text-gray-300">Complete a verificação de documentos para aceitar pedidos</p>
+      </div>
+    </div>
+
+    <!-- FILTROS PARA MINHAS ENTREGAS -->
+    <div class="flex gap-2 mb-4 overflow-x-auto pb-2">
+      <button class="filter-chip active" onclick="filtrarMinhasEntregas('todos')" id="filtroTodos">Todos</button>
+      <button class="filter-chip" onclick="filtrarMinhasEntregas('andamento')" id="filtroAndamento">Em andamento</button>
+      <button class="filter-chip" onclick="filtrarMinhasEntregas('concluidas')" id="filtroConcluidas">Concluídas</button>
+      <button class="filter-chip" onclick="filtrarMinhasEntregas('canceladas')" id="filtroCanceladas">Canceladas</button>
+    </div>
+
+    <!-- TÍTULO DA LISTA -->
+    <div class="flex justify-between items-center mb-4">
+      <p class="text-xs uppercase tracking-wider text-gray-500 flex items-center gap-2">
+        <i class="fas fa-list"></i> Minhas entregas
+      </p>
+      <span id="count" class="text-xs bg-gray-800 px-3 py-1 rounded-full text-gray-300">0</span>
+    </div>
+
+    <!-- LISTA DE ENTREGAS -->
+    <div id="entregasList" class="space-y-4">
+      <!-- Conteúdo dinâmico -->
+    </div>
+
+    <!-- BOTÃO VER MAIS ESTATÍSTICAS -->
+    <button onclick="abrirEstatisticasModal()" class="w-full mt-6 glass rounded-2xl p-4 flex items-center justify-center gap-2 hover:bg-white/5 transition">
+      <i class="fas fa-chart-line"></i>
+      <span>Ver estatísticas detalhadas</span>
+    </button>
+  </main>
+
+  <!-- BOTTOM NAV -->
+  <nav class="fixed bottom-0 left-0 right-0 z-40 glass border-t border-gray-800 px-4 py-3 flex justify-around items-center">
+    <button onclick="window.location.href='Entregadores.html'" class="flex flex-col items-center text-gray-400 hover:text-white transition">
+      <i class="fas fa-home text-2xl"></i>
+      <span class="text-[10px] mt-1">Início</span>
+    </button>
+    <button onclick="abrirPedidosModal()" class="flex flex-col items-center text-emerald-400 hover:text-emerald-300 transition" id="navPedidos">
+      <i class="fas fa-box text-2xl"></i>
+      <span class="text-[10px] mt-1">Pedidos</span>
+    </button>
+    <button class="flex flex-col items-center text-white">
+      <i class="fas fa-motorcycle text-2xl"></i>
+      <span class="text-[10px] mt-1">Entregas</span>
+    </button>
+    <button onclick="abrirConfigModal()" class="flex flex-col items-center text-gray-400 hover:text-white transition" id="navConfig">
+      <i class="fas fa-cog text-2xl"></i>
+      <span class="text-[10px] mt-1">Config</span>
+    </button>
+    <button onclick="abrirEstatisticasModal()" class="flex flex-col items-center text-gray-400 hover:text-white transition">
+      <i class="fas fa-chart-bar text-2xl"></i>
+      <span class="text-[10px] mt-1">Stats</span>
+    </button>
+  </nav>
+
+  <script>
+    // ========== CONFIGURAÇÃO DO SUPABASE ==========
+    const SUPABASE_URL = 'https://fpgfdyzdl dvfmiuwwpdp.supabase.co'.replace(/ /g, '');
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZwZ2ZkeXpkbGR2Zm1pdXd3cGRwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM1MDAwNTEsImV4cCI6MjA4OTA3NjA1MX0.r02O8hmvfCHlkyFmakgjQcHANtX545gO4LDtHixbo_Q';
+    
+    // Inicializar Supabase
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    console.log('✅ Supabase inicializado');
+
+    // ========== VARIÁVEIS GLOBAIS ==========
+    let usuarioLogado = null;
+    let pedidosDisponiveis = [];
+    let minhasEntregas = [];
+    let filtroAtual = 'todos';
+    let pedidosFiltrados = [];
+
+    // ========== FUNÇÕES DE TOAST ==========
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      const icon = document.getElementById('toastIcon');
+      const msg = document.getElementById('toastMessage');
+      
+      icon.className = 'fas';
+      if (type === 'success') {
+        icon.classList.add('fa-check-circle');
+        toast.className = 'toast-notification show success';
+      } else if (type === 'error') {
+        icon.classList.add('fa-exclamation-circle');
+        toast.className = 'toast-notification show error';
+      } else if (type === 'warning') {
+        icon.classList.add('fa-exclamation-triangle');
+        toast.className = 'toast-notification show warning';
+      }
+      
+      msg.textContent = message;
+      
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3000);
+    }
+
+    // ========== CARREGAR USUÁRIO LOGADO ==========
+    function carregarUsuarioLogado() {
+      try {
+        usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado')) || null;
+        
+        // Se não houver usuário logado, criar um de teste
+        if (!usuarioLogado) {
+          usuarioLogado = {
+            id: 'teste_' + Date.now(),
+            nome: 'Carlos Entregador',
+            email: 'entregador@email.com',
+            telefone: '84 123 4567',
+            cidade: 'Maputo Cidade',
+            verificado: false,
+            tipo: 'delivery'
+          };
+          localStorage.setItem('usuarioLogado', JSON.stringify(usuarioLogado));
+        }
+        
+        // Garantir que tem cidade definida
+        if (!usuarioLogado.cidade) {
+          usuarioLogado.cidade = 'Maputo Cidade';
+        }
+        
+        // Atualizar interface com dados do usuário
+        document.getElementById('userName').textContent = usuarioLogado.nome.split(' ')[0];
+        document.getElementById('userLocation').innerHTML = `${usuarioLogado.nome} • <span class="text-emerald-400">${usuarioLogado.cidade}</span>`;
+        document.getElementById('userCidade').innerHTML = `<i class="fas fa-map-marker-alt text-xs"></i> ${usuarioLogado.cidade}`;
+        document.getElementById('statusCidade').textContent = usuarioLogado.cidade;
+        
+        const nomeParts = usuarioLogado.nome.split(' ');
+        const iniciais = nomeParts.length > 1 
+          ? (nomeParts[0][0] + nomeParts[1][0]).toUpperCase()
+          : nomeParts[0].substring(0, 2).toUpperCase();
+        document.getElementById('userInitials').textContent = iniciais;
+        
+        return true;
+      } catch (error) {
+        console.error('Erro ao carregar usuário:', error);
+        return false;
+      }
+    }
+
+    // ========== VERIFICAÇÃO DE DOCUMENTOS ==========
+    function atualizarStatusVerificacao() {
+      const documentosVerificados = usuarioLogado.verificado || false;
+      const bannerNaoVerificado = document.getElementById('verificationBanner');
+      const bannerVerificado = document.getElementById('verifiedBanner');
+      const verificationWarning = document.getElementById('verificationWarning');
+      const pedidosButton = document.getElementById('pedidosButton');
+      const navPedidos = document.getElementById('navPedidos');
+      
+      if (documentosVerificados) {
+        bannerNaoVerificado.classList.add('hidden');
+        bannerVerificado.classList.remove('hidden');
+        verificationWarning.classList.add('hidden');
+        pedidosButton.disabled = false;
+        navPedidos.classList.remove('text-gray-400');
+        navPedidos.classList.add('text-emerald-400');
+        
+        document.getElementById('statusBI').innerHTML = '✓ Verificado';
+        document.getElementById('statusBI').className = 'badge success';
+        document.getElementById('statusSelfie').innerHTML = '✓ Verificado';
+        document.getElementById('statusSelfie').className = 'badge success';
+        document.getElementById('statusResidencia').innerHTML = '✓ Verificado';
+        document.getElementById('statusResidencia').className = 'badge success';
+      } else {
+        bannerNaoVerificado.classList.remove('hidden');
+        bannerVerificado.classList.add('hidden');
+        verificationWarning.classList.remove('hidden');
+        pedidosButton.disabled = true;
+        navPedidos.classList.remove('text-emerald-400');
+        navPedidos.classList.add('text-gray-400');
+        
+        document.getElementById('statusBI').innerHTML = 'Pendente';
+        document.getElementById('statusBI').className = 'badge warning';
+        document.getElementById('statusSelfie').innerHTML = 'Pendente';
+        document.getElementById('statusSelfie').className = 'badge warning';
+        document.getElementById('statusResidencia').innerHTML = 'Pendente';
+        document.getElementById('statusResidencia').className = 'badge warning';
+      }
+    }
+
+    // ========== CRIAR TABELAS NO SUPABASE SE NÃO EXISTIREM ==========
+    async function criarTabelasSeNecessario() {
+      try {
+        // Verificar se a tabela pedidos existe
+        const { error: pedidosError } = await supabaseClient
+          .from('pedidos')
+          .select('id')
+          .limit(1);
+        
+        if (pedidosError && pedidosError.code === '42P01') {
+          console.log('Tabela pedidos não existe. Criando...');
+          // Nota: As tabelas precisam ser criadas manualmente no painel do Supabase
+          showToast('⚠️ Configure as tabelas no Supabase', 'warning');
+        }
+        
+        // Verificar se a tabela entregas existe
+        const { error: entregasError } = await supabaseClient
+          .from('entregas')
+          .select('id')
+          .limit(1);
+        
+        if (entregasError && entregasError.code === '42P01') {
+          console.log('Tabela entregas não existe. Criando...');
+        }
+      } catch (error) {
+        console.log('Erro ao verificar tabelas:', error);
+      }
+    }
+
+    // ========== CARREGAR PEDIDOS DO SUPABASE ==========
+    async function carregarPedidosDoSupabase() {
+      try {
+        document.getElementById('loading').classList.add('active');
+        
+        const { data, error } = await supabaseClient
+          .from('pedidos')
+          .select('*')
+          .eq('cidade', usuarioLogado.cidade)
+          .eq('status', 'pending')
+          .is('entregador_id', null);
+        
+        if (error) {
+          console.error('Erro ao carregar pedidos:', error);
+          pedidosDisponiveis = [];
+        } else {
+          pedidosDisponiveis = data || [];
+        }
+        
+        document.getElementById('pedidosCount').innerHTML = `${pedidosDisponiveis.length} disponíveis`;
+        
+        if (document.getElementById('pedidosModal').classList.contains('active')) {
+          carregarPedidosDisponiveis();
+        }
+        
+        document.getElementById('loading').classList.remove('active');
+      } catch (error) {
+        console.error('Erro:', error);
+        pedidosDisponiveis = [];
+        document.getElementById('loading').classList.remove('active');
+      }
+    }
+
+    // ========== CARREGAR MINHAS ENTREGAS DO SUPABASE ==========
+    async function carregarMinhasEntregasSupabase() {
+      try {
+        const { data, error } = await supabaseClient
+          .from('entregas')
+          .select('*')
+          .eq('entregador_id', usuarioLogado.id)
+          .order('created_at', { ascending: false });
+        
+        if (error) {
+          console.error('Erro ao carregar entregas:', error);
+          minhasEntregas = [];
+        } else {
+          minhasEntregas = data || [];
+        }
+        
+        pedidosFiltrados = minhasEntregas;
+        atualizarInterfaceEntregas();
+        carregarConfiguracoes();
+        
+      } catch (error) {
+        console.error('Erro:', error);
+        minhasEntregas = [];
+        pedidosFiltrados = [];
+      }
+    }
+
+    // ========== ATUALIZAR INTERFACE DAS ENTREGAS ==========
+    function atualizarInterfaceEntregas() {
+      const total = minhasEntregas.length;
+      const ganhoTotal = minhasEntregas.reduce((sum, e) => sum + (e.valor || 0), 0);
+      
+      document.getElementById('totalEntregas').textContent = total;
+      document.getElementById('totalGanho').textContent = ganhoTotal + ' MT';
+      document.getElementById('count').textContent = pedidosFiltrados.length;
+      
+      if (pedidosFiltrados.length === 0) {
+        document.getElementById('entregasList').innerHTML = `
+          <div class="glass rounded-3xl p-12 text-center">
+            <i class="fas fa-box-open text-6xl text-gray-600 mb-4"></i>
+            <p class="text-gray-400 font-medium">Nenhuma entrega encontrada</p>
+            <p class="text-gray-500 text-sm mt-2">Aceite pedidos disponíveis para começar</p>
+          </div>
+        `;
+        return;
+      }
+      
+      document.getElementById('entregasList').innerHTML = pedidosFiltrados.map(entrega => `
+        <div class="delivery-card rounded-3xl p-5 ${entrega.status === 'Em andamento' ? 'pending' : ''}">
+          <div class="flex justify-between items-start mb-4">
+            <div>
+              <p class="text-emerald-400 text-xs font-medium flex items-center gap-1">
+                <i class="far fa-calendar"></i> ${entrega.created_at ? new Date(entrega.created_at).toLocaleDateString('pt-PT') : 'Data não disponível'} • ${entrega.created_at ? new Date(entrega.created_at).toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' }) : '--:--'}
+              </p>
+              <p class="font-semibold text-lg mt-1">${entrega.cliente || 'Cliente'}</p>
+              <p class="text-gray-400 text-sm flex items-center gap-1">
+                <i class="fas fa-phone-alt text-xs"></i> ${entrega.telefone || '---'}
+              </p>
+            </div>
+            <div>
+              <span class="badge ${entrega.status === 'Concluída' ? 'success' : entrega.status === 'Cancelada' ? 'error' : 'warning'}">
+                ${entrega.status || 'Pendente'}
+              </span>
+            </div>
+          </div>
+
+          <div class="bg-black/50 rounded-2xl p-4 mb-4">
+            <p class="text-gray-200 text-base font-medium">${entrega.produto || 'Produto'}</p>
+            <p class="text-gray-400 text-sm mt-1 flex items-center gap-1">
+              <i class="fas fa-store"></i> ${entrega.local || 'Loja'}
+            </p>
+            <p class="text-xs text-gray-500 mt-2 flex items-center gap-1">
+              <i class="fas fa-map-marker-alt"></i> ${entrega.cidade || 'Maputo'}
+            </p>
+          </div>
+
+          <div class="flex justify-between items-center mb-3">
+            <div>
+              <p class="text-xs text-gray-400 flex items-center gap-1">
+                <i class="fas fa-tag"></i> VALOR
+              </p>
+              <p class="text-2xl font-bold text-emerald-400">${entrega.valor || 0} MT</p>
+            </div>
+            <button onclick="verDetalhesEntrega('${entrega.id}')" class="text-sm text-gray-400 hover:text-white transition flex items-center gap-1">
+              <i class="fas fa-info-circle"></i> Detalhes
+            </button>
+          </div>
+
+          ${entrega.status === 'Em andamento' ? `
+            <div class="action-buttons">
+              <button onclick="marcarComoConcluido('${entrega.id}', '${entrega.pedido_original_id}')" class="btn-success">
+                <i class="fas fa-check mr-2"></i>Concluir
+              </button>
+              <button onclick="cancelarEntrega('${entrega.id}', '${entrega.pedido_original_id}')" class="btn-danger">
+                <i class="fas fa-times mr-2"></i>Cancelar
+              </button>
+            </div>
+          ` : ''}
+        </div>
+      `).join('');
+    }
+
+    // ========== FILTRAR PEDIDOS DISPONÍVEIS ==========
+    function filtrarPedidos() {
+      const termo = document.getElementById('searchPedidos').value.toLowerCase();
+      const lista = document.getElementById('pedidosList');
+      
+      const filtrados = pedidosDisponiveis.filter(p => 
+        p.cliente?.toLowerCase().includes(termo) || 
+        p.produto?.toLowerCase().includes(termo)
+      );
+      
+      if (filtrados.length === 0) {
+        lista.innerHTML = `
+          <div class="empty-state">
+            <i class="fas fa-search"></i>
+            <p>Nenhum pedido encontrado para "${termo}"</p>
+          </div>
+        `;
+      } else {
+        lista.innerHTML = filtrados.map(p => `
+          <div class="delivery-card pending rounded-2xl p-5">
+            <div class="flex justify-between items-start mb-3">
+              <div>
+                <p class="font-bold text-lg">${p.cliente || 'Cliente'}</p>
+                <p class="text-sm text-gray-400">${p.telefone || '---'}</p>
+              </div>
+              <span class="badge warning">Pendente</span>
+            </div>
+            
+            <div class="bg-black/50 rounded-xl p-4 mb-4">
+              <p class="font-medium">${p.produto || 'Produto'}</p>
+              <p class="text-sm text-gray-400 mt-1">📍 ${p.endereco || p.bairro || 'Endereço'}, ${p.cidade}</p>
+              ${p.obs ? `<p class="text-xs text-gray-500 mt-2">📝 ${p.obs}</p>` : ''}
+              <p class="text-xs text-gray-500 mt-1">Loja: ${p.dropshipper || 'Loja'}</p>
+            </div>
+
+            <div class="flex justify-between items-center mb-4">
+              <div>
+                <p class="text-xs text-gray-400">VALOR</p>
+                <p class="text-2xl font-bold text-emerald-400">${p.valor || 0} MT</p>
+              </div>
+            </div>
+
+            <div class="flex gap-3">
+              <button onclick="aceitarPedido('${p.id}')" class="btn-accept flex-1">
+                <i class="fas fa-check mr-2"></i>Aceitar
+              </button>
+              <button onclick="recusarPedido('${p.id}')" class="btn-reject flex-1">
+                <i class="fas fa-times mr-2"></i>Recusar
+              </button>
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+
+    // ========== CARREGAR PEDIDOS DISPONÍVEIS ==========
+    function carregarPedidosDisponiveis() {
+      const lista = document.getElementById('pedidosList');
+      const cidadeInfo = document.getElementById('pedidosCidadeInfo');
+      const searchInput = document.getElementById('searchPedidos');
+      
+      if (searchInput) searchInput.value = '';
+      cidadeInfo.textContent = `Pedidos em ${usuarioLogado.cidade}`;
+      
+      if (pedidosDisponiveis.length === 0) {
+        lista.innerHTML = `
+          <div class="empty-state">
+            <i class="fas fa-box-open"></i>
+            <p class="font-medium mt-2">Nenhum pedido disponível</p>
+            <p class="text-gray-500 text-sm mt-1">Novos pedidos aparecerão aqui</p>
+          </div>
+        `;
+        return;
+      }
+
+      lista.innerHTML = pedidosDisponiveis.map(p => `
+        <div class="delivery-card pending rounded-2xl p-5">
+          <div class="flex justify-between items-start mb-3">
+            <div>
+              <p class="font-bold text-lg">${p.cliente || 'Cliente'}</p>
+              <p class="text-sm text-gray-400">${p.telefone || '---'}</p>
+            </div>
+            <span class="badge warning">Pendente</span>
+          </div>
+          
+          <div class="bg-black/50 rounded-xl p-4 mb-4">
+            <p class="font-medium">${p.produto || 'Produto'}</p>
+            <p class="text-sm text-gray-400 mt-1">📍 ${p.endereco || p.bairro || 'Endereço'}, ${p.cidade}</p>
+            ${p.obs ? `<p class="text-xs text-gray-500 mt-2">📝 ${p.obs}</p>` : ''}
+            <p class="text-xs text-gray-500 mt-1">Loja: ${p.dropshipper || 'Loja'}</p>
+          </div>
+
+          <div class="flex justify-between items-center mb-4">
+            <div>
+              <p class="text-xs text-gray-400">VALOR</p>
+              <p class="text-2xl font-bold text-emerald-400">${p.valor || 0} MT</p>
+            </div>
+          </div>
+
+          <div class="flex gap-3">
+            <button onclick="aceitarPedido('${p.id}')" class="btn-accept flex-1">
+              <i class="fas fa-check mr-2"></i>Aceitar
+            </button>
+            <button onclick="recusarPedido('${p.id}')" class="btn-reject flex-1">
+              <i class="fas fa-times mr-2"></i>Recusar
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // ========== FILTRAR MINHAS ENTREGAS ==========
+    function filtrarMinhasEntregas(filtro) {
+      filtroAtual = filtro;
+      
+      // Atualizar chips de filtro
+      document.querySelectorAll('.filter-chip').forEach(chip => {
+        chip.classList.remove('active');
+      });
+      const filtroId = `filtro${filtro.charAt(0).toUpperCase() + filtro.slice(1)}`;
+      const filtroElement = document.getElementById(filtroId);
+      if (filtroElement) filtroElement.classList.add('active');
+      
+      // Aplicar filtro
+      if (filtro === 'todos') {
+        pedidosFiltrados = minhasEntregas;
+      } else if (filtro === 'andamento') {
+        pedidosFiltrados = minhasEntregas.filter(e => e.status === 'Em andamento');
+      } else if (filtro === 'concluidas') {
+        pedidosFiltrados = minhasEntregas.filter(e => e.status === 'Concluída');
+      } else if (filtro === 'canceladas') {
+        pedidosFiltrados = minhasEntregas.filter(e => e.status === 'Cancelada');
+      }
+      
+      atualizarInterfaceEntregas();
+    }
+
+    // ========== ACEITAR PEDIDO ==========
+    async function aceitarPedido(id) {
+      if (!usuarioLogado.verificado) {
+        showToast('Complete a verificação de documentos primeiro!', 'warning');
+        window.location.href = 'verificacao.html';
+        return;
+      }
+
+      const pedido = pedidosDisponiveis.find(p => p.id == id);
+      if (!pedido) return;
+
+      document.getElementById('loading').classList.add('active');
+      
+      try {
+        // Atualizar pedido no Supabase
+        const { error: pedidoError } = await supabaseClient
+          .from('pedidos')
+          .update({ 
+            status: 'progress',
+            entregador_id: usuarioLogado.id,
+            entregador_nome: usuarioLogado.nome,
+            data_aceite: new Date().toISOString()
+          })
+          .eq('id', id);
+        
+        if (pedidoError) throw pedidoError;
+        
+        // Criar entrega
+        const novaEntrega = {
+          pedido_original_id: pedido.id,
+          entregador_id: usuarioLogado.id,
+          cliente: pedido.cliente,
+          telefone: pedido.telefone || '',
+          produto: pedido.produto,
+          local: pedido.dropshipper || 'Loja',
+          valor: pedido.valor,
+          cidade: pedido.cidade,
+          status: 'Em andamento',
+          created_at: new Date().toISOString()
+        };
+        
+        const { error: entregaError } = await supabaseClient
+          .from('entregas')
+          .insert([novaEntrega]);
+        
+        if (entregaError) throw entregaError;
+        
+        await carregarPedidosDoSupabase();
+        await carregarMinhasEntregasSupabase();
+        closePedidosModal();
+        
+        document.getElementById('loading').classList.remove('active');
+        showToast('✅ Pedido aceito com sucesso!', 'success');
+      } catch (error) {
+        console.error('Erro ao aceitar pedido:', error);
+        document.getElementById('loading').classList.remove('active');
+        showToast('❌ Erro ao aceitar pedido. Tente novamente.', 'error');
+      }
+    }
+
+    // ========== RECUSAR PEDIDO ==========
+    function recusarPedido(id) {
+      if (confirm('Tem certeza que deseja recusar este pedido?')) {
+        pedidosDisponiveis = pedidosDisponiveis.filter(p => p.id != id);
+        carregarPedidosDisponiveis();
+        showToast('Pedido recusado', 'warning');
+      }
+    }
+
+    // ========== MARCAR COMO CONCLUÍDO ==========
+    async function marcarComoConcluido(entregaId, pedidoOriginalId) {
+      if (!confirm('✅ Confirmar que esta entrega foi concluída?')) return;
+      
+      document.getElementById('loading').classList.add('active');
+      
+      try {
+        const { error: entregaError } = await supabaseClient
+          .from('entregas')
+          .update({ status: 'Concluída' })
+          .eq('id', entregaId);
+        
+        if (entregaError) throw entregaError;
+        
+        const { error: pedidoError } = await supabaseClient
+          .from('pedidos')
+          .update({ status: 'delivered' })
+          .eq('id', pedidoOriginalId);
+        
+        if (pedidoError) throw pedidoError;
+        
+        await carregarMinhasEntregasSupabase();
+        document.getElementById('loading').classList.remove('active');
+        showToast('✅ Entrega concluída com sucesso!', 'success');
+      } catch (error) {
+        console.error('Erro ao concluir entrega:', error);
+        document.getElementById('loading').classList.remove('active');
+        showToast('❌ Erro ao concluir entrega. Tente novamente.', 'error');
+      }
+    }
+
+    // ========== CANCELAR ENTREGA ==========
+    async function cancelarEntrega(entregaId, pedidoOriginalId) {
+      if (!confirm('❌ Tem certeza que deseja cancelar esta entrega?')) return;
+      
+      document.getElementById('loading').classList.add('active');
+      
+      try {
+        const { error: deleteError } = await supabaseClient
+          .from('entregas')
+          .delete()
+          .eq('id', entregaId);
+        
+        if (deleteError) throw deleteError;
+        
+        const { error: pedidoError } = await supabaseClient
+          .from('pedidos')
+          .update({ 
+            status: 'pending',
+            entregador_id: null,
+            entregador_nome: null
+          })
+          .eq('id', pedidoOriginalId);
+        
+        if (pedidoError) throw pedidoError;
+        
+        await carregarMinhasEntregasSupabase();
+        await carregarPedidosDoSupabase();
+        document.getElementById('loading').classList.remove('active');
+        showToast('❌ Entrega cancelada!', 'error');
+      } catch (error) {
+        console.error('Erro ao cancelar entrega:', error);
+        document.getElementById('loading').classList.remove('active');
+        showToast('❌ Erro ao cancelar entrega. Tente novamente.', 'error');
+      }
+    }
+
+    // ========== VER DETALHES DA ENTREGA ==========
+    function verDetalhesEntrega(entregaId) {
+      const entrega = minhasEntregas.find(e => e.id == entregaId);
+      if (!entrega) return;
+      
+      const conteudo = document.getElementById('detalhesConteudo');
+      conteudo.innerHTML = `
+        <div class="bg-black/50 rounded-xl p-4">
+          <p class="text-xs text-gray-400 mb-1">Cliente</p>
+          <p class="font-medium">${entrega.cliente || 'Cliente'}</p>
+        </div>
+        
+        <div class="bg-black/50 rounded-xl p-4">
+          <p class="text-xs text-gray-400 mb-1">Telefone</p>
+          <p class="font-medium">${entrega.telefone || '---'}</p>
+        </div>
+        
+        <div class="bg-black/50 rounded-xl p-4">
+          <p class="text-xs text-gray-400 mb-1">Produto</p>
+          <p class="font-medium">${entrega.produto || 'Produto'}</p>
+        </div>
+        
+        <div class="bg-black/50 rounded-xl p-4">
+          <p class="text-xs text-gray-400 mb-1">Local de retirada</p>
+          <p class="font-medium">${entrega.local || 'Loja'}</p>
+        </div>
+        
+        <div class="bg-black/50 rounded-xl p-4">
+          <p class="text-xs text-gray-400 mb-1">Valor</p>
+          <p class="font-bold text-emerald-400 text-xl">${entrega.valor || 0} MT</p>
+        </div>
+        
+        <div class="bg-black/50 rounded-xl p-4">
+          <p class="text-xs text-gray-400 mb-1">Data</p>
+          <p class="font-medium">${entrega.created_at ? new Date(entrega.created_at).toLocaleString('pt-PT') : 'Data não disponível'}</p>
+        </div>
+        
+        <div class="bg-black/50 rounded-xl p-4">
+          <p class="text-xs text-gray-400 mb-1">Status</p>
+          <span class="badge ${entrega.status === 'Concluída' ? 'success' : entrega.status === 'Cancelada' ? 'error' : 'warning'}">
+            ${entrega.status || 'Pendente'}
+          </span>
+        </div>
+      `;
+      
+      document.getElementById('detalhesModal').classList.add('active');
+    }
+
+    // ========== CONFIGURAÇÕES ==========
+    function carregarConfiguracoes() {
+      document.getElementById('configNome').textContent = usuarioLogado.nome;
+      document.getElementById('configEmail').textContent = usuarioLogado.email;
+      document.getElementById('configTelefone').textContent = usuarioLogado.telefone;
+      
+      const selectCidade = document.getElementById('configCidade');
+      if (selectCidade) {
+        selectCidade.value = usuarioLogado.cidade;
+      }
+      
+      const total = minhasEntregas.length;
+      const ganhoTotal = minhasEntregas.reduce((sum, e) => sum + (e.valor || 0), 0);
+      const media = total > 0 ? Math.round(ganhoTotal / total) : 0;
+      
+      document.getElementById('configTotalEntregas').textContent = total;
+      document.getElementById('configTotalGanho').textContent = ganhoTotal + ' MT';
+      document.getElementById('configMedia').textContent = media + ' MT';
+    }
+
+    // ========== FUNÇÕES DOS MODAIS ==========
+    function abrirPedidosModal() {
+      if (!usuarioLogado.verificado) {
+        showToast('Complete a verificação de documentos primeiro!', 'warning');
+        window.location.href = 'verificacao.html';
+        return;
+      }
+      document.getElementById('pedidosModal').classList.add('active');
+      carregarPedidosDisponiveis();
+    }
+
+    function closePedidosModal() {
+      document.getElementById('pedidosModal').classList.remove('active');
+    }
+
+    function abrirConfigModal() {
+      document.getElementById('configModal').classList.add('active');
+      carregarConfiguracoes();
+    }
+
+    function closeConfigModal() {
+      document.getElementById('configModal').classList.remove('active');
+    }
+
+    function abrirEstatisticasModal() {
+      const total = minhasEntregas.length;
+      const ganhoTotal = minhasEntregas.reduce((sum, e) => sum + (e.valor || 0), 0);
+      const media = total > 0 ? Math.round(ganhoTotal / total) : 0;
+      const concluidas = minhasEntregas.filter(e => e.status === 'Concluída').length;
+      const andamento = minhasEntregas.filter(e => e.status === 'Em andamento').length;
+      const canceladas = minhasEntregas.filter(e => e.status === 'Cancelada').length;
+      
+      document.getElementById('statsTotalEntregas').textContent = total;
+      document.getElementById('statsValorTotal').textContent = ganhoTotal + ' MT';
+      document.getElementById('statsMedia').textContent = media + ' MT';
+      document.getElementById('statsConcluidas').textContent = concluidas;
+      document.getElementById('statsAndamento').textContent = andamento;
+      document.getElementById('statsCanceladas').textContent = canceladas;
+      
+      document.getElementById('estatisticasModal').classList.add('active');
+    }
+
+    function closeEstatisticasModal() {
+      document.getElementById('estatisticasModal').classList.remove('active');
+    }
+
+    function closeDetalhesModal() {
+      document.getElementById('detalhesModal').classList.remove('active');
+    }
+
+    // ========== INSERIR PEDIDOS DE TESTE ==========
+    async function inserirPedidosTeste() {
+      try {
+        // Verificar se já existem pedidos
+        const { data: existing, error: checkError } = await supabaseClient
+          .from('pedidos')
+          .select('id')
+          .limit(1);
+        
+        if (checkError) {
+          console.log('Erro ao verificar pedidos existentes:', checkError);
+          return;
+        }
+        
+        if (existing && existing.length > 0) {
+          console.log('Pedidos já existem no banco');
+          return;
+        }
+        
+        // Criar pedidos de teste
+        const pedidosTeste = [
+          {
+            id: 'PED_' + Date.now() + '_1',
+            dropshipper_id: 'dropshipper_teste',
+            dropshipper: 'TechStore MZ',
+            cliente: 'João Silva',
+            telefone: '84 123 4567',
+            produto: 'Smartphone Samsung',
+            endereco: 'Av. 24 de Julho, 123',
+            cidade: 'Maputo Cidade',
+            valor: 12500,
+            obs: 'Próximo ao shopping',
+            status: 'pending',
+            entregador_id: null,
+            entregador_nome: null,
+            created_at: new Date().toISOString()
+          },
+          {
+            id: 'PED_' + Date.now() + '_2',
+            dropshipper_id: 'dropshipper_teste',
+            dropshipper: 'Moda & Estilo',
+            cliente: 'Maria Santos',
+            telefone: '82 987 6543',
+            produto: 'Vestido Social',
+            endereco: 'Rua da Paz, 45',
+            cidade: 'Maputo Cidade',
+            valor: 3500,
+            obs: 'Apartamento 3B',
+            status: 'pending',
+            entregador_id: null,
+            entregador_nome: null,
+            created_at: new Date().toISOString()
+          },
+          {
+            id: 'PED_' + Date.now() + '_3',
+            dropshipper_id: 'dropshipper_teste',
+            dropshipper: 'EletroMZ',
+            cliente: 'Carlos Mendes',
+            telefone: '85 456 7890',
+            produto: 'Fone Bluetooth',
+            endereco: 'Av. Mao Tse Tung, 789',
+            cidade: 'Matola',
+            valor: 1200,
+            obs: 'Loja 12',
+            status: 'pending',
+            entregador_id: null,
+            entregador_nome: null,
+            created_at: new Date().toISOString()
+          }
+        ];
+        
+        for (const pedido of pedidosTeste) {
+          const { error } = await supabaseClient
+            .from('pedidos')
+            .insert([pedido]);
+          
+          if (error) console.error('Erro ao inserir pedido:', error);
+        }
+        
+        console.log('✅ Pedidos de teste inseridos com sucesso');
+      } catch (error) {
+        console.error('Erro ao inserir pedidos de teste:', error);
+      }
+    }
+
+    // ========== ATUALIZAÇÃO EM TEMPO REAL ==========
+    function setupRealtimeSubscriptions() {
+      // Canal para pedidos
+      const pedidosChannel = supabaseClient
+        .channel('pedidos-changes')
+        .on('postgres_changes', 
+          { event: '*', schema: 'public', table: 'pedidos' }, 
+          (payload) => {
+            console.log('Mudança em pedidos:', payload);
+            carregarPedidosDoSupabase();
+          }
+        )
+        .subscribe();
+      
+      // Canal para entregas
+      const entregasChannel = supabaseClient
+        .channel('entregas-changes')
+        .on('postgres_changes', 
+          { event: '*', schema: 'public', table: 'entregas' }, 
+          (payload) => {
+            console.log('Mudança em entregas:', payload);
+            carregarMinhasEntregasSupabase();
+          }
+        )
+        .subscribe();
+      
+      console.log('✅ Inscrições em tempo real configuradas');
+    }
+
+    // ========== INICIALIZAÇÃO ==========
+    window.onload = async () => {
+      if (carregarUsuarioLogado()) {
+        atualizarStatusVerificacao();
+        await criarTabelasSeNecessario();
+        await carregarPedidosDoSupabase();
+        await carregarMinhasEntregasSupabase();
+        await inserirPedidosTeste();
+        setupRealtimeSubscriptions();
+        showToast('Bem-vindo ao GoCourier!', 'success');
+      }
+    };
+
+    // ========== ATUALIZAÇÃO PERIÓDICA ==========
+    setInterval(() => {
+      if (usuarioLogado) {
+        carregarPedidosDoSupabase();
+      }
+    }, 30000);
+
+    // Fechar modais ao clicar fora
+    document.addEventListener('click', function(event) {
+      const modals = ['configModal', 'pedidosModal', 'detalhesModal', 'estatisticasModal'];
+      modals.forEach(modalId => {
+        const modal = document.getElementById(modalId);
+        if (modal && modal.classList.contains('active') && event.target === modal) {
+          modal.classList.remove('active');
+        }
+      });
+    });
+  </script>
+</body>
+</html>
