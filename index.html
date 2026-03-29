@@ -1,9 +1,5 @@
 <!DOCTYPE html>
 <html lang="pt">
- <head><link rel="apple-touch-icon" href="favicon.png?v=2">
-<link rel="icon" type="image/png" href="favicon.png?v=2">
-
-</head>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -593,10 +589,601 @@
         // Redirecionar para login.html após a animação
         setTimeout(() => {
             window.location.href = 'login.html';
-        },
-<head>
-        <link rel="manifest" href="manifest.json">
-                   
+        }, 2500);
     </script>
 </body>
-</html>
+ </html><!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoCourier</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #000000;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            overflow: hidden;
+        }
+
+        /* Container da animação - FUNDO PRETO PURO */
+        .splash-container {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #000000;
+            overflow: hidden;
+        }
+
+        /* Logo animado */
+        .logo-wrapper {
+            position: relative;
+            width: 280px;
+            height: 280px;
+            margin-bottom: 2rem;
+            animation: float 3s ease-in-out infinite;
+            z-index: 10;
+        }
+
+        .logo {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.2));
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        /* Círculos animados ao redor do logo */
+        .circle {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+            animation: ripple 3s linear infinite;
+        }
+
+        .circle-1 {
+            width: 350px;
+            height: 350px;
+            top: -35px;
+            left: -35px;
+            animation-delay: 0s;
+        }
+
+        .circle-2 {
+            width: 420px;
+            height: 420px;
+            top: -70px;
+            left: -70px;
+            animation-delay: 1s;
+            opacity: 0.03;
+        }
+
+        .circle-3 {
+            width: 490px;
+            height: 490px;
+            top: -105px;
+            left: -105px;
+            animation-delay: 2s;
+            opacity: 0.02;
+        }
+
+        /* Nome do app */
+        .app-name {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 1rem;
+            letter-spacing: 4px;
+            animation: fadeInUp 1s ease-out;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+            z-index: 10;
+        }
+
+        /* Slogan */
+        .slogan {
+            color: #888888;
+            font-size: 1rem;
+            margin-bottom: 2rem;
+            animation: fadeInUp 1s ease-out 0.3s both;
+            z-index: 10;
+        }
+
+        /* Barra de carregamento */
+        .progress-bar {
+            width: 200px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 2rem;
+            animation: fadeIn 1s ease-out 0.6s both;
+            z-index: 10;
+        }
+
+        .progress-fill {
+            width: 0%;
+            height: 100%;
+            background: #ffffff;
+            border-radius: 2px;
+            animation: loading 2s ease-in-out forwards;
+        }
+
+        /* Mensagem de redirecionamento */
+        .redirect-message {
+            color: #666666;
+            font-size: 0.8rem;
+            margin-top: 1rem;
+            opacity: 0;
+            animation: fadeIn 1s ease-out 2s forwards;
+            z-index: 10;
+        }
+
+        /* ========== ESTRELAS COMO PONTOS NO CÉU ========== */
+        .stars-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: #ffffff;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        /* Estrelas pequenas */
+        .star-small {
+            width: 1px;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.6);
+        }
+
+        /* Estrelas médias */
+        .star-medium {
+            width: 2px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+        /* Estrelas grandes */
+        .star-large {
+            width: 3px;
+            height: 3px;
+            background: rgba(255, 255, 255, 1);
+        }
+
+        /* Estrelas muito grandes */
+        .star-xlarge {
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 215, 0, 0.9);
+        }
+
+        /* Animação de brilho das estrelas */
+        @keyframes starTwinkle {
+            0%, 100% {
+                opacity: 0.3;
+                transform: scale(1);
+                box-shadow: 0 0 2px rgba(255, 255, 255, 0.3);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.5);
+                box-shadow: 0 0 6px rgba(255, 255, 255, 0.8), 0 0 12px rgba(255, 215, 0, 0.4);
+            }
+        }
+
+        /* Animação de queda para estrelas cadentes */
+        @keyframes starFall {
+            0% {
+                transform: translateY(-100vh) translateX(0) scale(1);
+                opacity: 0;
+            }
+            5% {
+                opacity: 1;
+            }
+            95% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) translateX(50px) scale(0.5);
+                opacity: 0;
+            }
+        }
+
+        /* Animação de movimento suave */
+        @keyframes starDrift {
+            0% {
+                transform: translateX(0) translateY(0);
+            }
+            100% {
+                transform: translateX(30px) translateY(15px);
+            }
+        }
+
+        /* Animação de pulsação suave */
+        @keyframes starPulse {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 0.4;
+            }
+            50% {
+                transform: scale(1.8);
+                opacity: 1;
+            }
+        }
+
+        /* Animação de movimento orbital */
+        @keyframes starOrbit {
+            from {
+                transform: rotate(0deg) translateX(50px) rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg) translateX(50px) rotate(-360deg);
+            }
+        }
+
+        /* Estrelas com animações diferentes */
+        .star-twinkle {
+            animation: starTwinkle 1.5s ease-in-out infinite;
+        }
+
+        .star-fall {
+            animation: starFall 6s linear forwards;
+        }
+
+        .star-drift {
+            animation: starDrift 12s ease-in-out infinite alternate;
+        }
+
+        .star-pulse {
+            animation: starPulse 2s ease-in-out infinite;
+        }
+
+        /* Constelações girando */
+        .star-cluster {
+            position: absolute;
+            animation: clusterRotate 30s linear infinite;
+        }
+
+        @keyframes clusterRotate {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Nebulosa - grupo denso de estrelas */
+        .nebula {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0) 70%);
+            animation: nebulaPulse 8s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes nebulaPulse {
+            0%, 100% {
+                opacity: 0.3;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.6;
+                transform: scale(1.1);
+            }
+        }
+
+        /* Animações */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.9; }
+        }
+
+        @keyframes ripple {
+            0% { transform: scale(1); opacity: 0.1; }
+            50% { transform: scale(1.2); opacity: 0.05; }
+            100% { transform: scale(1.5); opacity: 0; }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes loading {
+            0% { width: 0%; }
+            20% { width: 20%; }
+            40% { width: 40%; }
+            60% { width: 60%; }
+            80% { width: 80%; }
+            100% { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="splash-container">
+        <!-- Container de estrelas animadas -->
+        <div class="stars-container" id="starsContainer"></div>
+
+        <!-- Nebulosas (grupos densos de estrelas) -->
+        <div class="nebula" style="width: 300px; height: 300px; top: 10%; left: -10%;"></div>
+        <div class="nebula" style="width: 400px; height: 400px; bottom: -20%; right: -15%;"></div>
+        <div class="nebula" style="width: 250px; height: 250px; top: 50%; right: 20%;"></div>
+
+        <!-- Logo com círculos animados -->
+        <div class="logo-wrapper">
+            <div class="circle circle-1"></div>
+            <div class="circle circle-2"></div>
+            <div class="circle circle-3"></div>
+            <img 
+                src="ei_1773419339504-removebg-preview.png" 
+                alt="GoCourier" 
+                class="logo"
+                onerror="this.src='https://via.placeholder.com/280x280/000/fff?text=GC';"
+            />
+        </div>
+
+        <!-- Nome do app -->
+        <h1 class="app-name">GoCourier</h1>
+
+        <!-- Slogan -->
+        <p class="slogan">Entregas rápidas e seguras em Moçambique</p>
+
+        <!-- Barra de progresso -->
+        <div class="progress-bar">
+            <div class="progress-fill"></div>
+        </div>
+
+        <!-- Mensagem de redirecionamento -->
+        <p class="redirect-message">Preparando sua experiência...</p>
+    </div>
+
+    <script>
+        // Função para criar estrelas como pontos no céu
+        function criarEstrelas() {
+            const container = document.getElementById('starsContainer');
+            const tiposEstrelas = ['star-small', 'star-medium', 'star-large', 'star-xlarge'];
+            const animacoes = ['star-twinkle', 'star-fall', 'star-drift', 'star-pulse'];
+            
+            // Criar estrelas fixas (maioria) - 300 estrelas
+            const numeroEstrelasFixas = 300;
+            
+            for (let i = 0; i < numeroEstrelasFixas; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                
+                // Escolher tamanho aleatório (maioria pequena e média)
+                let tipoAleatorio;
+                const rand = Math.random();
+                if (rand < 0.7) {
+                    tipoAleatorio = tiposEstrelas[0]; // star-small
+                } else if (rand < 0.9) {
+                    tipoAleatorio = tiposEstrelas[1]; // star-medium
+                } else if (rand < 0.97) {
+                    tipoAleatorio = tiposEstrelas[2]; // star-large
+                } else {
+                    tipoAleatorio = tiposEstrelas[3]; // star-xlarge
+                }
+                star.classList.add(tipoAleatorio);
+                
+                // 80% das estrelas têm animação de brilho, 20% são estáticas
+                if (Math.random() < 0.8) {
+                    star.classList.add('star-twinkle');
+                    const duracao = 1 + Math.random() * 3;
+                    star.style.animationDuration = `${duracao}s`;
+                    const delay = Math.random() * 5;
+                    star.style.animationDelay = `${delay}s`;
+                }
+                
+                // Posição aleatória
+                const left = Math.random() * 100;
+                const top = Math.random() * 100;
+                star.style.left = `${left}%`;
+                star.style.top = `${top}%`;
+                
+                container.appendChild(star);
+            }
+            
+            // Criar estrelas com movimento suave (100 estrelas)
+            const numeroEstrelasMovimento = 100;
+            
+            for (let i = 0; i < numeroEstrelasMovimento; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                
+                const tipos = ['star-small', 'star-medium'];
+                const tipo = tipos[Math.floor(Math.random() * tipos.length)];
+                star.classList.add(tipo);
+                
+                // Animação de deriva suave
+                star.classList.add('star-drift');
+                const duracao = 15 + Math.random() * 20;
+                star.style.animationDuration = `${duracao}s`;
+                const delay = Math.random() * 10;
+                star.style.animationDelay = `${delay}s`;
+                
+                // Posição aleatória
+                const left = Math.random() * 100;
+                const top = Math.random() * 100;
+                star.style.left = `${left}%`;
+                star.style.top = `${top}%`;
+                
+                container.appendChild(star);
+            }
+            
+            // Criar estrelas pulsantes (50 estrelas)
+            const numeroEstrelasPulsantes = 50;
+            
+            for (let i = 0; i < numeroEstrelasPulsantes; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                
+                const tipos = ['star-medium', 'star-large'];
+                const tipo = tipos[Math.floor(Math.random() * tipos.length)];
+                star.classList.add(tipo);
+                
+                star.classList.add('star-pulse');
+                const duracao = 2 + Math.random() * 3;
+                star.style.animationDuration = `${duracao}s`;
+                const delay = Math.random() * 5;
+                star.style.animationDelay = `${delay}s`;
+                
+                // Posição aleatória
+                const left = Math.random() * 100;
+                const top = Math.random() * 100;
+                star.style.left = `${left}%`;
+                star.style.top = `${top}%`;
+                
+                container.appendChild(star);
+            }
+            
+            // Criar constelações (agrupamentos de estrelas)
+            const numeroConstelacoes = 12;
+            
+            for (let i = 0; i < numeroConstelacoes; i++) {
+                const cluster = document.createElement('div');
+                cluster.className = 'star-cluster';
+                
+                const left = 5 + Math.random() * 90;
+                const top = 5 + Math.random() * 90;
+                cluster.style.left = `${left}%`;
+                cluster.style.top = `${top}%`;
+                cluster.style.position = 'absolute';
+                cluster.style.width = '60px';
+                cluster.style.height = '60px';
+                
+                // Criar estrelas dentro do agrupamento
+                const estrelasNoCluster = 5 + Math.floor(Math.random() * 8);
+                
+                for (let j = 0; j < estrelasNoCluster; j++) {
+                    const star = document.createElement('div');
+                    star.className = 'star';
+                    
+                    // Posição relativa dentro do cluster
+                    const angle = (j / estrelasNoCluster) * Math.PI * 2;
+                    const radius = 15 + Math.random() * 25;
+                    const offsetX = Math.cos(angle + Math.random()) * radius;
+                    const offsetY = Math.sin(angle + Math.random()) * radius;
+                    
+                    star.style.position = 'absolute';
+                    star.style.left = `calc(50% + ${offsetX}px)`;
+                    star.style.top = `calc(50% + ${offsetY}px)`;
+                    
+                    // Tamanho variado
+                    const tamanho = 1 + Math.random() * 2;
+                    star.style.width = `${tamanho}px`;
+                    star.style.height = `${tamanho}px`;
+                    star.style.background = `rgba(255, 255, 255, ${0.5 + Math.random() * 0.5})`;
+                    
+                    // Brilho individual
+                    star.classList.add('star-twinkle');
+                    const duracao = 1 + Math.random() * 2;
+                    star.style.animationDuration = `${duracao}s`;
+                    const delay = Math.random() * 3;
+                    star.style.animationDelay = `${delay}s`;
+                    
+                    cluster.appendChild(star);
+                }
+                
+                // Adicionar animação de rotação ao cluster
+                const duracaoRotacao = 40 + Math.random() * 40;
+                cluster.style.animation = `clusterRotate ${duracaoRotacao}s linear infinite`;
+                
+                container.appendChild(cluster);
+            }
+            
+            // Criar estrelas cadentes (meteoros)
+            const numeroEstrelasCadentes = 8;
+            
+            for (let i = 0; i < numeroEstrelasCadentes; i++) {
+                const star = document.createElement('div');
+                star.className = 'star star-medium star-fall';
+                
+                // Posição inicial aleatória no topo
+                const startX = Math.random() * 100;
+                star.style.left = `${startX}%`;
+                star.style.top = `-5%`;
+                
+                // Trilha do meteoro (efeito de rastro)
+                star.style.boxShadow = `0 0 8px 2px rgba(255, 255, 255, 0.8)`;
+                star.style.width = '3px';
+                star.style.height = '3px';
+                star.style.background = '#ffffff';
+                
+                // Atraso aleatório para não caírem todos juntos
+                const delay = 3 + i * 1.5 + Math.random() * 2;
+                star.style.animationDelay = `${delay}s`;
+                star.style.animationDuration = `${3 + Math.random() * 2}s`;
+                
+                container.appendChild(star);
+            }
+            
+            // Criar "Via Láctea" - faixa densa de estrelas
+            for (let i = 0; i < 200; i++) {
+                const star = document.createElement('div');
+                star.className = 'star star-small star-twinkle';
+                
+                // Posição na diagonal (faixa da Via Láctea)
+                const y = 20 + (Math.random() * 60);
+                const x = 10 + (Math.random() * 80);
+                
+                star.style.left = `${x}%`;
+                star.style.top = `${y}%`;
+                
+                const duracao = 1 + Math.random() * 2;
+                star.style.animationDuration = `${duracao}s`;
+                const delay = Math.random() * 3;
+                star.style.animationDelay = `${delay}s`;
+                
+                container.appendChild(star);
+            }
+        }
+        
+        // Criar estrelas ao carregar a página
+        criarEstrelas();
+        
+        // Redirecionar para login.html após a animação
+        setTimeout(() => {
+            window.location.href = 'login.html';
+        }, 2500);
+    </script>
+</body>
+ </html>
